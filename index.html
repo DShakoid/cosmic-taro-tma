@@ -202,6 +202,30 @@
         #prediction-text { font-size: 0.9rem; line-height: 1.5; color: #e2d5f5; }
         #prediction-text b { color: white; font-size: 1rem; }
         #prediction-text small { color: var(--purp); font-size: 0.75rem; letter-spacing: 1px; }
+
+        .face.back {
+    /* Укажи здесь точное название своего файла, например 'rubashka.jpg' */
+    background-image: url('back_card.jpg'); 
+    background-size: cover; /* Картинка заполнит всю карту целиком */
+    background-position: center;
+    background-repeat: no-repeat;
+    background-color: #1a1525;
+    
+    /* Эффект объема и скругление */
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.6);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+/* Убираем старый текстовый символ, если он мешает узору */
+.face.back::after {
+    content: ''; /* Если хочешь оставить ✦ поверх своей картинки, напиши тут '✦' */
+    font-size: 2rem;
+    color: rgba(168, 85, 247, 0.3);
+}
     </style>
 </head>
 <body>
@@ -259,19 +283,19 @@
         table.innerHTML = '';
         table.className = 'table mode-' + newMode;
 
-        // 1. Очищаем ВСЕ старые анимированные карты с экрана
+        // Чистим старые карты с экрана
         document.querySelectorAll('.card-anim').forEach(c => c.remove());
 
-        // Кнопки меню
+        // Управление кнопками меню
         document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
         const activeBtn = document.getElementById('btn-' + newMode);
         if(activeBtn) activeBtn.classList.add('active');
 
-        // Скрываем финальные кнопки
+        // Скрываем кнопки финала
         document.getElementById('reset-btn').style.display = 'none';
         document.getElementById('share-btn').style.display = 'none';
+        document.getElementById('donate-btn').style.display = 'none';
 
-        // Создаем слоты
         if (newMode === 'day') {
             createRow(0, 1, true);
             maxCards = 1;
@@ -319,20 +343,20 @@
         const cardInstance = { ...cardData, isReversed };
         selectedCards.push(cardInstance);
 
-        // Увеличиваем счетчик
         drawnCount++; 
 
         const card = document.createElement('div');
         card.className = `card-anim`;
-        // Устанавливаем начальную позицию (на колоде)
         card.style.width = deckRect.width + 'px';
         card.style.height = deckRect.height + 'px';
         card.style.left = deckRect.left + 'px';
         card.style.top = deckRect.top + 'px';
         
         const reversedLabel = isReversed ? `<div style="font-size: 6px; color: #ff4d4d; position: absolute; bottom: 3px; font-weight:bold;">ПЕРЕВЕРНУТА</div>` : '';
+        
+        // ЗДЕСЬ УДАЛЕН СИМВОЛ ✦, ЧТОБЫ БЫЛА ТОЛЬКО ТВОЯ РУБАШКА
         card.innerHTML = `
-            <div class="face back">✦</div>
+            <div class="face back"></div>
             <div class="face front">
                 <div class="card-emoji">${cardData.emoji}</div>
                 <div class="card-name">${cardData.name}</div>
@@ -341,13 +365,10 @@
         `;
         
         document.body.appendChild(card);
-
-        // Обновляем текст мгновенно
         updatePrediction();
 
         requestAnimationFrame(() => {
             card.style.opacity = '1';
-            // Летим точно в центр слота
             card.style.left = slotRect.left + 'px';
             card.style.top = slotRect.top + 'px';
             card.style.width = slotRect.width + 'px';
@@ -385,7 +406,7 @@
                 html = `<div class="fade-in"><b>Доминанта: ${dominant}</b><br><small>${tarotDB.elementalAdvice[dominant]}</small></div>`;
 
                 if (drawnCount < maxCards) {
-                    html += `<div style="margin-top:10px; color:var(--pink); font-size:0.7rem;">Карта №${drawnCount}. Тяните еще...</div>`;
+                    html += `<div style="margin-top:10px; color:var(--pink); font-size:0.75rem; animation: pulse 1s infinite;">Тяните карту №${drawnCount + 1}...</div>`;
                 } else {
                     html += `<div style="margin-top:10px; font-weight:bold; color:var(--purp);">РАСКЛАД ЗАВЕРШЕН</div>`;
                 }
@@ -393,15 +414,27 @@
         }
         box.innerHTML = html;
 
-        // ФИНАЛЬНЫЕ КНОПКИ (Исправил ошибку)
+        // Показ кнопок при завершении
         if (drawnCount >= maxCards && maxCards > 0) {
-    document.getElementById('reset-btn').style.display = 'inline-block';
-    document.getElementById('share-btn').style.display = 'inline-block';
-    document.getElementById('donate-btn').style.display = 'inline-block'; // Показываем донат
-}
+            document.getElementById('reset-btn').style.display = 'inline-block';
+            document.getElementById('share-btn').style.display = 'inline-block';
+            document.getElementById('donate-btn').style.display = 'inline-block';
+        }
     }
 
-    // Остальные функции (createParticles, showModal, closeModal) оставляем как были
+    // Донат через Telegram Stars
+    document.getElementById('donate-btn').onclick = function() {
+        if (window.Telegram?.WebApp) {
+            window.Telegram.WebApp.sendData(JSON.stringify({
+                action: "donate",
+                amount: 50
+            }));
+            if(window.Telegram.WebApp.HapticFeedback) window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+        } else {
+            alert("Донаты работают только внутри Telegram!");
+        }
+    };
+
     function createParticles(x, y, color) {
         for (let i = 0; i < 10; i++) {
             const p = document.createElement('div');
@@ -429,29 +462,11 @@
 
     function prepareForScreenshot() {
         document.querySelectorAll('.menu, .deck-container, .action-btn').forEach(el => el.style.opacity = '0');
-        setTimeout(() => { alert("Сделайте скриншот"); document.querySelectorAll('.menu, .deck-container, .action-btn').forEach(el => el.style.opacity = '1'); }, 100);
+        setTimeout(() => { 
+            alert("Сделайте скриншот"); 
+            document.querySelectorAll('.menu, .deck-container, .action-btn').forEach(el => el.style.opacity = '1'); 
+        }, 100);
     }
-
-    document.getElementById('donate-btn').onclick = function() {
-    // В реальности ссылку на инвойс (invoice_url) должен сгенерировать твой БОТ
-    // через запрос к Bot API (sendInvoice). 
-    // Для теста мы можем отправить данные боту, чтобы он прислал счет.
-    
-    if (window.Telegram?.WebApp) {
-        // Отправляем боту команду, что пользователь хочет задонатить
-        window.Telegram.WebApp.sendData(JSON.stringify({
-            action: "donate",
-            amount: 50 // Например, 50 звезд
-        }));
-        
-        // Либо, если у тебя уже настроен бэкенд, который выдает ссылки:
-        // window.Telegram.WebApp.openInvoice(INVOICE_URL, function(status) {
-        //    if (status === 'paid') alert('Спасибо за поддержку! ✨');
-        // });
-    } else {
-        alert("Звезды работают только внутри Telegram!");
-    }
-};
 
     setMode('day');
 </script>
