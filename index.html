@@ -281,29 +281,66 @@
     }
 
     function updatePrediction() {
-        const box = document.getElementById('prediction-text');
-        if (!box) return;
-        let html = "";
-        if (selectedCards.length > 0) {
-            if (currentMode === 'day') {
-                const last = selectedCards[0];
-                html = `<div class="fade-in"><small>${last.keywords}</small><b>${last.name}</b><p>${last.isReversed ? last.advice_rev : last.advice}</p></div>`;
-            } else {
+    const box = document.getElementById('prediction-text');
+    if (!box) return;
+    let html = "";
+
+    if (selectedCards.length > 0) {
+        // 1. РЕЖИМ ОДНОЙ КАРТЫ (ДЕНЬ)
+        if (currentMode === 'day') {
+            const last = selectedCards[0];
+            html = `<div class="fade-in">
+                        <small>${last.keywords}</small><br>
+                        <b>${last.name} ${last.isReversed ? '(Перевернутая)' : ''}</b>
+                        <p>${last.isReversed ? last.advice_rev : last.advice}</p>
+                    </div>`;
+        } 
+        // 2. РЕЖИМЫ РАСКЛАДОВ (НЕДЕЛЯ / СОВЕТ)
+        else {
+            let finalNote = "";
+
+            // ПРОВЕРКА 1: Жесткие пары из tarotDB.combos
+            for (let i = 0; i < selectedCards.length; i++) {
+                for (let j = i + 1; j < selectedCards.length; j++) {
+                    const id1 = selectedCards[i].id;
+                    const id2 = selectedCards[j].id;
+                    const combo = tarotDB.combos[`${id1}+${id2}`] || tarotDB.combos[`${id2}+${id1}`];
+                    if (combo) finalNote = `<div class="combo-hit">✨ ${combo}</div>`;
+                }
+            }
+
+            // ПРОВЕРКА 2: Если пары не нашли, ищем сложные specialCombos (например, 3+ карты одной стихии)
+            if (!finalNote && tarotDB.specialCombos) {
+                const special = tarotDB.specialCombos.find(sc => sc.check(selectedCards));
+                if (special) finalNote = `<div class="special-hit">🌟 <b>${special.name}:</b> ${special.text}</div>`;
+            }
+
+            // ПРОВЕРКА 3: Если совсем ничего особенного, берем стандартную доминанту стихии
+            if (!finalNote) {
                 const counts = {};
                 selectedCards.forEach(c => counts[c.element] = (counts[c.element] || 0) + 1);
-                let dominant = Object.keys(counts).reduce((a, b) => counts[a] > counts[b] ? a : b);
-                html = `<div class="fade-in"><b>Доминанта: ${dominant}</b><br><small>${tarotDB.elementalAdvice[dominant]}</small></div>`;
-                if (drawnCount < maxCards) html += `<div style="margin-top:10px; color:var(--pink); font-size:0.75rem;">Тяните карту №${drawnCount + 1}...</div>`;
-                else html += `<div style="margin-top:10px; font-weight:bold; color:var(--purp);">РАСКЛАД ЗАВЕРШЕН</div>`;
+                const dominant = Object.keys(counts).reduce((a, b) => counts[a] > counts[b] ? a : b);
+                finalNote = `<div class="element-note">${tarotDB.elementalAdvice[dominant]}</div>`;
+            }
+
+            html = `<div class="fade-in">${finalNote}</div>`;
+
+            // Индикатор прогресса (сколько карт осталось вытянуть)
+            if (drawnCount < maxCards) {
+                html += `<div class="status-tip">Тяните карту №${drawnCount + 1}...</div>`;
+            } else {
+                html += `<div class="status-done">РАСКЛАД ЗАВЕРШЕН</div>`;
             }
         }
-        box.innerHTML = html;
-
-        if (drawnCount >= maxCards && maxCards > 0) {
-            document.getElementById('reset-btn').style.display = 'inline-block';
-            document.getElementById('donate-btn').style.display = 'inline-block';
-        }
     }
+    box.innerHTML = html;
+
+    // Управление кнопками
+    if (drawnCount >= maxCards && maxCards > 0) {
+        document.getElementById('reset-btn').style.display = 'inline-block';
+        document.getElementById('donate-btn').style.display = 'inline-block';
+    }
+}
 
     document.getElementById('donate-btn').onclick = async function() {
         if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
