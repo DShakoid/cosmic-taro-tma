@@ -31,15 +31,9 @@
     }
 
     .container {
-        position: relative; 
-        z-index: 10; 
-        width: 100%; 
-        max-width: 400px;
-        display: flex; 
-        flex-direction: column; 
-        align-items: center; 
-        padding: 15px; 
-        box-sizing: border-box;
+        position: relative; z-index: 10; width: 100%; max-width: 400px;
+        display: flex; flex-direction: column; align-items: center; 
+        padding: 15px; box-sizing: border-box;
     }
 
     /* --- МЕНЮ --- */
@@ -47,7 +41,7 @@
     .menu-btn {
         background: var(--glass); border: 1px solid rgba(168, 85, 247, 0.2);
         color: rgba(255,255,255,0.6); padding: 10px 5px; border-radius: 12px; 
-        font-size: 0.7rem; flex: 1; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer;
+        font-size: 0.7rem; flex: 1; transition: 0.3s; cursor: pointer;
         backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
         text-transform: uppercase; letter-spacing: 1px;
     }
@@ -57,148 +51,78 @@
     }
 
     /* --- КОЛОДА --- */
-    .deck-container { 
-        display: flex; flex-direction: column; align-items: center; margin-bottom: 15px; z-index: 50;
-    }
+    .deck-container { display: flex; flex-direction: column; align-items: center; margin-bottom: 15px; z-index: 50; }
     .deck {
-        width: 65px; height: 95px; 
-        background-image: url('back_card.jpg');
-        background-size: cover;
-        background-position: center;
-        border: 2px solid var(--purp); 
-        border-radius: 10px; 
-        cursor: pointer;
+        width: 65px; height: 95px; background-image: url('back_card.jpg');
+        background-size: cover; background-position: center;
+        border: 2px solid var(--purp); border-radius: 10px; cursor: pointer;
         box-shadow: var(--neon-purp);
     }
-    .deck:active { transform: scale(0.95); box-shadow: 0 0 5px var(--purp); }
+    .deck:active { transform: scale(0.95); }
 
-    /* --- ТАБЛИЦА И СЛОТЫ --- */
-    .table {
-        display: flex; 
-        flex-direction: column; 
-        align-items: center; 
-        gap: 12px;
-        margin: 15px 0; 
-        width: 100%; 
-        z-index: 5;
-    }
-    .table-row {
-        display: flex; justify-content: center; gap: 10px; width: 100%;
-    }
+    /* --- ТАБЛИЦА --- */
+    .table { display: flex; flex-direction: column; align-items: center; gap: 12px; margin: 15px 0; width: 100%; z-index: 5; }
+    .table-row { display: flex; justify-content: center; gap: 10px; width: 100%; }
     .slot {
         width: 75px; height: 110px; border: 1px solid rgba(168, 85, 247, 0.15);
-        border-radius: 10px; background: rgba(255,255,255,0.01); position: relative;
-        transition: 0.3s;
+        border-radius: 10px; background: rgba(255,255,255,0.01); position: relative; transition: 0.3s;
     }
     .slot.large { width: 140px; height: 200px; border-color: rgba(168, 85, 247, 0.3); }
     .slot.active-target { border-color: rgba(236, 72, 153, 0.4); box-shadow: 0 0 10px rgba(236, 72, 153, 0.2); }
 
-    /* --- КАРТЫ (АНИМАЦИЯ И СТОРОНЫ) --- */
+    /* --- КАРТЫ --- */
     .card-anim { 
-        position: fixed;
-        z-index: 500; 
-        transition: 
-            left 0.8s cubic-bezier(0.23, 1, 0.32, 1),
-            top 0.8s cubic-bezier(0.23, 1, 0.32, 1),
-            width 0.8s cubic-bezier(0.23, 1, 0.32, 1),
-            height 0.8s cubic-bezier(0.23, 1, 0.32, 1),
-            opacity 0.3s ease;
-        transform-style: preserve-3d;
-        pointer-events: none;
+        position: fixed; z-index: 500; 
+        transition: left 0.8s cubic-bezier(0.23, 1, 0.32, 1), top 0.8s cubic-bezier(0.23, 1, 0.32, 1), 
+                    width 0.8s, height 0.8s, opacity 0.3s ease;
+        transform-style: preserve-3d; pointer-events: none;
     }
-
-    .card-anim.flipped { 
-        transform: rotateY(180deg); 
-        transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1), left 0.8s, top 0.8s, width 0.8s, height 0.8s;
-    }
-    
-    .card-anim.is-reversed.flipped { 
-        transform: rotateY(180deg) rotateZ(180deg); 
-    }
-
-    .card-anim.arrived { 
-        box-shadow: var(--neon-pink);
-        pointer-events: auto;
-    }
+    .card-anim.flipped { transform: rotateY(180deg); transition: transform 0.7s, left 0.8s, top 0.8s; }
+    .card-anim.is-reversed.flipped { transform: rotateY(180deg) rotateZ(180deg); }
+    .card-anim.arrived { box-shadow: var(--neon-pink); pointer-events: auto; }
 
     .face { 
-        position: absolute; width: 100%; height: 100%; 
-        backface-visibility: hidden; border-radius: 10px; 
-        display: flex; flex-direction: column; align-items: center; justify-content: center;
-        box-sizing: border-box; overflow: hidden;
+        position: absolute; width: 100%; height: 100%; backface-visibility: hidden; 
+        border-radius: 10px; display: flex; flex-direction: column; align-items: center; 
+        justify-content: center; box-sizing: border-box; overflow: hidden;
     }
+    .face.back { background-image: url('back_card.jpg') !important; background-size: cover; border: 2px solid var(--purp); z-index: 2; }
+    .face.front { background: #0f172a; border: 2px solid var(--pink); transform: rotateY(180deg); padding: 8px; text-align: center; z-index: 1; }
 
-    .face.back { 
-        background-color: #1e1b4b;
-        background-image: url('back_card.jpg') !important; 
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-        border: 2px solid var(--purp);
-        z-index: 2;
-    }
-
-    .face.front { 
-        background: #0f172a; border: 2px solid var(--pink); 
-        transform: rotateY(180deg); 
-        padding: 8px; text-align: center;
-        z-index: 1;
-    }
-
-    .card-emoji { font-size: 24px; filter: drop-shadow(0 0 5px rgba(255,255,255,0.2)); }
+    .card-emoji { font-size: 24px; }
     .slot.large .card-emoji { font-size: 50px; }
-    .card-name { font-size: 8px; color: #f3e8ff; margin-top: 5px; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+    .card-name { font-size: 8px; color: #f3e8ff; margin-top: 5px; text-transform: uppercase; font-weight: 600; }
     .slot.large .card-name { font-size: 12px; }
 
     .prediction-box {
         width: 100%; background: rgba(20, 15, 30, 0.6); border-radius: 20px;
         padding: 18px; border: 1px solid rgba(168, 85, 247, 0.15);
-        backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
-        text-align: center; box-sizing: border-box;
-        margin-top: 20px; margin-bottom: 30px;
+        backdrop-filter: blur(15px); text-align: center; margin-top: 20px;
     }
 
     .overlay {
         position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
         background: rgba(0,0,0,0.85); z-index: 10000; display: none; align-items: center; justify-content: center;
-        opacity: 0; transition: opacity 0.3s ease; backdrop-filter: blur(5px);
+        opacity: 0; transition: opacity 0.3s; backdrop-filter: blur(5px);
     }
     .overlay.active { display: flex; opacity: 1; }
     .modal-card { 
         width: 85%; max-width: 320px; background: rgba(10, 7, 15, 0.95); 
-        border: 2px solid var(--purp); border-radius: 24px; padding: 25px; 
-        text-align: center; box-shadow: var(--neon-purp);
-        transform: scale(0.9); transition: transform 0.3s ease;
+        border: 2px solid var(--purp); border-radius: 24px; padding: 25px; text-align: center;
     }
-    .overlay.active .modal-card { transform: scale(1); }
 
     .btn-row { display: flex; gap: 10px; justify-content: center; margin-top: 15px; }
     .action-btn { 
         background: var(--pink); border: none; color: white; padding: 10px 20px; 
         border-radius: 12px; font-size: 0.75rem; font-weight: bold; cursor: pointer; 
-        transition: 0.2s; box-shadow: 0 4px 10px rgba(236, 72, 153, 0.3);
     }
-    #donate-btn.action-btn {
-        background: linear-gradient(45deg, #f59e0b, #d97706);
-        box-shadow: 0 4px 15px rgba(217, 119, 6, 0.4);
-    }
+    #donate-btn { background: linear-gradient(45deg, #f59e0b, #d97706); }
     
-    .particle {
-        position: fixed; width: 5px; height: 5px; border-radius: 50%;
-        pointer-events: none; opacity: 0; z-index: 1000;
-        animation: particle-fly 0.8s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
-    }
-    @keyframes particle-fly {
-        0% { transform: translate(0, 0) scale(1.5); opacity: 1; }
-        100% { transform: translate(calc(var(--dx) * 1px), calc(var(--dy) * 1px)) scale(0); opacity: 0; }
-    }
+    .particle { position: fixed; width: 5px; height: 5px; border-radius: 50%; pointer-events: none; opacity: 0; z-index: 1000; animation: particle-fly 0.8s forwards; }
+    @keyframes particle-fly { 0% { transform: scale(1.5); opacity: 1; } 100% { transform: translate(calc(var(--dx) * 1px), calc(var(--dy) * 1px)) scale(0); opacity: 0; } }
     
-    .fade-in { animation: fadeIn 0.5s ease forwards; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    
-    #prediction-text { font-size: 0.9rem; line-height: 1.5; color: #e2d5f5; }
-    #prediction-text b { color: white; font-size: 1rem; }
-    #prediction-text small { color: var(--purp); font-size: 0.75rem; letter-spacing: 1px; }
+    #prediction-text b { color: white; font-size: 1rem; text-transform: uppercase; }
+    #prediction-text small { color: var(--purp); font-size: 0.75rem; display: block; margin-bottom: 5px; }
 </style>
 </head>
 <body>
@@ -209,32 +133,27 @@
             <button class="menu-btn" id="btn-week" onclick="setMode('week')">Неделя</button>
             <button class="menu-btn" id="btn-advice" onclick="setMode('advice')">Совет</button>
         </div>
-
         <div class="deck-container">
             <div class="deck" onclick="drawCard()"></div>
             <div style="color:var(--purp); font-size:0.6rem; margin-top:5px; letter-spacing:2px;">ТЯНИ КАРТУ</div>
         </div>
-
         <div id="table" class="table"></div>
-
         <div id="prediction-box" class="prediction-box">
-            <div id="prediction-text" class="fade-in">Выберите режим и прикоснитесь к колоде</div>
+            <div id="prediction-text">Выберите режим и прикоснитесь к колоде</div>
             <div class="btn-row">
                 <button id="reset-btn" onclick="setMode(currentMode)" style="display:none;" class="action-btn">ЗАНОВО</button>
-                <button id="share-btn" onclick="alert('Сделайте скриншот экрана')" style="display:none;" class="action-btn" style="background:rgba(168, 85, 247, 0.1); border:1px solid var(--purp); color:var(--purp); box-shadow:none;">СКРИН</button>
-                <button id="donate-btn" class="action-btn" style="display:none;">
-                    <span>⭐ Поблагодарить</span>
-                </button>
+                <button id="share-btn" onclick="alert('Сделайте скриншот')" style="display:none;" class="action-btn">СКРИН</button>
+                <button id="donate-btn" class="action-btn" style="display:none;">⭐ Поблагодарить</button>
             </div>
         </div>
     </div>
 
     <div id="card-overlay" class="overlay" onclick="closeModal()">
         <div class="modal-card" onclick="event.stopPropagation()">
-            <div id="m-emoji" style="font-size: 60px; filter: drop-shadow(0 0 10px white);"></div>
+            <div id="m-emoji" style="font-size: 60px;"></div>
             <div id="m-name" style="color: white; font-weight: bold; font-size: 1.3rem; margin: 10px 0;"></div>
-            <div id="m-desc" style="font-size: 0.9rem; text-align: left; line-height: 1.5; color: #e2d5f5;"></div>
-            <button onclick="closeModal()" style="margin-top:20px; width:100%; padding:12px; border-radius:12px; background:var(--purp); border:none; color:white; font-weight:bold; cursor:pointer; font-size:0.9rem; box-shadow:var(--neon-purp);">ПОНЯТНО</button>
+            <div id="m-desc" style="font-size: 0.9rem; text-align: left; color: #e2d5f5;"></div>
+            <button onclick="closeModal()" style="margin-top:20px; width:100%; padding:12px; border-radius:12px; background:var(--purp); border:none; color:white; font-weight:bold;">ПОНЯТНО</button>
         </div>
     </div>
 
@@ -243,176 +162,126 @@
     let drawnCount = 0;
     let maxCards = 0;
     let selectedCards = [];
-
     const tg = window.Telegram?.WebApp;
+
     if (tg) {
         tg.ready();
         tg.expand();
         tg.setHeaderColor('#050508');
-        tg.setBackgroundColor('#050508');
     }
 
     function setMode(newMode) {
         currentMode = newMode;
         drawnCount = 0;
         selectedCards = [];
-        const table = document.getElementById('table');
-        table.innerHTML = '';
+        document.getElementById('table').innerHTML = '';
         document.querySelectorAll('.card-anim').forEach(c => c.remove());
         document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
-        const activeBtn = document.getElementById('btn-' + newMode);
-        if(activeBtn) activeBtn.classList.add('active');
+        document.getElementById('btn-' + newMode).classList.add('active');
         
-        document.getElementById('reset-btn').style.display = 'none';
-        document.getElementById('share-btn').style.display = 'none';
-        document.getElementById('donate-btn').style.display = 'none';
+        ['reset-btn', 'share-btn', 'donate-btn'].forEach(id => document.getElementById(id).style.display = 'none');
 
         if (newMode === 'day') { createRow(0, 1, true); maxCards = 1; }
         else if (newMode === 'week') { createRow(0, 4); createRow(4, 7); maxCards = 7; }
         else if (newMode === 'advice') { createRow(0, 3); createRow(3, 6); maxCards = 6; }
 
-        function createRow(startId, endId, isLarge = false) {
+        function createRow(sId, eId, large = false) {
             const row = document.createElement('div');
             row.className = 'table-row';
-            for (let i = startId; i < endId; i++) {
+            for (let i = sId; i < eId; i++) {
                 const s = document.createElement('div');
-                s.className = 'slot' + (isLarge ? ' large' : '');
+                s.className = 'slot' + (large ? ' large' : '');
                 s.id = 'slot' + i;
                 row.appendChild(s);
             }
-            table.appendChild(row);
+            document.getElementById('table').appendChild(row);
         }
-        if (maxCards > 0) document.getElementById('slot0').classList.add('active-target');
+        document.getElementById('slot0').classList.add('active-target');
         document.getElementById('prediction-text').innerHTML = "Колода перемешана. Тяните карту.";
     }
 
     function drawCard() {
         if (!currentMode || drawnCount >= maxCards) return;
-
-        const deck = document.querySelector('.deck'); 
-        const deckRect = deck.getBoundingClientRect();
-        createParticles(deckRect.left + deckRect.width / 2, deckRect.top + deckRect.height / 2, '#a855f7');
-
+        const deck = document.querySelector('.deck').getBoundingClientRect();
         const slot = document.getElementById('slot' + drawnCount);
         const slotRect = slot.getBoundingClientRect();
         slot.classList.remove('active-target');
 
-        const availableCards = tarotDB.cards.filter(c => !selectedCards.find(s => s.id === c.id));
-        const cardData = availableCards[Math.floor(Math.random() * availableCards.length)];
-        const isReversed = Math.random() < 0.25;
-        const cardInstance = { ...cardData, isReversed };
-        selectedCards.push(cardInstance);
-
-        drawnCount++; 
+        const available = tarotDB.cards.filter(c => !selectedCards.find(s => s.id === c.id));
+        const cardData = available[Math.floor(Math.random() * available.length)];
+        const isRev = Math.random() < 0.25;
+        const inst = { ...cardData, isReversed: isRev };
+        selectedCards.push(inst);
+        drawnCount++;
 
         const card = document.createElement('div');
         card.className = `card-anim`;
-        card.style.width = deckRect.width + 'px';
-        card.style.height = deckRect.height + 'px';
-        card.style.left = deckRect.left + 'px';
-        card.style.top = deckRect.top + 'px';
-        
-        const reversedLabel = isReversed ? `<div style="font-size: 6px; color: #ff4d4d; position: absolute; bottom: 3px; font-weight:bold;">ПЕРЕВЕРНУТА</div>` : '';
-        
-        card.innerHTML = `
-            <div class="face back"></div>
-            <div class="face front">
-                <div class="card-emoji">${cardData.emoji}</div>
-                <div class="card-name">${cardData.name}</div>
-                ${reversedLabel}
-            </div>
-        `;
+        card.style.cssText = `width:${deck.width}px; height:${deck.height}px; left:${deck.left}px; top:${deck.top}px; opacity:1;`;
+        card.innerHTML = `<div class="face back"></div><div class="face front"><div class="card-emoji">${cardData.emoji}</div><div class="card-name">${cardData.name}</div>${isRev ? '<div style="font-size:6px; color:#ff4d4d;">ПЕРЕВЕРНУТА</div>' : ''}</div>`;
         
         document.body.appendChild(card);
         updatePrediction();
 
         requestAnimationFrame(() => {
-            card.style.opacity = '1';
             card.style.left = slotRect.left + 'px';
             card.style.top = slotRect.top + 'px';
             card.style.width = slotRect.width + 'px';
             card.style.height = slotRect.height + 'px';
-            
-            setTimeout(() => {
-                if (isReversed) card.classList.add('is-reversed');
-                card.classList.add('flipped');
-            }, 150);
+            setTimeout(() => { if (isRev) card.classList.add('is-reversed'); card.classList.add('flipped'); }, 150);
         });
 
         setTimeout(() => {
             card.classList.add('arrived');
-            card.onclick = () => showModal(cardInstance);
-            createParticles(slotRect.left + slotRect.width / 2, slotRect.top + slotRect.height / 2, '#ec4899');
-            const nextSlot = document.getElementById('slot' + drawnCount);
-            if (nextSlot) nextSlot.classList.add('active-target');
+            card.onclick = () => showModal(inst);
+            const next = document.getElementById('slot' + drawnCount);
+            if (next) next.classList.add('active-target');
         }, 800);
     }
 
     function updatePrediction() {
         const box = document.getElementById('prediction-text');
-        if (!box) return;
-        let html = "";
         if (selectedCards.length > 0) {
             if (currentMode === 'day') {
-                const last = selectedCards[0];
-                html = `<div class="fade-in"><b>${last.name}</b><br><small>${last.keywords}</small><p>${last.isReversed ? last.advice_rev : last.advice}</p></div>`;
+                const c = selectedCards[0];
+                box.innerHTML = `<small>${c.keywords}</small><b>${c.name}</b><p>${c.isReversed ? c.advice_rev : c.advice}</p>`;
             } else {
-                const counts = {};
-                selectedCards.forEach(c => counts[c.element] = (counts[c.element] || 0) + 1);
-                let dominant = Object.keys(counts).reduce((a, b) => counts[a] > counts[b] ? a : b);
-                html = `<div class="fade-in"><b>Доминанта: ${dominant}</b><br><small>${tarotDB.elementalAdvice[dominant]}</small></div>`;
-                if (drawnCount < maxCards) html += `<div style="margin-top:10px; color:var(--pink); font-size:0.75rem;">Тяните карту №${drawnCount + 1}...</div>`;
-                else html += `<div style="margin-top:10px; font-weight:bold; color:var(--purp);">РАСКЛАД ЗАВЕРШЕН</div>`;
+                box.innerHTML = `<b>Доминанта определится в конце</b>`;
             }
         }
-        box.innerHTML = html;
-        if (drawnCount >= maxCards && maxCards > 0) {
-            document.getElementById('reset-btn').style.display = 'inline-block';
-            document.getElementById('share-btn').style.display = 'inline-block';
-            document.getElementById('donate-btn').style.display = 'inline-block';
+        if (drawnCount >= maxCards) {
+            ['reset-btn', 'share-btn', 'donate-btn'].forEach(id => document.getElementById(id).style.display = 'inline-block');
         }
     }
 
-    // ЛОГИКА ДОНАТА (TELEGRAM STARS)
+    // НОВАЯ ЛОГИКА ДОНАТА (БЕЗ ЗАКРЫТИЯ)
     document.getElementById('donate-btn').onclick = function() {
         if (tg) {
-            tg.sendData(JSON.stringify({ 
-                action: "donate", 
-                stars: 50 
-            }));
-            if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-            tg.close(); // Закрываем приложение, чтобы юзер увидел инвойс в чате
-        } else { 
-            alert("Донаты работают только внутри Telegram!"); 
+            tg.HapticFeedback.impactOccurred('medium');
+            
+            // ВАЖНО: Тут должен быть URL, сгенерированный твоим ботом
+            const invoiceUrl = "ТУТ_БУДЕТ_ССЫЛКА_ОТ_БОТА"; 
+
+            if (invoiceUrl !== "ТУТ_БУДЕТ_ССЫЛКА_ОТ_БОТА") {
+                tg.openInvoice(invoiceUrl, function(status) {
+                    if (status === 'paid') {
+                        alert('Успешно! Магия в действии.');
+                        tg.HapticFeedback.notificationOccurred('success');
+                    }
+                });
+            } else {
+                alert("Для реальной оплаты нужно подключить Invoice URL от бота.");
+            }
         }
     };
 
-    function createParticles(x, y, color) {
-        for (let i = 0; i < 10; i++) {
-            const p = document.createElement('div');
-            p.className = 'particle';
-            p.style.left = x + 'px'; p.style.top = y + 'px';
-            p.style.background = color;
-            const a = Math.random() * Math.PI * 2;
-            const v = Math.random() * 50 + 20;
-            p.style.setProperty('--dx', Math.cos(a) * v);
-            p.style.setProperty('--dy', Math.sin(a) * v);
-            document.body.appendChild(p);
-            setTimeout(() => p.remove(), 800);
-        }
-    }
-
     function showModal(card) {
-        const overlay = document.getElementById('card-overlay');
         document.getElementById('m-emoji').innerText = card.emoji;
         document.getElementById('m-name').innerText = card.name + (card.isReversed ? ' (пер.)' : '');
         document.getElementById('m-desc').innerHTML = card.isReversed ? card.advice_rev : card.advice;
-        overlay.classList.add('active');
-        if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+        document.getElementById('card-overlay').classList.add('active');
     }
 
     function closeModal() { document.getElementById('card-overlay').classList.remove('active'); }
-    
     setMode('day');
 </script>
 </body>
