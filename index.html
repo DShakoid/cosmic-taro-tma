@@ -104,7 +104,7 @@
     .prediction-box {
     /* Убираем width: 100%, чтобы блок сам вписался в контейнер */
     width: auto; 
-        max-width:95%;
+    max-width:95%;
     
     /* Делаем отступы по 3% слева и справа */
     margin-left: 5px;
@@ -136,12 +136,17 @@
     }
     .overlay.active .modal-card { transform: scale(1); }
 
-    .btn-row { display: flex; gap: 10px; justify-content: center; margin-top: 15px; }
-    .action-btn { 
-        background: var(--pink); border: none; color: white; padding: 10px 20px; 
-        border-radius: 12px; font-size: 0.75rem; font-weight: bold; cursor: pointer; 
-        transition: 0.2s; box-shadow: 0 4px 10px rgba(236, 72, 153, 0.3);
-    }
+    .btn-row {
+    display: flex;
+    flex-direction: column; /* Кнопки одна под другой */
+    gap: 8px;
+    align-items: center; /* Центрируем */
+    margin-top: 15px;
+}
+
+.action-btn {
+    width: 80%; /* Делаем их широкими и удобными для тапа */
+}
     #donate-btn { background: linear-gradient(45deg, #f59e0b, #d97706); }
     
     .particle {
@@ -182,7 +187,6 @@
             <div id="prediction-text" class="fade-in">Выберите режим и прикоснитесь к колоде</div>
             <div class="btn-row">
                 <button id="reset-btn" onclick="setMode(currentMode)" style="display:none;" class="action-btn">ЗАНОВО</button>
-                <button id="share-btn" onclick="tg.showAlert('Сделайте скриншот экрана')" style="display:none;" class="action-btn">СКРИН</button>
                 <button id="donate-btn" class="action-btn" style="display:none;">⭐ ПОБЛАГОДАРИТЬ</button>
             </div>
         </div>
