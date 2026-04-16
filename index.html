@@ -62,11 +62,14 @@
             display: flex; flex-direction: column; align-items: center; margin-bottom: 15px; z-index: 50;
         }
         .deck {
-            width: 65px; height: 95px; background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
-            border: 2px solid var(--purp); border-radius: 10px; cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: var(--neon-purp); transition: 0.3s;
-        }
+    width: 65px; height: 95px; 
+    background-image: url('back_card.jpg');
+    background-size: cover;
+    border: 2px solid var(--purp); 
+    border-radius: 10px; 
+    cursor: pointer;
+    box-shadow: var(--neon-purp);
+}
         .deck:active { transform: scale(0.95); box-shadow: 0 0 5px var(--purp); }
 
         /* --- СЕТКА СЛОТОВ (Flexbox для центровки) --- */
@@ -184,6 +187,11 @@
             transition: 0.2s; box-shadow: 0 4px 10px rgba(236, 72, 153, 0.3);
         }
         .action-btn:active { transform: scale(0.95); box-shadow: 0 2px 5px rgba(236, 72, 153, 0.2); }
+
+        #donate-btn {
+    background: linear-gradient(45deg, #f59e0b, #d97706); /* Золотой градиент */
+    box-shadow: 0 4px 15px rgba(217, 119, 6, 0.4);
+}
         
         /* ЧАСТИЦЫ */
         .particle {
@@ -203,28 +211,34 @@
         #prediction-text b { color: white; font-size: 1rem; }
         #prediction-text small { color: var(--purp); font-size: 0.75rem; letter-spacing: 1px; }
 
-        .face.back {
-    /* Укажи здесь точное название своего файла, например 'rubashka.jpg' */
+        /* Объединенный и очищенный стиль рубашки */
+.face.back {
+    /* Твой файл */
     background-image: url('back_card.jpg'); 
-    background-size: cover; /* Картинка заполнит всю карту целиком */
+    background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    background-color: #1a1525;
+    background-color: #1e1b4b; /* Темно-синий фон на время загрузки */
+    
+    /* Убираем лишние рамки, чтобы картинка была на всю площадь */
+    border: none; 
     
     /* Эффект объема и скругление */
-    box-shadow: inset 0 0 20px rgba(0,0,0,0.6);
-    border-radius: 12px;
+    box-shadow: inset 0 0 15px rgba(0,0,0,0.5);
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
 }
 
-/* Убираем старый текстовый символ, если он мешает узору */
-.face.back::after {
-    content: ''; /* Если хочешь оставить ✦ поверх своей картинки, напиши тут '✦' */
-    font-size: 2rem;
-    color: rgba(168, 85, 247, 0.3);
+/* На всякий случай гасим старый SVG-фон, если он где-то всплывет */
+.back {
+    background-image: none !important;
 }
     </style>
 </head>
