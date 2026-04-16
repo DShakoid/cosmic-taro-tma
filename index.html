@@ -315,14 +315,25 @@
     }
 
     document.getElementById('donate-btn').onclick = async function() {
-        try {
-            const res = await fetch('/api/get-invoice');
-            const data = await res.json();
-            if (tg && data.url) {
-                tg.openInvoice(data.url, (s) => { if(s==='paid') tg.showAlert('Спасибо! ✨'); });
-            }
-        } catch (e) { tg.showAlert('Ошибка платежа'); }
-    };
+    if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+    try {
+        const res = await fetch('/api/get-invoice');
+        if (!res.ok) throw new Error('Server error'); // Проверка, что сервер ответил 200 OK
+        const data = await res.json();
+        
+        if (tg && data.url) {
+            tg.openInvoice(data.url, (status) => { 
+                if (status === 'paid') {
+                    tg.showAlert('Спасибо за поддержку! ✨');
+                    tg.HapticFeedback.notificationOccurred('success');
+                }
+            });
+        }
+    } catch (e) { 
+        console.error(e);
+        tg.showAlert('Не удалось связаться с сервером оплаты'); 
+    }
+};
 
     function createParticles(x, y, color) {
         for (let i = 0; i < 10; i++) {
