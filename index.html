@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Cosmic Tarot v6</title>
-    <link rel="icon" type="image/png" href="icon.png">
+    <title>Cosmic Tarot v6.1</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="tarotData.js"></script>
 <style>
@@ -12,16 +11,12 @@
         --purp: #a855f7; 
         --pink: #ec4899; 
         --bg: #050508; 
-        --glass: rgba(255, 255, 255, 0.03);
     }
     
     body {
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         margin: 0; background: var(--bg); color: #f3e8ff;
-        height: 100vh;
-        width: 100vw;
-        overflow: hidden;
-        position: fixed;
+        height: 100vh; width: 100vw; overflow: hidden; position: fixed;
     }
 
     .stars {
@@ -31,86 +26,83 @@
     }
 
     .container {
-        position: relative; 
-        z-index: 10; 
-        width: 100%; 
-        max-width: 450px;
-        margin: 0 auto;
-        display: flex; 
-        flex-direction: column; 
-        /* ЖЕСТКИЕ ОТСТУПЫ SAFE AREA */
-        padding-top: calc(env(safe-area-inset-top, 0px) + var(--tg-viewport-safe-area-inset-top, 0px) + 10px);
-        padding-bottom: calc(env(safe-area-inset-bottom, 0px) + var(--tg-viewport-safe-area-inset-bottom, 0px) + 20px);
-        padding-left: 15px;
-        padding-right: 15px;
+        position: relative; z-index: 10; 
+        width: 100%; height: 100%;
+        max-width: 450px; margin: 0 auto;
+        display: flex; flex-direction: column; 
+        padding: calc(env(safe-area-inset-top, 0px) + 10px) 15px calc(env(safe-area-inset-bottom, 0px) + 20px) 15px;
         box-sizing: border-box;
-        height: 100%;
     }
 
-    .menu { display: flex; gap: 8px; margin-bottom: 15px; width: 100%; }
+    .menu { display: flex; gap: 8px; margin-bottom: 15px; }
     .menu-btn {
-        background: var(--glass); border: 1px solid rgba(168, 85, 247, 0.2);
-        color: rgba(255,255,255,0.5); padding: 12px 5px; border-radius: 12px; 
-        font-size: 0.75rem; flex: 1; transition: 0.3s; cursor: pointer;
-        backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+        background: rgba(255,255,255,0.03); border: 1px solid rgba(168, 85, 247, 0.2);
+        color: rgba(255,255,255,0.5); padding: 10px 5px; border-radius: 12px; 
+        font-size: 0.7rem; flex: 1; transition: 0.3s; cursor: pointer;
         text-transform: uppercase;
     }
-    .menu-btn.active { 
-        background: rgba(168, 85, 247, 0.2); color: white; border-color: var(--purp);
-        box-shadow: 0 0 10px rgba(168, 85, 247, 0.4);
-    }
+    .menu-btn.active { background: rgba(168, 85, 247, 0.2); color: white; border-color: var(--purp); }
 
-    .deck-container { display: flex; flex-direction: column; align-items: center; margin-bottom: 15px; }
+    .deck-container { display: flex; justify-content: center; height: 100px; margin-bottom: 10px; }
     .deck {
-        width: 65px; height: 95px; 
+        width: 60px; height: 90px; 
         background: #1e1b4b url('back_card.jpg') center/cover;
-        border: 2px solid var(--purp); border-radius: 10px; cursor: pointer;
-        box-shadow: 0 0 15px rgba(168, 85, 247, 0.5);
+        border: 2px solid var(--purp); border-radius: 8px; cursor: pointer;
+        box-shadow: 0 0 15px rgba(168, 85, 247, 0.4);
     }
 
-    .table { display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100%; flex-grow: 1; justify-content: center; }
-    .table-row { display: flex; justify-content: center; gap: 10px; width: 100%; }
-    .slot {
-        width: 70px; height: 100px; border: 1px solid rgba(168, 85, 247, 0.15);
-        border-radius: 8px; background: rgba(255,255,255,0.01); position: relative;
+    /* СЕТКА С ФИКСИРОВАННЫМИ РАЗМЕРАМИ */
+    .table { 
+        display: flex; flex-direction: column; align-items: center; 
+        justify-content: center; gap: 8px; flex: 1; width: 100%;
     }
-    .slot.large { width: 140px; height: 200px; }
+    .table-row { display: flex; justify-content: center; gap: 8px; width: 100%; }
+    
+    .slot {
+        width: 65px; height: 95px; border: 1px solid rgba(168, 85, 247, 0.15);
+        border-radius: 8px; background: rgba(255,255,255,0.02); position: relative;
+    }
+    /* Исправленный размер для режима ДЕНЬ */
+    .slot.large { width: 110px; height: 165px; } 
     .slot.active-target { border-color: var(--pink); box-shadow: 0 0 10px rgba(236, 72, 153, 0.3); }
 
     .prediction-box {
-        width: 100%; background: rgba(20, 15, 30, 0.85); border-radius: 24px;
-        padding: 18px; border: 1px solid rgba(168, 85, 247, 0.25);
-        backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-        text-align: center; margin-bottom: 5px;
+        width: 100%; background: rgba(20, 15, 30, 0.85); border-radius: 20px;
+        padding: 15px; border: 1px solid rgba(168, 85, 247, 0.2);
+        backdrop-filter: blur(15px); text-align: center;
     }
 
-    .btn-row { display: flex; gap: 10px; justify-content: center; margin-top: 15px; flex-wrap: wrap; }
+    .btn-row { display: flex; gap: 8px; justify-content: center; margin-top: 10px; }
     .action-btn { 
-        background: var(--pink); border: none; color: white; padding: 12px 18px; 
-        border-radius: 14px; font-size: 0.8rem; font-weight: bold; cursor: pointer;
+        background: var(--pink); border: none; color: white; padding: 10px 14px; 
+        border-radius: 12px; font-size: 0.75rem; font-weight: bold; cursor: pointer;
     }
     #donate-btn { background: linear-gradient(45deg, #f59e0b, #d97706); }
-    #share-btn { background: rgba(168, 85, 247, 0.15); border: 1px solid var(--purp); }
 
+    /* АНИМАЦИЯ */
     .card-anim { 
         position: fixed; z-index: 500; 
-        transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+        transition: all 0.8s cubic-bezier(0.25, 1, 0.5, 1);
         transform-style: preserve-3d;
     }
     .card-anim.flipped { transform: rotateY(180deg); }
     .card-anim.is-reversed.flipped { transform: rotateY(180deg) rotateZ(180deg); }
     
-    .face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 10px; overflow: hidden; }
-    .face.back { background: #1e1b4b url('back_card.jpg') center/cover; border: 2px solid var(--purp); }
-    .face.front { background: #0f172a; border: 2px solid var(--pink); transform: rotateY(180deg); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 8px; }
+    .face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 8px; overflow: hidden; }
+    .face.back { background: #1e1b4b url('back_card.jpg') center/cover; border: 1px solid var(--purp); }
+    .face.front { 
+        background: #0f172a; border: 2px solid var(--pink); transform: rotateY(180deg); 
+        display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 5px;
+    }
 
-    .card-emoji { font-size: 28px; }
-    .slot.large .card-emoji { font-size: 55px; }
-    .card-name { font-size: 9px; color: white; margin-top: 6px; text-transform: uppercase; text-align: center; font-weight: bold; }
+    .card-emoji { font-size: 24px; }
+    .slot.large .card-emoji { font-size: 45px; }
+    .card-name { font-size: 8px; color: white; margin-top: 5px; text-transform: uppercase; text-align: center; }
+    .slot.large .card-name { font-size: 11px; }
 
-    .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
+    .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; display: none; align-items: center; justify-content: center; }
     .overlay.active { display: flex; }
-    .modal-card { width: 85%; max-width: 350px; background: #0a070f; border: 1px solid var(--purp); border-radius: 24px; padding: 25px; text-align: center; }
+    .modal-card { width: 85%; max-width: 320px; background: #0a070f; border: 1px solid var(--purp); border-radius: 20px; padding: 25px; text-align: center; }
 </style>
 </head>
 <body>
@@ -129,21 +121,21 @@
         <div id="table" class="table"></div>
 
         <div id="prediction-box" class="prediction-box">
-            <div id="prediction-text" style="font-size: 0.95rem; line-height: 1.4;">Выберите режим</div>
+            <div id="prediction-text" style="font-size: 0.9rem;">Выберите режим</div>
             <div class="btn-row">
                 <button id="reset-btn" onclick="setMode(currentMode)" style="display:none;" class="action-btn">ЗАНОВО</button>
-                <button id="share-btn" onclick="tg.showAlert('Сделайте скриншот вашего расклада ✨')" style="display:none;" class="action-btn">СКРИН</button>
-                <button id="donate-btn" class="action-btn" style="display:none;">⭐ ПОБЛАГОДАРИТЬ</button>
+                <button id="share-btn" onclick="tg.showAlert('Сделай скрин!')" style="display:none;" class="action-btn">СКРИН</button>
+                <button id="donate-btn" class="action-btn" style="display:none;">⭐ ПОДДЕРЖАТЬ</button>
             </div>
         </div>
     </div>
 
     <div id="card-overlay" class="overlay" onclick="closeModal()">
         <div class="modal-card" onclick="event.stopPropagation()">
-            <div id="m-emoji" style="font-size: 60px;"></div>
-            <div id="m-name" style="color:white; font-size:1.2rem; margin:15px 0; font-weight:bold;"></div>
-            <div id="m-desc" style="font-size:0.9rem; color:#d1d1d1; line-height: 1.5;"></div>
-            <button onclick="closeModal()" style="margin-top:25px; width:100%; padding:15px; border-radius:15px; background:var(--purp); border:none; color:white; font-weight:bold;">ЗАКРЫТЬ</button>
+            <div id="m-emoji" style="font-size: 50px;"></div>
+            <div id="m-name" style="color:white; font-size:1.1rem; margin:10px 0; font-weight:bold;"></div>
+            <div id="m-desc" style="font-size:0.85rem; color:#ccc; line-height: 1.5;"></div>
+            <button onclick="closeModal()" style="margin-top:20px; width:100%; padding:12px; border-radius:10px; background:var(--purp); border:none; color:white;">ЗАКРЫТЬ</button>
         </div>
     </div>
 
@@ -155,8 +147,7 @@
     let selectedCards = [];
 
     if (tg) {
-        tg.ready();
-        tg.expand();
+        tg.ready(); tg.expand();
         tg.setHeaderColor('#050508');
         tg.setBackgroundColor('#050508');
     }
@@ -191,7 +182,7 @@
             table.appendChild(row);
         }
         document.getElementById('slot0').classList.add('active-target');
-        document.getElementById('prediction-text').innerText = "Колода перемешана. Тяните карту.";
+        document.getElementById('prediction-text').innerText = "Тяните карту";
     }
 
     function drawCard() {
@@ -199,7 +190,8 @@
         
         const slot = document.getElementById('slot' + drawnCount);
         const sr = slot.getBoundingClientRect();
-        const deck = document.querySelector('.deck').getBoundingClientRect();
+        const deckElem = document.querySelector('.deck');
+        const deck = deckElem.getBoundingClientRect();
 
         const cardData = tarotDB.cards[Math.floor(Math.random() * tarotDB.cards.length)];
         const isRev = Math.random() < 0.25;
@@ -212,11 +204,19 @@
         card.innerHTML = `<div class="face back"></div><div class="face front"><div class="card-emoji">${cardData.emoji}</div><div class="card-name">${cardData.name}</div></div>`;
         document.body.appendChild(card);
 
-        setTimeout(() => {
-            card.style.left = sr.left + 'px'; card.style.top = sr.top + 'px';
-            card.style.width = sr.width + 'px'; card.style.height = sr.height + 'px';
-            setTimeout(() => { if(isRev) card.classList.add('is-reversed'); card.classList.add('flipped'); }, 50);
-        }, 10);
+        // Плавный полет
+        requestAnimationFrame(() => {
+            setTimeout(() => {
+                card.style.left = sr.left + 'px'; 
+                card.style.top = sr.top + 'px';
+                card.style.width = sr.width + 'px'; 
+                card.style.height = sr.height + 'px';
+                setTimeout(() => { 
+                    if(isRev) card.classList.add('is-reversed'); 
+                    card.classList.add('flipped'); 
+                }, 200);
+            }, 50);
+        });
 
         drawnCount++;
         slot.classList.remove('active-target');
@@ -224,9 +224,7 @@
         if(next) next.classList.add('active-target');
 
         card.onclick = () => showModal(inst);
-        if (drawnCount >= maxCards) {
-            setTimeout(showFinalState, 600);
-        }
+        if (drawnCount >= maxCards) setTimeout(showFinalState, 1000);
     }
 
     function showFinalState() {
@@ -238,23 +236,20 @@
             const c = selectedCards[0];
             document.getElementById('prediction-text').innerHTML = `<b>${c.name}</b><br>${c.isReversed ? c.advice_rev : c.advice}`;
         } else {
-            document.getElementById('prediction-text').innerText = "Расклад завершен. Нажмите на карты для деталей.";
+            document.getElementById('prediction-text').innerText = "Расклад готов";
         }
-        if(tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
     }
 
     document.getElementById('donate-btn').onclick = async function() {
         try {
-            const response = await fetch('/api/get-invoice');
-            const data = await response.json();
+            const res = await fetch('/api/get-invoice');
+            const data = await res.json();
             if (tg && data.url) {
-                tg.openInvoice(data.url, function(status) {
-                    if (status === 'paid') tg.showAlert('Благодарю за поддержку! ✨');
+                tg.openInvoice(data.url, (status) => {
+                    if (status === 'paid') tg.showAlert('Спасибо! ✨');
                 });
             }
-        } catch (e) {
-            tg.showAlert('Ошибка сервера оплаты');
-        }
+        } catch (e) { tg.showAlert('Ошибка сервера'); }
     };
 
     function showModal(c) {
@@ -262,7 +257,7 @@
         document.getElementById('m-name').innerText = c.name + (c.isReversed ? ' (пер.)' : '');
         document.getElementById('m-desc').innerText = c.isReversed ? c.advice_rev : c.advice;
         document.getElementById('card-overlay').classList.add('active');
-        if(tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+        if(tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
     }
 
     function closeModal() { document.getElementById('card-overlay').classList.remove('active'); }
