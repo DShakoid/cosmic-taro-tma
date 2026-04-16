@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Cosmic Tarot Classic</title>
+    <link rel="icon" type="image/png" href="icon_cosmic_taro128.png">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="tarotData.js"></script>
 <style>
@@ -37,7 +38,6 @@
         display: flex; 
         flex-direction: column; 
         align-items: center; 
-        /* Фикс для Telegram: отступ сверху */
         padding: calc(env(safe-area-inset-top, 0px) + 100px) 15px 30px 15px;
         box-sizing: border-box;
     }
@@ -47,7 +47,7 @@
     .menu-btn {
         background: var(--glass); border: 1px solid rgba(168, 85, 247, 0.2);
         color: rgba(255,255,255,0.6); padding: 10px 5px; border-radius: 12px; 
-        font-size: 0.7rem; flex: 1; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer;
+        font-size: 0.7rem; flex: 1; transition: 0.3s; cursor: pointer;
         backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
         text-transform: uppercase; letter-spacing: 1px;
     }
@@ -64,7 +64,7 @@
         border: 2px solid var(--purp); border-radius: 10px; cursor: pointer;
         box-shadow: var(--neon-purp);
     }
-    .deck:active { transform: scale(0.95); box-shadow: 0 0 5px var(--purp); }
+    .deck:active { transform: scale(0.95); }
 
     /* --- ТАБЛИЦА --- */
     .table { display: flex; flex-direction: column; align-items: center; gap: 12px; margin: 15px 0; width: 100%; z-index: 5; }
@@ -72,57 +72,50 @@
     
     .slot {
         width: 75px; height: 110px; border: 1px solid rgba(168, 85, 247, 0.15);
-        border-radius: 10px; background: rgba(255,255,255,0.01); position: relative; transition: 0.3s;
+        border-radius: 10px; background: rgba(255,255,255,0.01); position: relative;
     }
     .slot.large { width: 140px; height: 200px; border-color: rgba(168, 85, 247, 0.3); }
     .slot.active-target { border-color: rgba(236, 72, 153, 0.4); box-shadow: 0 0 10px rgba(236, 72, 153, 0.2); }
 
-    /* --- КАРТЫ --- */
+    /* --- КАРТЫ (С ФИКСОМ УГЛОВ) --- */
     .card-anim { 
         position: fixed; z-index: 500; 
         transition: left 0.8s cubic-bezier(0.23, 1, 0.32, 1), top 0.8s cubic-bezier(0.23, 1, 0.32, 1), 
                     width 0.8s cubic-bezier(0.23, 1, 0.32, 1), height 0.8s cubic-bezier(0.23, 1, 0.32, 1);
         transform-style: preserve-3d; pointer-events: none;
     }
-
-    .card-anim.flipped { transform: rotateY(180deg); transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1), left 0.8s, top 0.8s; }
+    .card-anim.flipped { transform: rotateY(180deg); transition: transform 0.7s, left 0.8s, top 0.8s, width 0.8s, height 0.8s; }
     .card-anim.is-reversed.flipped { transform: rotateY(180deg) rotateZ(180deg); }
-
+    
     .face { 
-        position: absolute; width: 100%; height: 100%; 
-        backface-visibility: hidden; border-radius: 10px; 
-        display: flex; flex-direction: column; align-items: center; justify-content: center;
-        box-sizing: border-box; overflow: hidden;
-        /* ФИКС ЧЕРНЫХ УГОЛКОВ */
+        position: absolute; width: 100%; height: 100%; backface-visibility: hidden; 
+        border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+        /* Режем черные углы при повороте */
         clip-path: inset(0 round 10px); 
+        box-sizing: border-box;
     }
+    .face.back { background: #1e1b4b url('back_card.jpg') center/cover; border: 2px solid var(--purp); }
+    .face.front { background: #0f172a; border: 2px solid var(--pink); transform: rotateY(180deg); padding: 8px; }
 
-    .face.back { 
-        background-color: #1e1b4b; background-image: url('back_card.jpg') !important; 
-        background-size: cover; background-position: center; border: 2px solid var(--purp); z-index: 2;
-    }
-
-    .face.front { 
-        background: #0f172a; border: 2px solid var(--pink); 
-        transform: rotateY(180deg); padding: 8px; text-align: center; z-index: 1;
-    }
-
-    .card-emoji { font-size: 24px; filter: drop-shadow(0 0 5px rgba(255,255,255,0.2)); }
+    .card-emoji { font-size: 24px; }
     .slot.large .card-emoji { font-size: 50px; }
-    .card-name { font-size: 8px; color: #f3e8ff; margin-top: 5px; text-transform: uppercase; font-weight: 600; }
+    .card-name { font-size: 8px; color: #f3e8ff; margin-top: 5px; text-transform: uppercase; font-weight: 600; text-align: center; }
     .slot.large .card-name { font-size: 12px; }
 
+    /* --- НИЖНИЙ БЛОК --- */
     .prediction-box {
         width: 100%; background: rgba(20, 15, 30, 0.6); border-radius: 20px;
         padding: 18px; border: 1px solid rgba(168, 85, 247, 0.15);
-        backdrop-filter: blur(15px); text-align: center; margin-top: 20px;
+        backdrop-filter: blur(15px); text-align: center; margin-top: 20px; box-sizing: border-box;
     }
 
+    .btn-row { display: flex; gap: 10px; justify-content: center; margin-top: 15px; flex-wrap: wrap; }
     .action-btn { 
         background: var(--pink); border: none; color: white; padding: 10px 20px; 
-        border-radius: 12px; font-size: 0.75rem; font-weight: bold; cursor: pointer; 
-        transition: 0.2s; box-shadow: 0 4px 10px rgba(236, 72, 153, 0.3); display: none; margin: 10px auto 0;
+        border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 0.75rem;
     }
+    #donate-btn { background: linear-gradient(45deg, #f59e0b, #d97706); }
+    #share-btn { background: #4c1d95; }
 </style>
 </head>
 <body>
@@ -142,42 +135,45 @@
         <div id="table" class="table"></div>
 
         <div id="prediction-box" class="prediction-box">
-            <div id="prediction-text">Выберите режим расклада выше</div>
-            <button id="reset-btn" onclick="setMode(currentMode)" class="action-btn">ПЕРЕМЕШАТЬ</button>
+            <div id="prediction-text">Колода перемешана. Тяни карту.</div>
+            <div class="btn-row">
+                <button id="reset-btn" onclick="setMode(currentMode)" style="display:none;" class="action-btn">ЗАНОВО</button>
+                <button id="share-btn" onclick="tg.showAlert('Скриншот готов!')" style="display:none;" class="action-btn">СКРИН</button>
+                <button id="donate-btn" style="display:none;" class="action-btn">⭐ БЛАГОДАРНОСТЬ</button>
+            </div>
         </div>
     </div>
 
 <script>
     const tg = window.Telegram?.WebApp;
-    if(tg) { tg.ready(); tg.expand(); }
-
     let currentMode = '';
     let drawnCount = 0;
     let maxCards = 0;
 
+    if(tg) { tg.ready(); tg.expand(); }
+
     function setMode(mode) {
-        currentMode = mode;
-        drawnCount = 0;
+        currentMode = mode; drawnCount = 0;
         const table = document.getElementById('table');
         table.innerHTML = '';
         document.querySelectorAll('.card-anim').forEach(c => c.remove());
         document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
         document.getElementById('btn-' + mode).classList.add('active');
+        
         document.getElementById('reset-btn').style.display = 'none';
-        document.getElementById('prediction-text').innerText = "Тяни карты из колоды";
+        document.getElementById('share-btn').style.display = 'none';
+        document.getElementById('donate-btn').style.display = 'none';
+        document.getElementById('prediction-text').innerText = "Колода перемешана. Тяни карту.";
 
         if (mode === 'day') { createRow(0, 1, true); maxCards = 1; }
         else if (mode === 'week') { createRow(0, 4); createRow(4, 7); maxCards = 7; }
         else if (mode === 'advice') { createRow(0, 3); createRow(3, 6); maxCards = 6; }
 
         function createRow(s, e, lg = false) {
-            const row = document.createElement('div');
-            row.className = 'table-row';
+            const row = document.createElement('div'); row.className = 'table-row';
             for (let i = s; i < e; i++) {
-                const sl = document.createElement('div');
-                sl.className = 'slot' + (lg ? ' large' : '');
-                sl.id = 'slot' + i;
-                row.appendChild(sl);
+                const sl = document.createElement('div'); sl.className = 'slot' + (lg ? ' large' : '');
+                sl.id = 'slot' + i; row.appendChild(sl);
             }
             table.appendChild(row);
         }
@@ -186,42 +182,31 @@
 
     function drawCard() {
         if (!currentMode || drawnCount >= maxCards) return;
-
         const slot = document.getElementById('slot' + drawnCount);
         const sr = slot.getBoundingClientRect();
-        const deckEl = document.querySelector('.deck');
-        const deckPos = deckEl.getBoundingClientRect();
+        const deckPos = document.querySelector('.deck').getBoundingClientRect();
         
         const cardData = tarotDB.cards[Math.floor(Math.random() * tarotDB.cards.length)];
-        const isRev = Math.random() < 0.20;
+        const isRev = Math.random() < 0.25;
 
         const card = document.createElement('div');
         card.className = 'card-anim';
         card.style = `width:${deckPos.width}px; height:${deckPos.height}px; left:${deckPos.left}px; top:${deckPos.top}px;`;
-        card.innerHTML = `
-            <div class="face back"></div>
-            <div class="face front">
-                <div class="card-emoji">${cardData.emoji}</div>
-                <div class="card-name">${cardData.name}</div>
-            </div>`;
+        card.innerHTML = `<div class="face back"></div><div class="face front"><div class="card-emoji">${cardData.emoji}</div><div class="card-name">${cardData.name}</div></div>`;
         document.body.appendChild(card);
 
-        // Запуск анимации
-        setTimeout(() => {
-            card.style.left = sr.left + 'px';
+        requestAnimationFrame(() => {
+            card.style.left = sr.left + 'px'; 
             card.style.top = sr.top + 'px';
-            card.style.width = sr.width + 'px';
+            card.style.width = sr.width + 'px'; 
             card.style.height = sr.height + 'px';
             
             setTimeout(() => { 
                 if(isRev) card.classList.add('is-reversed'); 
                 card.classList.add('flipped'); 
-                if (drawnCount === maxCards) {
-                    document.getElementById('prediction-text').innerText = "Расклад готов";
-                    document.getElementById('reset-btn').style.display = 'block';
-                }
-            }, 300);
-        }, 50);
+                if (drawnCount === maxCards) showResults();
+            }, 250);
+        });
 
         drawnCount++;
         slot.classList.remove('active-target');
@@ -229,7 +214,13 @@
         if(next) next.classList.add('active-target');
     }
 
-    // Инициализация
+    function showResults() {
+        document.getElementById('reset-btn').style.display = 'inline-block';
+        document.getElementById('share-btn').style.display = 'inline-block';
+        document.getElementById('donate-btn').style.display = 'inline-block';
+        document.getElementById('prediction-text').innerText = "Расклад завершен";
+    }
+
     setMode('day');
 </script>
 </body>
