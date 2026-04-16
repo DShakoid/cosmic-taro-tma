@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Cosmic Tarot v6 - Magic Returns</title>
+    <link rel="icon" type="image/png" href="icon_cosmic_taro.png">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="tarotData.js"></script>
 <style>
@@ -127,10 +128,9 @@
         box-sizing: border-box; overflow: hidden;
     }
 
-    /* РУБАШКА (ВИДНА ПРИ ВЫЛЕТЕ) */
     .face.back { 
         background-color: #1e1b4b;
-        background-image: url('back_card.jpg'); 
+        background-image: url('back_card.jpg') !important; 
         background-size: cover;
         background-position: center;
         background-repeat: no-repeat;
@@ -138,7 +138,6 @@
         z-index: 2;
     }
 
-    /* ЛИЦО */
     .face.front { 
         background: #0f172a; border: 2px solid var(--pink); 
         transform: rotateY(180deg); 
@@ -151,7 +150,6 @@
     .card-name { font-size: 8px; color: #f3e8ff; margin-top: 5px; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
     .slot.large .card-name { font-size: 12px; }
 
-    /* ПРЕДСКАЗАНИЕ */
     .prediction-box {
         width: 100%; background: rgba(20, 15, 30, 0.6); border-radius: 20px;
         padding: 18px; border: 1px solid rgba(168, 85, 247, 0.15);
@@ -160,7 +158,6 @@
         margin-top: 20px; margin-bottom: 30px;
     }
 
-    /* МОДАЛКА */
     .overlay {
         position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
         background: rgba(0,0,0,0.85); z-index: 10000; display: none; align-items: center; justify-content: center;
@@ -186,7 +183,6 @@
         box-shadow: 0 4px 15px rgba(217, 119, 6, 0.4);
     }
     
-    /* ЧАСТИЦЫ */
     .particle {
         position: fixed; width: 5px; height: 5px; border-radius: 50%;
         pointer-events: none; opacity: 0; z-index: 1000;
@@ -201,6 +197,8 @@
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     
     #prediction-text { font-size: 0.9rem; line-height: 1.5; color: #e2d5f5; }
+    #prediction-text b { color: white; font-size: 1rem; }
+    #prediction-text small { color: var(--purp); font-size: 0.75rem; letter-spacing: 1px; }
 </style>
 </head>
 <body>
@@ -213,10 +211,9 @@
         </div>
 
         <div class="deck-container">
-    <div class="deck" onclick="drawCard()">
+            <div class="deck" onclick="drawCard()"></div>
+            <div style="color:var(--purp); font-size:0.6rem; margin-top:5px; letter-spacing:2px;">ТЯНИ КАРТУ</div>
         </div>
-    <div style="color:var(--purp); font-size:0.6rem; margin-top:5px; letter-spacing:2px;">ТЯНИ КАРТУ</div>
-</div>
 
         <div id="table" class="table"></div>
 
@@ -224,10 +221,10 @@
             <div id="prediction-text" class="fade-in">Выберите режим и прикоснитесь к колоде</div>
             <div class="btn-row">
                 <button id="reset-btn" onclick="setMode(currentMode)" style="display:none;" class="action-btn">ЗАНОВО</button>
-                <button id="share-btn" onclick="prepareForScreenshot()" style="display:none;" class="action-btn" style="background:rgba(168, 85, 247, 0.1); border:1px solid var(--purp); color:var(--purp); box-shadow:none;">СКРИН</button>
-                <button id="donate-btn" class="action-btn" style="display:none; background: linear-gradient(45deg, #ff9d00, #edb931);">
-    <span>⭐ Поблагодарить</span>
-</button>
+                <button id="share-btn" onclick="alert('Сделайте скриншот экрана')" style="display:none;" class="action-btn" style="background:rgba(168, 85, 247, 0.1); border:1px solid var(--purp); color:var(--purp); box-shadow:none;">СКРИН</button>
+                <button id="donate-btn" class="action-btn" style="display:none;">
+                    <span>⭐ Поблагодарить</span>
+                </button>
             </div>
         </div>
     </div>
@@ -247,12 +244,10 @@
     let maxCards = 0;
     let selectedCards = [];
 
-    // --- ИНИЦИАЛИЗАЦИЯ TELEGRAM WEBAPP ---
-    if (window.Telegram && window.Telegram.WebApp) {
-        const tg = window.Telegram.WebApp;
+    const tg = window.Telegram?.WebApp;
+    if (tg) {
         tg.ready();
-        tg.expand(); // РАСКРЫТИЕ НА ВЕСЬ ЭКРАН
-        
+        tg.expand();
         tg.setHeaderColor('#050508');
         tg.setBackgroundColor('#050508');
     }
@@ -263,11 +258,11 @@
         selectedCards = [];
         const table = document.getElementById('table');
         table.innerHTML = '';
-        table.className = 'table mode-' + newMode;
         document.querySelectorAll('.card-anim').forEach(c => c.remove());
         document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
         const activeBtn = document.getElementById('btn-' + newMode);
         if(activeBtn) activeBtn.classList.add('active');
+        
         document.getElementById('reset-btn').style.display = 'none';
         document.getElementById('share-btn').style.display = 'none';
         document.getElementById('donate-btn').style.display = 'none';
@@ -319,10 +314,8 @@
         
         const reversedLabel = isReversed ? `<div style="font-size: 6px; color: #ff4d4d; position: absolute; bottom: 3px; font-weight:bold;">ПЕРЕВЕРНУТА</div>` : '';
         
-        // ВОЗВРАЩАЕМ ПРАВИЛЬНУЮ СТРУКТУРУ КАРТЫ (две стороны сразу)
-        // ВАЖНО: Добавляем background-image прямо сюда, чтобы он был виден СРАЗУ при вылете
         card.innerHTML = `
-            <div class="face back" style="background-image: url('back_card.jpg') !important; background-size: cover; border-radius: 10px;"></div>
+            <div class="face back"></div>
             <div class="face front">
                 <div class="card-emoji">${cardData.emoji}</div>
                 <div class="card-name">${cardData.name}</div>
@@ -333,7 +326,6 @@
         document.body.appendChild(card);
         updatePrediction();
 
-        // ВОЗВРАЩАЕМ ТУ САМУЮ ПЛАВНУЮ АНИМАЦИЮ
         requestAnimationFrame(() => {
             card.style.opacity = '1';
             card.style.left = slotRect.left + 'px';
@@ -341,7 +333,6 @@
             card.style.width = slotRect.width + 'px';
             card.style.height = slotRect.height + 'px';
             
-            // Переворот начинается почти сразу, как было раньше
             setTimeout(() => {
                 if (isReversed) card.classList.add('is-reversed');
                 card.classList.add('flipped');
@@ -357,7 +348,6 @@
         }, 800);
     }
 
-    // Остальные функции без изменений
     function updatePrediction() {
         const box = document.getElementById('prediction-text');
         if (!box) return;
@@ -371,7 +361,7 @@
                 selectedCards.forEach(c => counts[c.element] = (counts[c.element] || 0) + 1);
                 let dominant = Object.keys(counts).reduce((a, b) => counts[a] > counts[b] ? a : b);
                 html = `<div class="fade-in"><b>Доминанта: ${dominant}</b><br><small>${tarotDB.elementalAdvice[dominant]}</small></div>`;
-                if (drawnCount < maxCards) html += `<div style="margin-top:10px; color:var(--pink); font-size:0.75rem; animation: pulse 1s infinite;">Тяните карту №${drawnCount + 1}...</div>`;
+                if (drawnCount < maxCards) html += `<div style="margin-top:10px; color:var(--pink); font-size:0.75rem;">Тяните карту №${drawnCount + 1}...</div>`;
                 else html += `<div style="margin-top:10px; font-weight:bold; color:var(--purp);">РАСКЛАД ЗАВЕРШЕН</div>`;
             }
         }
@@ -383,11 +373,18 @@
         }
     }
 
+    // ЛОГИКА ДОНАТА (TELEGRAM STARS)
     document.getElementById('donate-btn').onclick = function() {
-        if (window.Telegram?.WebApp) {
-            window.Telegram.WebApp.sendData(JSON.stringify({ action: "donate", amount: 50 }));
-            if(window.Telegram.WebApp.HapticFeedback) window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
-        } else { alert("Донаты работают только внутри Telegram!"); }
+        if (tg) {
+            tg.sendData(JSON.stringify({ 
+                action: "donate", 
+                stars: 50 
+            }));
+            if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+            tg.close(); // Закрываем приложение, чтобы юзер увидел инвойс в чате
+        } else { 
+            alert("Донаты работают только внутри Telegram!"); 
+        }
     };
 
     function createParticles(x, y, color) {
@@ -411,11 +408,12 @@
         document.getElementById('m-name').innerText = card.name + (card.isReversed ? ' (пер.)' : '');
         document.getElementById('m-desc').innerHTML = card.isReversed ? card.advice_rev : card.advice;
         overlay.classList.add('active');
+        if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
     }
 
     function closeModal() { document.getElementById('card-overlay').classList.remove('active'); }
+    
     setMode('day');
-</script>
 </script>
 </body>
 </html>
