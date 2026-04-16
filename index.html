@@ -354,6 +354,7 @@
     }
 
     // --- МАГИЯ ДОСТАВАНИЯ КАРТЫ ---
+    // --- МАГИЯ ДОСТАВАНИЯ КАРТЫ (ИСПРАВЛЕННАЯ ЛОГИКА РУБАШКИ) ---
     function drawCard() {
         if (!currentMode || drawnCount >= maxCards) return;
 
@@ -375,47 +376,65 @@
 
         const card = document.createElement('div');
         card.className = `card-anim`;
+        
+        // Гарантируем, что в начале полета карта не перевернута
+        card.classList.remove('flipped', 'is-reversed', 'arrived');
+        
         card.style.width = deckRect.width + 'px';
         card.style.height = deckRect.height + 'px';
         card.style.left = deckRect.left + 'px';
         card.style.top = deckRect.top + 'px';
         
-        const reversedLabel = isReversed ? `<div style="font-size: 6px; color: #ff4d4d; position: absolute; bottom: 3px; font-weight:bold;">ПЕРЕВЕРНУТА</div>` : '';
-        
-        // ВАЖНО: Добавляем стиль прямо в HTML, чтобы рубашка была мгновенно
-        card.innerHTML = `
-            <div class="face back" style="background-image: url('back_card.jpg'); background-size: cover;"></div>
-            <div class="face front">
-                <div class="card-emoji">${cardData.emoji}</div>
-                <div class="card-name">${cardData.name}</div>
-                ${reversedLabel}
-            </div>
-        `;
+        // ВАЖНО: При создании карта содержит ТОЛЬКО РУБАШКУ.
+        // Это гарантирует, что в полете будет виден только твой узор.
+        card.innerHTML = `<div class="face back" style="background-image: url('back_card.jpg'); backface-visibility: visible; z-index: 10;"></div>`;
         
         document.body.appendChild(card);
         updatePrediction();
 
         requestAnimationFrame(() => {
-            card.style.opacity = '1';
-            card.style.left = slotRect.left + 'px';
-            card.style.top = slotRect.top + 'px';
-            card.style.width = slotRect.width + 'px';
-            card.style.height = slotRect.height + 'px';
-            
-            setTimeout(() => {
-                if (isReversed) card.classList.add('is-reversed');
-                card.classList.add('flipped');
-            }, 100);
+            // Добавляем микро-задержку, чтобы браузер успел отрисовать рубашку
+            requestAnimationFrame(() => {
+                card.style.opacity = '1';
+                card.style.left = slotRect.left + 'px';
+                card.style.top = slotRect.top + 'px';
+                card.style.width = slotRect.width + 'px';
+                card.style.height = slotRect.height + 'px';
+            });
         });
 
+        // Таймер завершения полета (800мс)
         setTimeout(() => {
-            card.classList.add('arrived');
-            card.onclick = () => showModal(cardInstance);
-            createParticles(slotRect.left + slotRect.width / 2, slotRect.top + slotRect.height / 2, '#ec4899');
+            // ТОЛЬКО ТЕПЕРЬ, когда карта прилетела, мы добавляем лицевую сторону
+            const reversedLabel = isReversed ? `<div style="font-size: 6px; color: #ff4d4d; position: absolute; bottom: 3px; font-weight:bold;">ПЕРЕВЕРНУТА</div>` : '';
             
-            const nextSlot = document.getElementById('slot' + drawnCount);
-            if (nextSlot) nextSlot.classList.add('active-target');
-        }, 800);
+            // Восстанавливаем полную структуру карты (рубашка + лицо)
+            card.innerHTML = `
+                <div class="face back"></div>
+                <div class="face front">
+                    <div class="card-emoji">${cardData.emoji}</div>
+                    <div class="card-name">${cardData.name}</div>
+                    ${reversedLabel}
+                </div>
+            `;
+            
+            // Добавляем легкую задержку перед переворотом, чтобы CSS успел примениться
+            requestAnimationFrame(() => {
+                if (isReversed) card.classList.add('is-reversed');
+                card.classList.add('flipped'); // Переворачиваем карту
+                
+                // Финальная активация
+                setTimeout(() => {
+                    card.classList.add('arrived');
+                    card.onclick = () => showModal(cardInstance);
+                    createParticles(slotRect.left + slotRect.width / 2, slotRect.top + slotRect.height / 2, '#ec4899');
+                    
+                    const nextSlot = document.getElementById('slot' + drawnCount);
+                    if (nextSlot) nextSlot.classList.add('active-target');
+                }, 100); // Микро-задержка для плавности после переворота
+            });
+            
+        }, 800); // Таймер прилета
     }
 
     function updatePrediction() {
