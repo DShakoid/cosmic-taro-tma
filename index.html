@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Cosmic Tarot v6.5</title>
+    <title>Cosmic Tarot v6.1</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="tarotData.js"></script>
 <style>
@@ -15,11 +15,8 @@
     
     body {
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-        margin: 0; padding: 0;
-        background: var(--bg); color: #f3e8ff;
-        width: 100%; height: 100vh;
-        overflow: hidden;
-        display: flex; flex-direction: column;
+        margin: 0; background: var(--bg); color: #f3e8ff;
+        height: 100vh; width: 100vw; overflow: hidden; position: fixed;
     }
 
     .stars {
@@ -28,124 +25,117 @@
         z-index: 1;
     }
 
-    /* ОСНОВНОЙ КОНТЕЙНЕР С УЧЕТОМ БЕЗОПАСНЫХ ЗОН */
-    .app-wrapper {
-        position: relative; z-index: 10;
-        display: flex; flex-direction: column;
-        height: 100%; width: 100%;
-        max-width: 500px; margin: 0 auto;
+    .container {
+        position: relative; z-index: 10; 
+        width: 100%; height: 100%;
+        max-width: 450px; margin: 0 auto;
+        display: flex; flex-direction: column; 
+        padding: calc(env(safe-area-inset-top, 0px) + 10px) 15px calc(env(safe-area-inset-bottom, 0px) + 20px) 15px;
         box-sizing: border-box;
-        /* Отступ сверху для кнопок Телеграм */
-        padding-top: calc(env(safe-area-inset-top, 0px) + 100px);
-        padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 20px);
-        padding-left: 15px; padding-right: 15px;
     }
 
-    .menu { display: flex; gap: 8px; margin-bottom: 20px; flex-shrink: 0; }
+    .menu { display: flex; gap: 8px; margin-bottom: 15px; }
     .menu-btn {
-        background: rgba(255,255,255,0.05); border: 1px solid rgba(168, 85, 247, 0.2);
-        color: rgba(255,255,255,0.4); padding: 12px 5px; border-radius: 12px; 
-        font-size: 0.75rem; flex: 1; transition: 0.3s; cursor: pointer;
-        text-transform: uppercase; font-weight: 600;
+        background: rgba(255,255,255,0.03); border: 1px solid rgba(168, 85, 247, 0.2);
+        color: rgba(255,255,255,0.5); padding: 10px 5px; border-radius: 12px; 
+        font-size: 0.7rem; flex: 1; transition: 0.3s; cursor: pointer;
+        text-transform: uppercase;
     }
-    .menu-btn.active { 
-        background: rgba(168, 85, 247, 0.25); color: white; border-color: var(--purp);
-        box-shadow: 0 0 15px rgba(168, 85, 247, 0.3);
-    }
+    .menu-btn.active { background: rgba(168, 85, 247, 0.2); color: white; border-color: var(--purp); }
 
-    .deck-area { display: flex; justify-content: center; height: 100px; margin-bottom: 20px; flex-shrink: 0; }
+    .deck-container { display: flex; justify-content: center; height: 100px; margin-bottom: 10px; }
     .deck {
-        width: 65px; height: 95px; 
+        width: 60px; height: 90px; 
         background: #1e1b4b url('back_card.jpg') center/cover;
-        border: 2px solid var(--purp); border-radius: 10px; cursor: pointer;
-        box-shadow: 0 0 20px rgba(168, 85, 247, 0.5);
+        border: 2px solid var(--purp); border-radius: 8px; cursor: pointer;
+        box-shadow: 0 0 15px rgba(168, 85, 247, 0.4);
     }
 
-    /* СТАБИЛЬНАЯ ТАБЛИЦА */
-    .table-field { 
-        flex-grow: 1; display: flex; flex-direction: column; 
-        align-items: center; justify-content: center; gap: 10px;
+    /* СЕТКА С ФИКСИРОВАННЫМИ РАЗМЕРАМИ */
+    .table { 
+        display: flex; flex-direction: column; align-items: center; 
+        justify-content: center; gap: 8px; flex: 1; width: 100%;
     }
-    .t-row { display: flex; justify-content: center; gap: 8px; width: 100%; }
+    .table-row { display: flex; justify-content: center; gap: 8px; width: 100%; }
     
     .slot {
-        width: 70px; height: 105px; border: 1px solid rgba(168, 85, 247, 0.15);
-        border-radius: 10px; background: rgba(255,255,255,0.02); position: relative;
+        width: 65px; height: 95px; border: 1px solid rgba(168, 85, 247, 0.15);
+        border-radius: 8px; background: rgba(255,255,255,0.02); position: relative;
     }
-    .slot.large { width: 140px; height: 210px; }
-    .slot.active-target { border-color: var(--pink); box-shadow: 0 0 15px rgba(236, 72, 153, 0.4); }
+    /* Исправленный размер для режима ДЕНЬ */
+    .slot.large { width: 110px; height: 165px; } 
+    .slot.active-target { border-color: var(--pink); box-shadow: 0 0 10px rgba(236, 72, 153, 0.3); }
 
-    .ui-bottom {
-        width: 100%; background: rgba(20, 15, 30, 0.85); border-radius: 24px;
+    .prediction-box {
+        width: 100%; background: rgba(20, 15, 30, 0.85); border-radius: 20px;
         padding: 15px; border: 1px solid rgba(168, 85, 247, 0.2);
-        backdrop-filter: blur(15px); text-align: center; flex-shrink: 0;
+        backdrop-filter: blur(15px); text-align: center;
     }
 
-    .btn-group { display: flex; gap: 8px; justify-content: center; margin-top: 12px; flex-wrap: wrap; }
-    .btn-main { 
-        background: var(--pink); border: none; color: white; padding: 12px 20px; 
-        border-radius: 14px; font-size: 0.85rem; font-weight: bold; cursor: pointer;
+    .btn-row { display: flex; gap: 8px; justify-content: center; margin-top: 10px; }
+    .action-btn { 
+        background: var(--pink); border: none; color: white; padding: 10px 14px; 
+        border-radius: 12px; font-size: 0.75rem; font-weight: bold; cursor: pointer;
     }
-    #donate-btn { background: linear-gradient(45deg, #f59e0b, #d97706); min-width: 100%; margin-top: 8px; }
+    #donate-btn { background: linear-gradient(45deg, #f59e0b, #d97706); }
 
-    /* АНИМАЦИЯ ПОЛЕТА */
+    /* АНИМАЦИЯ */
     .card-anim { 
         position: fixed; z-index: 500; 
-        transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
-        transform-style: preserve-3d; pointer-events: none;
+        transition: all 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+        transform-style: preserve-3d;
     }
     .card-anim.flipped { transform: rotateY(180deg); }
     .card-anim.is-reversed.flipped { transform: rotateY(180deg) rotateZ(180deg); }
     
-    .face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 10px; overflow: hidden; }
-    .face.back { background: #1e1b4b url('back_card.jpg') center/cover; border: 2px solid var(--purp); }
+    .face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 8px; overflow: hidden; }
+    .face.back { background: #1e1b4b url('back_card.jpg') center/cover; border: 1px solid var(--purp); }
     .face.front { 
         background: #0f172a; border: 2px solid var(--pink); transform: rotateY(180deg); 
-        display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px;
-        pointer-events: auto;
+        display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 5px;
     }
 
-    .card-emoji { font-size: 32px; }
-    .slot.large .card-emoji { font-size: 60px; }
-    .card-name { font-size: 9px; color: white; margin-top: 8px; text-transform: uppercase; text-align: center; font-weight: bold; }
-    .slot.large .card-name { font-size: 14px; }
+    .card-emoji { font-size: 24px; }
+    .slot.large .card-emoji { font-size: 45px; }
+    .card-name { font-size: 8px; color: white; margin-top: 5px; text-transform: uppercase; text-align: center; }
+    .slot.large .card-name { font-size: 11px; }
 
-    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; display: none; align-items: center; justify-content: center; }
-    .modal-overlay.active { display: flex; }
-    .modal-content { width: 85%; max-width: 350px; background: #0a070f; border: 1px solid var(--purp); border-radius: 25px; padding: 30px; text-align: center; }
+    .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; display: none; align-items: center; justify-content: center; }
+    .overlay.active { display: flex; }
+    .modal-card { width: 85%; max-width: 320px; background: #0a070f; border: 1px solid var(--purp); border-radius: 20px; padding: 25px; text-align: center; }
 </style>
 </head>
 <body>
     <div class="stars"></div>
-    <div class="app-wrapper">
+    <div class="container">
         <div class="menu">
             <button class="menu-btn" id="btn-day" onclick="setMode('day')">День</button>
             <button class="menu-btn" id="btn-week" onclick="setMode('week')">Неделя</button>
             <button class="menu-btn" id="btn-advice" onclick="setMode('advice')">Совет</button>
         </div>
 
-        <div class="deck-area">
+        <div class="deck-container">
             <div class="deck" onclick="drawCard()"></div>
         </div>
 
-        <div id="table" class="table-field"></div>
+        <div id="table" class="table"></div>
 
-        <div class="ui-bottom">
-            <div id="prediction-text" style="font-size: 0.95rem;">Выберите режим расклада</div>
-            <div class="btn-group">
-                <button id="reset-btn" onclick="setMode(currentMode)" style="display:none;" class="btn-main">ЗАНОВО</button>
-                <button id="share-btn" onclick="tg.showAlert('Сделайте скриншот')" style="display:none;" class="btn-main" style="background:#4c1d95;">СКРИН</button>
-                <button id="donate-btn" class="btn-main" style="display:none;">⭐ ПОБЛАГОДАРИТЬ</button>
+        <div id="prediction-box" class="prediction-box">
+            <div id="prediction-text" style="font-size: 0.9rem;">Выберите режим</div>
+            <div class="btn-row">
+                <button id="reset-btn" onclick="setMode(currentMode)" style="display:none;" class="action-btn">ЗАНОВО</button>
+                <button id="share-btn" onclick="tg.showAlert('Сделай скрин!')" style="display:none;" class="action-btn">СКРИН</button>
+                <button id="donate-btn" class="action-btn" style="display:none;">⭐ ПОДДЕРЖАТЬ</button>
             </div>
         </div>
     </div>
 
-    <div id="card-modal" class="modal-overlay" onclick="closeModal()">
-        <div class="modal-content" onclick="event.stopPropagation()">
-            <div id="m-emoji" style="font-size: 60px;"></div>
-            <div id="m-name" style="color:white; font-size:1.3rem; margin:15px 0; font-weight:bold;"></div>
-            <div id="m-desc" style="font-size:1rem; color:#ccc; line-height: 1.5;"></div>
-            <button onclick="closeModal()" style="margin-top:25px; width:100%; padding:15px; border-radius:15px; background:var(--purp); border:none; color:white; font-weight:bold;">ЗАКРЫТЬ</button>
+    <div id="card-overlay" class="overlay" onclick="closeModal()">
+        <div class="modal-card" onclick="event.stopPropagation()">
+            <div id="m-emoji" style="font-size: 50px;"></div>
+            <div id="m-name" style="color:white; font-size:1.1rem; margin:10px 0; font-weight:bold;"></div>
+            <div id="m-desc" style="font-size:0.85rem; color:#ccc; line-height: 1.5;"></div>
+            <button onclick="closeModal()" style="margin-top:20px; width:100%; padding:12px; border-radius:10px; background:var(--purp); border:none; color:white;">ЗАКРЫТЬ</button>
         </div>
     </div>
 
@@ -157,8 +147,7 @@
     let selectedCards = [];
 
     if (tg) {
-        tg.ready();
-        tg.expand();
+        tg.ready(); tg.expand();
         tg.setHeaderColor('#050508');
         tg.setBackgroundColor('#050508');
     }
@@ -183,7 +172,7 @@
 
         function createRow(s, e, lg = false) {
             const row = document.createElement('div');
-            row.className = 't-row';
+            row.className = 'table-row';
             for (let i = s; i < e; i++) {
                 const sl = document.createElement('div');
                 sl.className = 'slot' + (lg ? ' large' : '');
@@ -193,7 +182,7 @@
             table.appendChild(row);
         }
         document.getElementById('slot0').classList.add('active-target');
-        document.getElementById('prediction-text').innerText = "Тяните карту из колоды";
+        document.getElementById('prediction-text').innerText = "Тяните карту";
     }
 
     function drawCard() {
@@ -201,7 +190,8 @@
         
         const slot = document.getElementById('slot' + drawnCount);
         const sr = slot.getBoundingClientRect();
-        const deckPos = document.querySelector('.deck').getBoundingClientRect();
+        const deckElem = document.querySelector('.deck');
+        const deck = deckElem.getBoundingClientRect();
 
         const cardData = tarotDB.cards[Math.floor(Math.random() * tarotDB.cards.length)];
         const isRev = Math.random() < 0.25;
@@ -210,34 +200,31 @@
 
         const card = document.createElement('div');
         card.className = 'card-anim';
-        card.style = `width:${deckPos.width}px; height:${deckPos.height}px; left:${deckPos.left}px; top:${deckPos.top}px;`;
-        card.innerHTML = `
-            <div class="face back"></div>
-            <div class="face front" onclick="showModal(${JSON.stringify(inst).replace(/"/g, '&quot;')})">
-                <div class="card-emoji">${cardData.emoji}</div>
-                <div class="card-name">${cardData.name}</div>
-            </div>`;
+        card.style = `width:${deck.width}px; height:${deck.height}px; left:${deck.left}px; top:${deck.top}px;`;
+        card.innerHTML = `<div class="face back"></div><div class="face front"><div class="card-emoji">${cardData.emoji}</div><div class="card-name">${cardData.name}</div></div>`;
         document.body.appendChild(card);
 
-        // Полет
-        setTimeout(() => {
-            card.style.left = sr.left + 'px'; 
-            card.style.top = sr.top + 'px';
-            card.style.width = sr.width + 'px'; 
-            card.style.height = sr.height + 'px';
-            card.style.pointerEvents = 'auto'; // Включаем клик после начала полета
-            setTimeout(() => { 
-                if(isRev) card.classList.add('is-reversed'); 
-                card.classList.add('flipped'); 
-            }, 100);
-        }, 50);
+        // Плавный полет
+        requestAnimationFrame(() => {
+            setTimeout(() => {
+                card.style.left = sr.left + 'px'; 
+                card.style.top = sr.top + 'px';
+                card.style.width = sr.width + 'px'; 
+                card.style.height = sr.height + 'px';
+                setTimeout(() => { 
+                    if(isRev) card.classList.add('is-reversed'); 
+                    card.classList.add('flipped'); 
+                }, 200);
+            }, 50);
+        });
 
         drawnCount++;
         slot.classList.remove('active-target');
         const next = document.getElementById('slot' + drawnCount);
         if(next) next.classList.add('active-target');
 
-        if (drawnCount >= maxCards) setTimeout(showFinalState, 800);
+        card.onclick = () => showModal(inst);
+        if (drawnCount >= maxCards) setTimeout(showFinalState, 1000);
     }
 
     function showFinalState() {
@@ -249,9 +236,8 @@
             const c = selectedCards[0];
             document.getElementById('prediction-text').innerHTML = `<b>${c.name}</b><br>${c.isReversed ? c.advice_rev : c.advice}`;
         } else {
-            document.getElementById('prediction-text').innerText = "Расклад готов. Нажмите на карты для толкования.";
+            document.getElementById('prediction-text').innerText = "Расклад готов";
         }
-        if(tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
     }
 
     document.getElementById('donate-btn').onclick = async function() {
@@ -259,22 +245,23 @@
             const res = await fetch('/api/get-invoice');
             const data = await res.json();
             if (tg && data.url) {
-                tg.openInvoice(data.url, (s) => { if(s==='paid') tg.showAlert('Спасибо! ✨'); });
+                tg.openInvoice(data.url, (status) => {
+                    if (status === 'paid') tg.showAlert('Спасибо! ✨');
+                });
             }
-        } catch (e) { tg.showAlert('Ошибка платежа'); }
+        } catch (e) { tg.showAlert('Ошибка сервера'); }
     };
 
     function showModal(c) {
         document.getElementById('m-emoji').innerText = c.emoji;
         document.getElementById('m-name').innerText = c.name + (c.isReversed ? ' (пер.)' : '');
         document.getElementById('m-desc').innerText = c.isReversed ? c.advice_rev : c.advice;
-        document.getElementById('card-modal').classList.add('active');
+        document.getElementById('card-overlay').classList.add('active');
         if(tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
     }
 
-    function closeModal() { document.getElementById('card-modal').classList.remove('active'); }
+    function closeModal() { document.getElementById('card-overlay').classList.remove('active'); }
 
-    // Старт
     setMode('day');
 </script>
 </body>
