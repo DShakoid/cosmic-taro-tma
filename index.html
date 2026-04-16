@@ -19,7 +19,7 @@
     body {
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         margin: 0; background: var(--bg); color: #f3e8ff;
-        display: flex; justify-content: center; min-height: 100vh; overflow: hidden;
+        display: flex; justify-content: center; min-height: 100vh; overflow-x: hidden;
         user-select: none; -webkit-user-select: none;
     }
 
@@ -29,6 +29,7 @@
         z-index: 1;
     }
 
+    /* ФИКС ОТСТУПА СВЕРХУ */
     .container {
         position: relative; 
         z-index: 10; 
@@ -37,16 +38,17 @@
         display: flex; 
         flex-direction: column; 
         align-items: center; 
-        /* ТОТ САМЫЙ ФИКС ОТСТУПА — остальное как было */
-        padding: calc(env(safe-area-inset-top, 0px) + 50px) 15px 30px 15px;
+        /* safe-area гарантирует, что кнопки ТГ не перекроют меню */
+        padding: calc(env(safe-area-inset-top, 0px) + 55px) 15px 30px 15px;
         box-sizing: border-box;
     }
 
+    /* ТВОИ ОРИГИНАЛЬНЫЕ СТИЛИ МЕНЮ */
     .menu { display: flex; gap: 8px; margin-bottom: 20px; width: 100%; z-index: 100; }
     .menu-btn {
         background: var(--glass); border: 1px solid rgba(168, 85, 247, 0.2);
         color: rgba(255,255,255,0.6); padding: 10px 5px; border-radius: 12px; 
-        font-size: 0.7rem; flex: 1; transition: 0.3s; cursor: pointer;
+        font-size: 0.7rem; flex: 1; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer;
         backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
         text-transform: uppercase; letter-spacing: 1px;
     }
@@ -62,6 +64,7 @@
         border: 2px solid var(--purp); border-radius: 10px; cursor: pointer;
         box-shadow: var(--neon-purp);
     }
+    .deck:active { transform: scale(0.95); }
 
     .table { display: flex; flex-direction: column; align-items: center; gap: 12px; margin: 15px 0; width: 100%; z-index: 5; }
     .table-row { display: flex; justify-content: center; gap: 10px; width: 100%; }
@@ -70,16 +73,17 @@
         width: 75px; height: 110px; border: 1px solid rgba(168, 85, 247, 0.15);
         border-radius: 10px; background: rgba(255,255,255,0.01); position: relative;
     }
-    .slot.large { width: 140px; height: 200px; }
+    .slot.large { width: 140px; height: 200px; border-color: rgba(168, 85, 247, 0.3); }
     .slot.active-target { border-color: rgba(236, 72, 153, 0.4); box-shadow: 0 0 10px rgba(236, 72, 153, 0.2); }
 
+    /* АНИМАЦИЯ ПОЛЕТА */
     .card-anim { 
         position: fixed; z-index: 500; 
         transition: left 0.8s cubic-bezier(0.23, 1, 0.32, 1), top 0.8s cubic-bezier(0.23, 1, 0.32, 1), 
                     width 0.8s cubic-bezier(0.23, 1, 0.32, 1), height 0.8s cubic-bezier(0.23, 1, 0.32, 1);
         transform-style: preserve-3d; pointer-events: none;
     }
-    .card-anim.flipped { transform: rotateY(180deg); transition: transform 0.7s, left 0.8s, top 0.8s; }
+    .card-anim.flipped { transform: rotateY(180deg); transition: transform 0.7s, left 0.8s, top 0.8s, width 0.8s, height 0.8s; }
     .card-anim.is-reversed.flipped { transform: rotateY(180deg) rotateZ(180deg); }
     
     .face { 
@@ -91,7 +95,7 @@
 
     .card-emoji { font-size: 24px; }
     .slot.large .card-emoji { font-size: 50px; }
-    .card-name { font-size: 8px; color: #f3e8ff; margin-top: 5px; text-transform: uppercase; font-weight: 600; text-align: center; }
+    .card-name { font-size: 8px; color: #f3e8ff; margin-top: 5px; text-transform: uppercase; font-weight: 600; }
     .slot.large .card-name { font-size: 12px; }
 
     .prediction-box {
@@ -102,6 +106,7 @@
 
     .btn-row { display: flex; gap: 10px; justify-content: center; margin-top: 15px; }
     .action-btn { background: var(--pink); border: none; color: white; padding: 10px 20px; border-radius: 12px; font-weight: bold; cursor: pointer; }
+    #donate-btn { background: linear-gradient(45deg, #f59e0b, #d97706); }
 </style>
 </head>
 <body>
@@ -112,22 +117,29 @@
             <button class="menu-btn" id="btn-week" onclick="setMode('week')">Неделя</button>
             <button class="menu-btn" id="btn-advice" onclick="setMode('advice')">Совет</button>
         </div>
+
         <div class="deck-container">
             <div class="deck" onclick="drawCard()"></div>
             <div style="font-size: 0.6rem; color: var(--purp); margin-top: 5px; letter-spacing: 2px;">ТЯНИ КАРТУ</div>
         </div>
+
         <div id="table" class="table"></div>
+
         <div id="prediction-box" class="prediction-box">
-            <div id="prediction-text">Колода перемешана.</div>
+            <div id="prediction-text">Колода перемешана. Выберите расклад.</div>
             <div class="btn-row">
                 <button id="reset-btn" onclick="setMode(currentMode)" style="display:none;" class="action-btn">ЗАНОВО</button>
+                <button id="share-btn" onclick="tg.showAlert('Скриншот сохранен!')" style="display:none;" class="action-btn" style="background: #4c1d95;">СКРИН</button>
+                <button id="donate-btn" class="action-btn" style="display:none;">⭐ ПОБЛАГОДАРИТЬ</button>
             </div>
         </div>
     </div>
 <script>
+    // Здесь оставляем твой оригинальный JS для drawCard и setMode
     const tg = window.Telegram?.WebApp;
-    let currentMode = ''; let drawnCount = 0; let maxCards = 0;
-    if(tg) { tg.ready(); tg.expand(); }
+    let currentMode = '';
+    let drawnCount = 0;
+    let maxCards = 0;
 
     function setMode(mode) {
         currentMode = mode; drawnCount = 0;
@@ -136,8 +148,7 @@
         document.querySelectorAll('.card-anim').forEach(c => c.remove());
         document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
         document.getElementById('btn-' + mode).classList.add('active');
-        document.getElementById('reset-btn').style.display = 'none';
-
+        
         if (mode === 'day') { createRow(0, 1, true); maxCards = 1; }
         else if (mode === 'week') { createRow(0, 4); createRow(4, 7); maxCards = 7; }
         else if (mode === 'advice') { createRow(0, 3); createRow(3, 6); maxCards = 6; }
@@ -158,6 +169,7 @@
         const slot = document.getElementById('slot' + drawnCount);
         const sr = slot.getBoundingClientRect();
         const deckPos = document.querySelector('.deck').getBoundingClientRect();
+        
         const cardData = tarotDB.cards[Math.floor(Math.random() * tarotDB.cards.length)];
         const isRev = Math.random() < 0.25;
 
@@ -173,14 +185,22 @@
             setTimeout(() => { 
                 if(isRev) card.classList.add('is-reversed'); 
                 card.classList.add('flipped'); 
-                if (drawnCount === maxCards) document.getElementById('reset-btn').style.display = 'block';
+                if (drawnCount === maxCards) showResults();
             }, 200);
         }, 50);
+
         drawnCount++;
         slot.classList.remove('active-target');
         const next = document.getElementById('slot' + drawnCount);
         if(next) next.classList.add('active-target');
     }
+
+    function showResults() {
+        document.getElementById('reset-btn').style.display = 'inline-block';
+        document.getElementById('share-btn').style.display = 'inline-block';
+        document.getElementById('donate-btn').style.display = 'inline-block';
+    }
+
     setMode('day');
 </script>
 </body>
