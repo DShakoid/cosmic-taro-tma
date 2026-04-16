@@ -39,7 +39,6 @@
         display: flex; 
         flex-direction: column; 
         align-items: center; 
-        /* ФИКС ОТСТУПА ДЛЯ ТЕЛЕГРАМА */
         padding: calc(env(safe-area-inset-top, 0px) + 55px) 15px 30px 15px;
         box-sizing: border-box;
     }
@@ -82,6 +81,8 @@
         transition: left 0.8s cubic-bezier(0.23, 1, 0.32, 1), top 0.8s cubic-bezier(0.23, 1, 0.32, 1), 
                     width 0.8s cubic-bezier(0.23, 1, 0.32, 1), height 0.8s cubic-bezier(0.23, 1, 0.32, 1);
         transform-style: preserve-3d; pointer-events: none;
+        border-radius: 10px;
+        overflow: hidden;
     }
     .card-anim.flipped { transform: rotateY(180deg); transition: transform 0.7s, left 0.8s, top 0.8s, width 0.8s, height 0.8s; }
     .card-anim.is-reversed.flipped { transform: rotateY(180deg) rotateZ(180deg); }
@@ -91,7 +92,7 @@
         position: absolute; width: 100%; height: 100%; backface-visibility: hidden; 
         border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center;
         box-sizing: border-box; overflow: hidden;
-        clip-path: inset(0 round 10px); /* УБИРАЕТ ЧЕРНЫЕ УГЛЫ */
+        background-clip: padding-box;
     }
     .face.back { background: #1e1b4b url('back_card.jpg') center/cover; border: 2px solid var(--purp); z-index: 2; }
     .face.front { background: #0f172a; border: 2px solid var(--pink); transform: rotateY(180deg); padding: 8px; z-index: 1; }
@@ -102,25 +103,49 @@
     .slot.large .card-name { font-size: 12px; }
 
     .prediction-box {
-    /* Убираем width: 100%, чтобы блок сам вписался в контейнер */
-    width: auto; 
-    max-width:95%;
-    
-    /* Делаем отступы по 3% слева и справа */
-    margin-left: 5px;
-    margin-right: 5px;
-    margin-top: 20px;
-    margin-bottom: 30px; /* Чтобы не прилипало к низу экрана */
+        width: 92%; 
+        max-width: 360px;
+        margin: 20px auto; 
+        background: rgba(20, 15, 30, 0.6);
+        border-radius: 20px;
+        padding: 18px;
+        border: 1px solid rgba(168, 85, 247, 0.15);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        text-align: center;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
 
-    background: rgba(20, 15, 30, 0.6);
-    border-radius: 20px;
-    padding: 18px;
-    border: 1px solid rgba(168, 85, 247, 0.15);
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
-    text-align: center;
-    box-sizing: border-box; /* Это критично: паддинги теперь не раздувают блок */
-}
+    .btn-row {
+        display: flex;
+        flex-direction: column; 
+        gap: 10px;
+        align-items: center; 
+        margin-top: 15px;
+        width: 100%;
+    }
+
+    .action-btn {
+        background: var(--purp);
+        border: none;
+        color: white;
+        padding: 12px 20px;
+        border-radius: 12px;
+        font-size: 0.85rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: 0.2s;
+        width: 85%;
+        max-width: 260px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+    .action-btn:active { transform: scale(0.97); }
+
+    #reset-btn { background: var(--glass); border: 1px solid var(--purp); color: white; }
+    #donate-btn { background: linear-gradient(45deg, #f59e0b, #d97706); box-shadow: 0 4px 15px rgba(217, 119, 6, 0.3); }
 
     .overlay {
         position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
@@ -136,19 +161,6 @@
     }
     .overlay.active .modal-card { transform: scale(1); }
 
-    .btn-row {
-    display: flex;
-    flex-direction: column; /* Кнопки одна под другой */
-    gap: 8px;
-    align-items: center; /* Центрируем */
-    margin-top: 15px;
-}
-
-.action-btn {
-    width: 80%; /* Делаем их широкими и удобными для тапа */
-}
-    #donate-btn { background: linear-gradient(45deg, #f59e0b, #d97706); }
-    
     .particle {
         position: fixed; width: 5px; height: 5px; border-radius: 50%;
         pointer-events: none; opacity: 0; z-index: 1000;
@@ -162,7 +174,7 @@
     .fade-in { animation: fadeIn 0.5s ease forwards; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     
-    #prediction-text { font-size: 0.9rem; line-height: 1.5; color: #e2d5f5; }
+    #prediction-text { font-size: 0.9rem; line-height: 1.5; color: #e2d5f5; width: 100%; }
     #prediction-text b { color: white; font-size: 1rem; text-transform: uppercase; }
     #prediction-text small { color: var(--purp); font-size: 0.75rem; letter-spacing: 1px; display: block; margin-bottom: 5px; }
 </style>
@@ -326,32 +338,31 @@
         }
         box.innerHTML = html;
         if (drawnCount >= maxCards && maxCards > 0) {
-            document.getElementById('reset-btn').style.display = 'inline-block';
-            document.getElementById('share-btn').style.display = 'inline-block';
-            document.getElementById('donate-btn').style.display = 'inline-block';
+            document.getElementById('reset-btn').style.display = 'block';
+            document.getElementById('donate-btn').style.display = 'block';
         }
     }
 
     document.getElementById('donate-btn').onclick = async function() {
-    if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
-    try {
-        const res = await fetch('/api/get-invoice');
-        if (!res.ok) throw new Error('Server error'); // Проверка, что сервер ответил 200 OK
-        const data = await res.json();
-        
-        if (tg && data.url) {
-            tg.openInvoice(data.url, (status) => { 
-                if (status === 'paid') {
-                    tg.showAlert('Спасибо за поддержку! ✨');
-                    tg.HapticFeedback.notificationOccurred('success');
-                }
-            });
+        if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+        try {
+            const res = await fetch('/api/get-invoice');
+            if (!res.ok) throw new Error('Server error');
+            const data = await res.json();
+            
+            if (tg && data.url) {
+                tg.openInvoice(data.url, (status) => { 
+                    if (status === 'paid') {
+                        tg.showAlert('Спасибо за поддержку! ✨');
+                        tg.HapticFeedback.notificationOccurred('success');
+                    }
+                });
+            }
+        } catch (e) { 
+            console.error(e);
+            tg.showAlert('Не удалось связаться с сервером оплаты'); 
         }
-    } catch (e) { 
-        console.error(e);
-        tg.showAlert('Не удалось связаться с сервером оплаты'); 
-    }
-};
+    };
 
     function createParticles(x, y, color) {
         for (let i = 0; i < 10; i++) {
