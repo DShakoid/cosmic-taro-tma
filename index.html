@@ -102,10 +102,24 @@
     .slot.large .card-name { font-size: 12px; }
 
     .prediction-box {
-        width: 100%; background: rgba(20, 15, 30, 0.6); border-radius: 20px;
-        padding: 18px; border: 1px solid rgba(168, 85, 247, 0.15);
-        backdrop-filter: blur(15px); text-align: center; margin-top: 20px;
-    }
+    /* Убираем width: 100%, чтобы блок сам вписался в контейнер */
+    width: auto; 
+    
+    /* Делаем отступы по 3% слева и справа */
+    margin-left: 3%;
+    margin-right: 3%;
+    margin-top: 20px;
+    margin-bottom: 30px; /* Чтобы не прилипало к низу экрана */
+
+    background: rgba(20, 15, 30, 0.6);
+    border-radius: 20px;
+    padding: 18px;
+    border: 1px solid rgba(168, 85, 247, 0.15);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    text-align: center;
+    box-sizing: border-box; /* Это критично: паддинги теперь не раздувают блок */
+}
 
     .overlay {
         position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
