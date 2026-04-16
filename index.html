@@ -213,27 +213,31 @@
 
         /* Объединенный и очищенный стиль рубашки */
 .face.back {
-    /* Твой файл */
-    background-image: url('back_card.jpg'); 
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-color: #1e1b4b; /* Темно-синий фон на время загрузки */
-    
-    /* Убираем лишние рамки, чтобы картинка была на всю площадь */
-    border: none; 
-    
-    /* Эффект объема и скругление */
-    box-shadow: inset 0 0 15px rgba(0,0,0,0.5);
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
     position: absolute;
     width: 100%;
     height: 100%;
     backface-visibility: hidden;
+    border-radius: 10px;
+    
+    /* Твоя рубашка */
+    background-image: url('back_card.jpg'); 
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    
+    /* ВАЖНО: Цвет фона, чтобы не было дырки, пока грузится картинка */
+    background-color: #1e1b4b; 
+    
+    /* Убираем рамку, чтобы не двоилось */
+    border: none;
+    box-shadow: inset 0 0 15px rgba(0,0,0,0.5);
+    
+    /* Гарантируем, что рубашка сверху в начале полета */
+    z-index: 2; 
+}
+
+.face.front {
+    z-index: 1;
 }
 
 /* На всякий случай гасим старый SVG-фон, если он где-то всплывет */
@@ -285,6 +289,17 @@
     let drawnCount = 0;
     let maxCards = 0;
     let selectedCards = [];
+
+    // --- ИНИЦИАЛИЗАЦИЯ TELEGRAM WEBAPP ---
+    if (window.Telegram && window.Telegram.WebApp) {
+        const tg = window.Telegram.WebApp;
+        tg.ready();
+        tg.expand(); // Разворачиваем на весь экран
+        
+        // Настраиваем цвета интерфейса Telegram в тон приложению
+        tg.setHeaderColor('#050508');
+        tg.setBackgroundColor('#050508');
+    }
 
     // --- ИНИЦИАЛИЗАЦИЯ РЕЖИМА ---
     function setMode(newMode) {
@@ -367,15 +382,15 @@
         
         const reversedLabel = isReversed ? `<div style="font-size: 6px; color: #ff4d4d; position: absolute; bottom: 3px; font-weight:bold;">ПЕРЕВЕРНУТА</div>` : '';
         
-        // ЗДЕСЬ УДАЛЕН СИМВОЛ ✦, ЧТОБЫ БЫЛА ТОЛЬКО ТВОЯ РУБАШКА
+        // ВАЖНО: Добавляем стиль прямо в HTML, чтобы рубашка была мгновенно
         card.innerHTML = `
-    <div class="face back"></div> 
-    <div class="face front">
-        <div class="card-emoji">${cardData.emoji}</div>
-        <div class="card-name">${cardData.name}</div>
-        ${reversedLabel}
-    </div>
-`;
+            <div class="face back" style="background-image: url('back_card.jpg'); background-size: cover;"></div>
+            <div class="face front">
+                <div class="card-emoji">${cardData.emoji}</div>
+                <div class="card-name">${cardData.name}</div>
+                ${reversedLabel}
+            </div>
+        `;
         
         document.body.appendChild(card);
         updatePrediction();
@@ -427,7 +442,6 @@
         }
         box.innerHTML = html;
 
-        // Показ кнопок при завершении
         if (drawnCount >= maxCards && maxCards > 0) {
             document.getElementById('reset-btn').style.display = 'inline-block';
             document.getElementById('share-btn').style.display = 'inline-block';
@@ -435,7 +449,6 @@
         }
     }
 
-    // Донат через Telegram Stars
     document.getElementById('donate-btn').onclick = function() {
         if (window.Telegram?.WebApp) {
             window.Telegram.WebApp.sendData(JSON.stringify({
