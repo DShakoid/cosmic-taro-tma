@@ -252,11 +252,10 @@
         </div>
 
         <div class="deck-container">
-            <div class="deck" onclick="drawCard()">
-                <div style="color: var(--purp); font-size: 24px; filter: drop-shadow(0 0 5px var(--purp));">✦</div>
-            </div>
-            <div style="font-size: 0.5rem; color: var(--purp); margin-top: 8px; letter-spacing: 2px; font-weight: bold; text-transform: uppercase;">ТЯНИ КАРТУ</div>
+    <div class="deck" onclick="drawCard()">
         </div>
+    <div style="color:var(--purp); font-size:0.6rem; margin-top:5px; letter-spacing:2px;">ТЯНИ КАРТУ</div>
+</div>
 
         <div id="table" class="table"></div>
 
@@ -370,13 +369,13 @@
         
         // ЗДЕСЬ УДАЛЕН СИМВОЛ ✦, ЧТОБЫ БЫЛА ТОЛЬКО ТВОЯ РУБАШКА
         card.innerHTML = `
-            <div class="face back"></div>
-            <div class="face front">
-                <div class="card-emoji">${cardData.emoji}</div>
-                <div class="card-name">${cardData.name}</div>
-                ${reversedLabel}
-            </div>
-        `;
+    <div class="face back"></div> 
+    <div class="face front">
+        <div class="card-emoji">${cardData.emoji}</div>
+        <div class="card-name">${cardData.name}</div>
+        ${reversedLabel}
+    </div>
+`;
         
         document.body.appendChild(card);
         updatePrediction();
