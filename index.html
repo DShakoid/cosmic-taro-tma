@@ -233,19 +233,23 @@
     }
 
     // УНИВЕРСАЛЬНАЯ ОПЛАТА
-    document.getElementById('donate-btn').onclick = function() {
-        // Когда настроишь BotFather, сюда нужно будет вставить 
-        // реальную ссылку, которую сгенерирует твой бот.
-        const invoiceUrl = ""; // ВСТАВИТЬ СЮДА ССЫЛКУ ОТ БОТА
+    document.getElementById('donate-btn').onclick = async function() {
+    try {
+        // Вызываем нашу серверную функцию на Vercel
+        const response = await fetch('/api/get-invoice');
+        const data = await response.json();
 
-        if (tg && invoiceUrl !== "") {
-            tg.openInvoice(invoiceUrl, function(status) {
-                if (status === 'paid') tg.showAlert('Спасибо! ✨');
+        if (tg && data.url) {
+            tg.openInvoice(data.url, function(status) {
+                if (status === 'paid') {
+                    tg.showAlert('Спасибо! Звезды зачислены ✨');
+                }
             });
-        } else {
-            tg.showAlert('Для реальной оплаты нужно подключить Invoice URL от бота.');
         }
-    };
+    } catch (e) {
+        tg.showAlert('Ошибка платежной системы');
+    }
+};
 
     function showModal(c) {
         document.getElementById('m-emoji').innerText = c.emoji;
