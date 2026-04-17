@@ -240,62 +240,83 @@
     }
 
     function drawCard() {
-        if (!currentMode || drawnCount >= maxCards) return;
-        const deck = document.querySelector('.deck');
-        const deckRect = deck.getBoundingClientRect();
-        createParticles(deckRect.left + deckRect.width / 2, deckRect.top + deckRect.height / 2, '#a855f7');
-        const slot = document.getElementById('slot' + drawnCount);
-        const slotRect = slot.getBoundingClientRect();
-        slot.classList.remove('active-target');
-        const availableCards = tarotDB.cards.filter(c => !selectedCards.find(s => s.id === c.id));
-        const cardData = availableCards[Math.floor(Math.random() * availableCards.length)];
-        const isReversed = Math.random() < 0.25;
-        const cardInstance = { ...cardData, isReversed };
-        selectedCards.push(cardInstance);
-        drawnCount++;
+    if (!currentMode || drawnCount >= maxCards) return;
 
-        const card = document.createElement('div');
-        card.className = `card-anim`;
-        card.style.width = deckRect.width + 'px';
-        card.style.height = deckRect.height + 'px';
-        card.style.left = deckRect.left + 'px';
-        card.style.top = deckRect.top + 'px';
-       
-        const revLabel = isReversed ? `<div style="font-size: 6px; color: #ff4d4d; position: absolute; bottom: 3px; font-weight:bold;">ПЕРЕВЕРНУТА</div>` : '';
-       
-        card.innerHTML = `
-            <div class="face back"></div>
-            <div class="face front">
-                <div class="card-emoji">${cardData.emoji}</div>
-                <div class="card-name">${cardData.name}</div>
-                ${revLabel}
-            </div>
-        `;
-       
-        document.body.appendChild(card);
-        updatePrediction();
+    const deck = document.querySelector('.deck');
+    const deckRect = deck.getBoundingClientRect();
+    createParticles(deckRect.left + deckRect.width / 2, deckRect.top + deckRect.height / 2, '#a855f7');
 
-        requestAnimationFrame(() => {
-            card.style.left = slotRect.left + 'px';
-            card.style.top = slotRect.top + 'px';
-            card.style.width = slotRect.width + 'px';
-            card.style.height = slotRect.height + 'px';
-           
-            setTimeout(() => {
-                if (isReversed) card.classList.add('is-reversed');
-                card.classList.add('flipped');
-            }, 150);
-        });
+    const slot = document.getElementById('slot' + drawnCount);
+    const slotRect = slot.getBoundingClientRect();
+    slot.classList.remove('active-target');
+
+    const availableCards = tarotDB.cards.filter(c => !selectedCards.find(s => s.id === c.id));
+    const cardData = availableCards[Math.floor(Math.random() * availableCards.length)];
+    const isReversed = Math.random() < 0.25;
+    const cardInstance = { ...cardData, isReversed };
+    selectedCards.push(cardInstance);
+    drawnCount++;
+
+    const card = document.createElement('div');
+    card.className = `card-anim`;
+    
+    // Начальная позиция (от колоды)
+    card.style.width = deckRect.width + 'px';
+    card.style.height = deckRect.height + 'px';
+    card.style.left = deckRect.left + 'px';
+    card.style.top = deckRect.top + 'px';
+    card.style.position = 'fixed'; // Пока летит — fixed
+    card.style.zIndex = '500';
+
+    const revLabel = isReversed ? `<div style="font-size: 6px; color: #ff4d4d; position: absolute; bottom: 3px; font-weight:bold;">ПЕРЕВЕРНУТА</div>` : '';
+
+    card.innerHTML = `
+        <div class="face back"></div>
+        <div class="face front">
+            <div class="card-emoji">${cardData.emoji}</div>
+            <div class="card-name">${cardData.name}</div>
+            ${revLabel}
+        </div>
+    `;
+
+    document.body.appendChild(card);
+    updatePrediction();
+
+    // Запускаем полет к слоту
+    requestAnimationFrame(() => {
+        card.style.left = slotRect.left + 'px';
+        card.style.top = slotRect.top + 'px';
+        card.style.width = slotRect.width + 'px';
+        card.style.height = slotRect.height + 'px';
 
         setTimeout(() => {
-            card.classList.add('arrived');
-            card.onclick = () => showModal(cardInstance);
-            createParticles(slotRect.left + slotRect.width / 2, slotRect.top + slotRect.height / 2, '#ec4899');
-            const nextSlot = document.getElementById('slot' + drawnCount);
-            if (nextSlot) nextSlot.classList.add('active-target');
-        }, 800);
-    }
+            if (isReversed) card.classList.add('is-reversed');
+            card.classList.add('flipped');
+        }, 150);
+    });
 
+    // Когда анимация полета завершена (через 800мс)
+    setTimeout(() => {
+        card.classList.add('arrived');
+        
+        // --- ФИКСАЦИЯ ВНУТРИ СЛОТА ---
+        // Перемещаем карту из body внутрь ячейки slot
+        card.style.position = 'absolute';
+        card.style.left = '0';
+        card.style.top = '0';
+        card.style.width = '100%';
+        card.style.height = '100%';
+        card.style.margin = '0';
+        slot.appendChild(card); 
+        // ----------------------------
+
+        card.onclick = () => showModal(cardInstance);
+        createParticles(slotRect.left + slotRect.width / 2, slotRect.top + slotRect.height / 2, '#ec4899');
+        
+        const nextSlot = document.getElementById('slot' + drawnCount);
+        if (nextSlot) nextSlot.classList.add('active-target');
+    }, 800);
+}
     function updatePrediction() {
     const box = document.getElementById('prediction-text');
     if (!box) return;
