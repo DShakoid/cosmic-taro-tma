@@ -152,8 +152,8 @@
     .fade-in { animation: fadeIn 0.5s ease forwards; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
    
-    #prediction-text { font-size: 0.9rem; line-height: 1.5; color: #e2d5f5; }
-    #prediction-text b { color: white; font-size: 1rem; text-transform: uppercase; }
+    #prediction-text { font-size: 0.7rem; line-height: 1.5; color: #e2d5f5; }
+    #prediction-text b { color: white; font-size: 0.8rem; text-transform: uppercase; }
     #prediction-text small { color: var(--purp); font-size: 0.75rem; letter-spacing: 1px; display: block; margin-bottom: 5px; }
 </style>
 </head>
@@ -275,7 +275,7 @@
     card.style.position = 'fixed'; // Пока летит — fixed
     card.style.zIndex = '500';
 
-    const revLabel = isReversed ? `<div style="font-size: 6px; color: #ff4d4d; position: absolute; bottom: 3px; font-weight:bold;">ПЕРЕВЕРНУТА</div>` : '';
+    const revLabel = isReversed ? `<div style="font-size: 6px; color: #ff4d4d; position: absolute; bottom: 5px; font-weight:bold;">ПЕРЕВЕРНУТА</div>` : '';
 
     card.innerHTML = `
         <div class="face back"></div>
@@ -361,10 +361,10 @@
             // 3. Собираем верстку
             html = `
                 <div class="fade-in">
-                    <div style="color: ${color}; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; font-size: 0.9rem; margin-bottom: 5px;">
+                    <div style="color: ${color}; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; font-size: 0.7rem; margin-bottom: 5px;">
                         📈 Преобладает стихия: ${dominant}
                     </div>
-                    <div style="font-size: 0.95rem; line-height: 1.4; border-left: 3px solid ${color}; padding-left: 10px; margin-bottom: 10px; text-align: left;">
+                    <div style="font-size: 0.75rem; line-height: 1.4; border-left: 3px solid ${color}; padding-left: 10px; margin-bottom: 10px; text-align: left;">
                         ${tarotDB.elementalAdvice[dominant]}
                     </div>
                     ${comboNote}
@@ -373,7 +373,7 @@
             if (drawnCount < maxCards) {
                 html += `<div style="margin-top:10px; color:var(--pink); font-size:0.75rem;">Тяните карту №${drawnCount + 1}...</div>`;
             } else {
-                html += `<div style="margin-top:10px; font-weight:bold; color:var(--purp);">РАСКЛАД ЗАВЕРШЕН</div>`;
+                html += `<div style="margin-top:10px; font-size: 0.6rem; font-weight:bold; color:var(--purp);">РАСКЛАД ЗАВЕРШЕН</div>`;
             }
         }
     }
