@@ -85,20 +85,27 @@
     }
     .slot.large { width: 140px; height: 200px; }
     .slot.active-target { border-color: rgba(236, 72, 153, 0.4); box-shadow: 0 0 10px rgba(236, 72, 153, 0.2); }
-    .card-anim {
-        position: fixed; z-index: 500;
-        transition: left 0.8s cubic-bezier(0.23, 1, 0.32, 1), top 0.8s cubic-bezier(0.23, 1, 0.32, 1),
+    .card-anim { 
+        position: fixed; z-index: 500; 
+        transition: left 0.8s cubic-bezier(0.23, 1, 0.32, 1), top 0.8s cubic-bezier(0.23, 1, 0.32, 1), 
                     width 0.8s cubic-bezier(0.23, 1, 0.32, 1), height 0.8s cubic-bezier(0.23, 1, 0.32, 1);
         transform-style: preserve-3d; pointer-events: none;
+        /* ФИКС УГОЛКОВ ЗДЕСЬ */
+        border-radius: 10px; 
+        overflow: hidden; /* Обязательно, чтобы скруглить все лица */
     }
+
     .card-anim.flipped { transform: rotateY(180deg); transition: transform 0.7s, left 0.8s, top 0.8s, width 0.8s, height 0.8s; }
     .card-anim.is-reversed.flipped { transform: rotateY(180deg) rotateZ(180deg); }
     .card-anim.arrived { box-shadow: var(--neon-pink); pointer-events: auto; }
-    .face {
-        position: absolute; width: 100%; height: 100%; backface-visibility: hidden;
-        border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center;
-        box-sizing: border-box; overflow: hidden;
-        clip-path: inset(0 round 10px);
+
+    .face { 
+        position: absolute; width: 100%; height: 100%; backface-visibility: hidden; 
+        /* УБИРАЕМ border-radius отсюда */
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        box-sizing: border-box; 
+        /* ФИКС УГОЛКОВ И ЗДЕСЬ ТОЖЕ */
+        overflow: hidden; 
     }
     .face.back { background: #1e1b4b url('back_card.jpg') center/cover; border: 2px solid var(--purp); z-index: 2; }
     .face.front { background: #0f172a; border: 2px solid var(--pink); transform: rotateY(180deg); padding: 8px; z-index: 1; }
