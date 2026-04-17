@@ -86,14 +86,14 @@
     .slot.large { width: 140px; height: 200px; }
     .slot.active-target { border-color: rgba(236, 72, 153, 0.4); box-shadow: 0 0 10px rgba(236, 72, 153, 0.2); }
     .card-anim { 
-        position: fixed; z-index: 500; 
-        transition: left 0.8s cubic-bezier(0.23, 1, 0.32, 1), top 0.8s cubic-bezier(0.23, 1, 0.32, 1), 
-                    width 0.8s cubic-bezier(0.23, 1, 0.32, 1), height 0.8s cubic-bezier(0.23, 1, 0.32, 1);
-        transform-style: preserve-3d; pointer-events: none;
-        /* ФИКС УГОЛКОВ ЗДЕСЬ */
-        border-radius: 10px; 
-        overflow: hidden; /* Обязательно, чтобы скруглить все лица */
-    }
+    position: fixed; 
+    z-index: 500; 
+    transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+    transform-style: preserve-3d; 
+    perspective: 1000px; /* Добавь перспективу для глубины */
+    pointer-events: none;
+    border-radius: 10px; 
+}
 
     .card-anim.flipped { transform: rotateY(180deg); transition: transform 0.7s, left 0.8s, top 0.8s, width 0.8s, height 0.8s; }
     .card-anim.is-reversed.flipped { transform: rotateY(180deg) rotateZ(180deg); }
@@ -247,88 +247,78 @@
     }
 
     function drawCard() {
-        if (!currentMode || drawnCount >= maxCards) return;
+    if (!currentMode || drawnCount >= maxCards) return;
 
-        const deck = document.querySelector('.deck');
-        const deckRect = deck.getBoundingClientRect();
-        createParticles(deckRect.left + deckRect.width / 2, deckRect.top + deckRect.height / 2, '#a855f7');
+    const deck = document.querySelector('.deck');
+    const deckRect = deck.getBoundingClientRect();
+    createParticles(deckRect.left + deckRect.width / 2, deckRect.top + deckRect.height / 2, '#a855f7');
 
-        const slot = document.getElementById('slot' + drawnCount);
-        const slotRect = slot.getBoundingClientRect();
-        slot.classList.remove('active-target');
+    const slot = document.getElementById('slot' + drawnCount);
+    const slotRect = slot.getBoundingClientRect();
+    slot.classList.remove('active-target');
 
-        const availableCards = tarotDB.cards.filter(c => !selectedCards.find(s => s.id === c.id));
-        const cardData = availableCards[Math.floor(Math.random() * availableCards.length)];
-        const isReversed = Math.random() < 0.25;
-        const cardInstance = { ...cardData, isReversed };
-        selectedCards.push(cardInstance);
-        drawnCount++;
+    const availableCards = tarotDB.cards.filter(c => !selectedCards.find(s => s.id === c.id));
+    const cardData = availableCards[Math.floor(Math.random() * availableCards.length)];
+    const isReversed = Math.random() < 0.25;
+    const cardInstance = { ...cardData, isReversed };
+    selectedCards.push(cardInstance);
+    drawnCount++;
 
-        const card = document.createElement('div');
-        card.className = `card-anim`;
+    const card = document.createElement('div');
+    card.className = `card-anim`;
+    
+    // Начальные стили
+    card.style.width = deckRect.width + 'px';
+    card.style.height = deckRect.height + 'px';
+    card.style.left = deckRect.left + 'px';
+    card.style.top = deckRect.top + 'px';
+
+    const revLabel = isReversed ? `<div style="font-size: 6px; color: #ff4d4d; position: absolute; bottom: 5px; font-weight:bold;">ПЕРЕВЕРНУТА</div>` : '';
+
+    card.innerHTML = `
+        <div class="face back"></div>
+        <div class="face front">
+            <div class="card-emoji">${cardData.emoji}</div>
+            <div class="card-name">${cardData.name}</div>
+            ${revLabel}
+        </div>
+    `;
+
+    document.body.appendChild(card);
+    updatePrediction();
+
+    // Запуск анимации полета и переворота одновременно
+    requestAnimationFrame(() => {
+        card.style.left = slotRect.left + 'px';
+        card.style.top = slotRect.top + 'px';
+        card.style.width = slotRect.width + 'px';
+        card.style.height = slotRect.height + 'px';
         
-        card.style.width = deckRect.width + 'px';
-        card.style.height = deckRect.height + 'px';
-        card.style.left = deckRect.left + 'px';
-        card.style.top = deckRect.top + 'px';
-        card.style.position = 'fixed'; 
-        card.style.zIndex = '500';
-        card.style.borderRadius = '10px'; // Фикс углов
+        // Переворачиваем сразу в полете
+        if (isReversed) card.classList.add('is-reversed');
+        card.classList.add('flipped');
+    });
 
-        const revLabel = isReversed ? `<div style="font-size: 6px; color: #ff4d4d; position: absolute; bottom: 5px; font-weight:bold;">ПЕРЕВЕРНУТА</div>` : '';
+    setTimeout(() => {
+        card.classList.add('arrived');
+        
+        // Принудительно фиксируем финальные координаты перед переносом в слот
+        card.style.position = 'absolute';
+        card.style.left = '0';
+        card.style.top = '0';
+        card.style.width = '100%';
+        card.style.height = '100%';
+        
+        // Перемещаем в слот
+        slot.appendChild(card); 
 
-        card.innerHTML = `
-            <div class="face back"></div>
-            <div class="face front">
-                <div class="card-emoji">${cardData.emoji}</div>
-                <div class="card-name">${cardData.name}</div>
-                ${revLabel}
-            </div>
-        `;
-
-        document.body.appendChild(card);
-        updatePrediction();
-
-        requestAnimationFrame(() => {
-            card.style.left = slotRect.left + 'px';
-            card.style.top = slotRect.top + 'px';
-            card.style.width = slotRect.width + 'px';
-            card.style.height = slotRect.height + 'px';
-
-            setTimeout(() => {
-                if (isReversed) card.classList.add('is-reversed');
-                card.classList.add('flipped');
-            }, 150);
-        });
-
-        setTimeout(() => {
-            card.classList.add('arrived');
-            
-            // Сохраняем состояние переворота
-            const isFlipped = card.classList.contains('flipped');
-            const isRevClass = card.classList.contains('is-reversed');
-            
-            // Фиксация внутри слота для скролла
-            card.style.position = 'absolute';
-            card.style.left = '0';
-            card.style.top = '0';
-            card.style.width = '100%';
-            card.style.height = '100%';
-            card.style.margin = '0';
-            
-            slot.appendChild(card); 
-
-            // Возвращаем классы после перемещения в DOM
-            if (isFlipped) card.classList.add('flipped');
-            if (isRevClass) card.classList.add('is-reversed');
-
-            card.onclick = () => showModal(cardInstance);
-            createParticles(slotRect.left + slotRect.width / 2, slotRect.top + slotRect.height / 2, '#ec4899');
-            
-            const nextSlot = document.getElementById('slot' + drawnCount);
-            if (nextSlot) nextSlot.classList.add('active-target');
-        }, 800);
-    } // Скобка закрытия drawCard добавлена
+        card.onclick = () => showModal(cardInstance);
+        createParticles(slotRect.left + slotRect.width / 2, slotRect.top + slotRect.height / 2, '#ec4899');
+        
+        const nextSlot = document.getElementById('slot' + drawnCount);
+        if (nextSlot) nextSlot.classList.add('active-target');
+    }, 850); // Чуть больше, чем transition (0.8s)
+}
 
     function updatePrediction() {
         const box = document.getElementById('prediction-text');
