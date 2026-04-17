@@ -211,7 +211,7 @@
         document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
         const activeBtn = document.getElementById('btn-' + newMode);
         if(activeBtn) activeBtn.classList.add('active');
-       
+        
         document.getElementById('reset-btn').style.display = 'none';
         document.getElementById('donate-btn').style.display = 'none';
 
@@ -247,153 +247,154 @@
     }
 
     function drawCard() {
-    if (!currentMode || drawnCount >= maxCards) return;
+        if (!currentMode || drawnCount >= maxCards) return;
 
-    const deck = document.querySelector('.deck');
-    const deckRect = deck.getBoundingClientRect();
-    createParticles(deckRect.left + deckRect.width / 2, deckRect.top + deckRect.height / 2, '#a855f7');
+        const deck = document.querySelector('.deck');
+        const deckRect = deck.getBoundingClientRect();
+        createParticles(deckRect.left + deckRect.width / 2, deckRect.top + deckRect.height / 2, '#a855f7');
 
-    const slot = document.getElementById('slot' + drawnCount);
-    const slotRect = slot.getBoundingClientRect();
-    slot.classList.remove('active-target');
+        const slot = document.getElementById('slot' + drawnCount);
+        const slotRect = slot.getBoundingClientRect();
+        slot.classList.remove('active-target');
 
-    const availableCards = tarotDB.cards.filter(c => !selectedCards.find(s => s.id === c.id));
-    const cardData = availableCards[Math.floor(Math.random() * availableCards.length)];
-    const isReversed = Math.random() < 0.25;
-    const cardInstance = { ...cardData, isReversed };
-    selectedCards.push(cardInstance);
-    drawnCount++;
+        const availableCards = tarotDB.cards.filter(c => !selectedCards.find(s => s.id === c.id));
+        const cardData = availableCards[Math.floor(Math.random() * availableCards.length)];
+        const isReversed = Math.random() < 0.25;
+        const cardInstance = { ...cardData, isReversed };
+        selectedCards.push(cardInstance);
+        drawnCount++;
 
-    const card = document.createElement('div');
-    card.className = `card-anim`;
-    
-    // Начальная позиция (от колоды)
-    card.style.width = deckRect.width + 'px';
-    card.style.height = deckRect.height + 'px';
-    card.style.left = deckRect.left + 'px';
-    card.style.top = deckRect.top + 'px';
-    card.style.position = 'fixed'; // Пока летит — fixed
-    card.style.zIndex = '500';
+        const card = document.createElement('div');
+        card.className = `card-anim`;
+        
+        card.style.width = deckRect.width + 'px';
+        card.style.height = deckRect.height + 'px';
+        card.style.left = deckRect.left + 'px';
+        card.style.top = deckRect.top + 'px';
+        card.style.position = 'fixed'; 
+        card.style.zIndex = '500';
+        card.style.borderRadius = '10px'; // Фикс углов
 
-    const revLabel = isReversed ? `<div style="font-size: 6px; color: #ff4d4d; position: absolute; bottom: 5px; font-weight:bold;">ПЕРЕВЕРНУТА</div>` : '';
+        const revLabel = isReversed ? `<div style="font-size: 6px; color: #ff4d4d; position: absolute; bottom: 5px; font-weight:bold;">ПЕРЕВЕРНУТА</div>` : '';
 
-    card.innerHTML = `
-        <div class="face back"></div>
-        <div class="face front">
-            <div class="card-emoji">${cardData.emoji}</div>
-            <div class="card-name">${cardData.name}</div>
-            ${revLabel}
-        </div>
-    `;
+        card.innerHTML = `
+            <div class="face back"></div>
+            <div class="face front">
+                <div class="card-emoji">${cardData.emoji}</div>
+                <div class="card-name">${cardData.name}</div>
+                ${revLabel}
+            </div>
+        `;
 
-    document.body.appendChild(card);
-    updatePrediction();
+        document.body.appendChild(card);
+        updatePrediction();
 
-    // Запускаем полет к слоту
-    requestAnimationFrame(() => {
-        card.style.left = slotRect.left + 'px';
-        card.style.top = slotRect.top + 'px';
-        card.style.width = slotRect.width + 'px';
-        card.style.height = slotRect.height + 'px';
+        requestAnimationFrame(() => {
+            card.style.left = slotRect.left + 'px';
+            card.style.top = slotRect.top + 'px';
+            card.style.width = slotRect.width + 'px';
+            card.style.height = slotRect.height + 'px';
+
+            setTimeout(() => {
+                if (isReversed) card.classList.add('is-reversed');
+                card.classList.add('flipped');
+            }, 150);
+        });
 
         setTimeout(() => {
-            if (isReversed) card.classList.add('is-reversed');
-            card.classList.add('flipped');
-        }, 150);
-    });
+            card.classList.add('arrived');
+            
+            // Сохраняем состояние переворота
+            const isFlipped = card.classList.contains('flipped');
+            const isRevClass = card.classList.contains('is-reversed');
+            
+            // Фиксация внутри слота для скролла
+            card.style.position = 'absolute';
+            card.style.left = '0';
+            card.style.top = '0';
+            card.style.width = '100%';
+            card.style.height = '100%';
+            card.style.margin = '0';
+            
+            slot.appendChild(card); 
 
-    // Когда анимация полета завершена (через 800мс)
-    setTimeout(() => {
-        card.classList.add('arrived');
-        
-        // Сохраняем состояние переворота перед переносом
-        const isFlipped = card.classList.contains('flipped');
-        const isRevClass = card.classList.contains('is-reversed');
-        
-        // --- ФИКСАЦИЯ ВНУТРИ СЛОТА ---
-        card.style.position = 'absolute';
-        card.style.left = '0';
-        card.style.top = '0';
-        card.style.width = '100%';
-        card.style.height = '100%';
-        card.style.margin = '0';
-        
-        // Перемещаем карту в слот
-        slot.appendChild(card); 
+            // Возвращаем классы после перемещения в DOM
+            if (isFlipped) card.classList.add('flipped');
+            if (isRevClass) card.classList.add('is-reversed');
 
-        // ПРИНУДИТЕЛЬНО возвращаем классы, если они слетели при переезде
-        if (isFlipped) card.classList.add('flipped');
-        if (isRevClass) card.classList.add('is-reversed');
-        // ----------------------------
+            card.onclick = () => showModal(cardInstance);
+            createParticles(slotRect.left + slotRect.width / 2, slotRect.top + slotRect.height / 2, '#ec4899');
+            
+            const nextSlot = document.getElementById('slot' + drawnCount);
+            if (nextSlot) nextSlot.classList.add('active-target');
+        }, 800);
+    } // Скобка закрытия drawCard добавлена
 
-        card.onclick = () => showModal(cardInstance);
-        createParticles(slotRect.left + slotRect.width / 2, slotRect.top + slotRect.height / 2, '#ec4899');
-        
-        const nextSlot = document.getElementById('slot' + drawnCount);
-        if (nextSlot) nextSlot.classList.add('active-target');
-    }, 800);
     function updatePrediction() {
-    const box = document.getElementById('prediction-text');
-    if (!box) return;
-    
-    const elementColors = {
-        "Огонь": "#ff4d4d",   // Красный
-        "Вода": "#4db8ff",    // Голубой
-        "Воздух": "#ffcc00",  // Желтый/Золотой
-        "Земля": "#4dff88"    // Зеленый
-    };
+        const box = document.getElementById('prediction-text');
+        if (!box) return;
+        
+        const elementColors = {
+            "Огонь": "#ff4d4d",
+            "Вода": "#4db8ff",
+            "Воздух": "#ffcc00",
+            "Земля": "#4dff88"
+        };
 
-    let html = "";
-    if (selectedCards.length > 0) {
-        if (currentMode === 'day') {
-            const last = selectedCards[0];
-            html = `<div class="fade-in"><small>${last.keywords}</small><b>${last.name}</b><p>${last.isReversed ? last.advice_rev : last.advice}</p></div>`;
-        } else {
-            // 1. Считаем доминанту
-            const counts = {};
-            selectedCards.forEach(c => counts[c.element] = (counts[c.element] || 0) + 1);
-            const dominant = Object.keys(counts).reduce((a, b) => counts[a] > counts[b] ? a : b);
-            const color = elementColors[dominant] || "#fff";
+        let html = "";
+        if (selectedCards.length > 0) {
+            if (currentMode === 'day') {
+                const last = selectedCards[0];
+                html = `<div class="fade-in"><small>${last.keywords}</small><b>${last.name}</b><p>${last.isReversed ? last.advice_rev : last.advice}</p></div>`;
+            } else {
+                const counts = {};
+                selectedCards.forEach(c => counts[c.element] = (counts[c.element] || 0) + 1);
+                const dominant = Object.keys(counts).reduce((a, b) => counts[a] > counts[b] ? a : b);
+                const color = elementColors[dominant] || "#fff";
 
-            // 2. Ищем связки (Combos)
-            let comboNote = "";
-            for (let i = 0; i < selectedCards.length; i++) {
-                for (let j = i + 1; j < selectedCards.length; j++) {
-                    const id1 = selectedCards[i].id;
-                    const id2 = selectedCards[j].id;
-                    const found = tarotDB.combos[`${id1}+${id2}`] || tarotDB.combos[`${id2}+${id1}`];
-                    if (found) comboNote = `<div style="margin-top:10px; padding:10px; border:1px solid ${color}; background: rgba(255,255,255,0.05); border-radius:8px;">🔮 <b>Связка:</b> ${found}</div>`;
+                let comboNote = "";
+                for (let i = 0; i < selectedCards.length; i++) {
+                    for (let j = i + 1; j < selectedCards.length; j++) {
+                        const id1 = selectedCards[i].id;
+                        const id2 = selectedCards[j].id;
+                        const found = tarotDB.combos[`${id1}+${id2}`] || tarotDB.combos[`${id2}+${id1}`];
+                        if (found) comboNote = `<div style="margin-top:10px; padding:10px; border:1px solid ${color}; background: rgba(255,255,255,0.05); border-radius:8px;">🔮 <b>Связка:</b> ${found}</div>`;
+                    }
+                }
+
+                html = `
+                    <div class="fade-in">
+                        <div style="color: ${color}; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; font-size: 0.7rem; margin-bottom: 5px;">
+                            📈 Преобладает стихия: ${dominant}
+                        </div>
+                        <div style="font-size: 0.75rem; line-height: 1.4; border-left: 3px solid ${color}; padding-left: 10px; margin-bottom: 10px; text-align: left;">
+                            ${tarotDB.elementalAdvice[dominant]}
+                        </div>
+                        ${comboNote}
+                    </div>`;
+                
+                if (drawnCount < maxCards) {
+                    html += `<div style="margin-top:10px; color:var(--pink); font-size:0.75rem;">Тяните карту №${drawnCount + 1}...</div>`;
+                } else {
+                    html += `<div style="margin-top:10px; font-size:0.75rem; font-weight:bold; color:var(--purp);">РАСКЛАД ЗАВЕРШЕН</div>`;
                 }
             }
+        }
+        
+        box.innerHTML = html;
 
-            // 3. Собираем верстку
-            html = `
-                <div class="fade-in">
-                    <div style="color: ${color}; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; font-size: 0.7rem; margin-bottom: 5px;">
-                        📈 Преобладает стихия: ${dominant}
-                    </div>
-                    <div style="font-size: 0.75rem; line-height: 1.4; border-left: 3px solid ${color}; padding-left: 10px; margin-bottom: 10px; text-align: left;">
-                        ${tarotDB.elementalAdvice[dominant]}
-                    </div>
-                    ${comboNote}
-                </div>`;
+        if (drawnCount >= maxCards && maxCards > 0) {
+            const rBtn = document.getElementById('reset-btn');
+            const dBtn = document.getElementById('donate-btn');
+            rBtn.style.display = 'inline-block';
+            dBtn.style.display = 'inline-block';
             
-            if (drawnCount < maxCards) {
-                html += `<div style="margin-top:10px; color:var(--pink); font-size:0.75rem;">Тяните карту №${drawnCount + 1}...</div>`;
-            } else {
-                html += `<div style="margin-top:10px; font-size:0.75rem; font-weight:bold; color:var(--purp);">РАСКЛАД ЗАВЕРШЕН</div>`;
-            }
+            // Плавный скролл к кнопкам в конце расклада
+            setTimeout(() => {
+                dBtn.scrollIntoView({ behavior: 'smooth', block: 'end' });
+            }, 500);
         }
     }
-    
-    box.innerHTML = html;
-
-    // Кнопки управления (появляются в конце)
-    if (drawnCount >= maxCards && maxCards > 0) {
-        document.getElementById('reset-btn').style.display = 'inline-block';
-        document.getElementById('donate-btn').style.display = 'inline-block';
-    }
-}
 
     document.getElementById('donate-btn').onclick = async function() {
         if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
@@ -401,7 +402,7 @@
             const res = await fetch('/api/get-invoice');
             if (!res.ok) throw new Error('Server error');
             const data = await res.json();
-           
+            
             if (tg && data.url) {
                 tg.openInvoice(data.url, (status) => {
                     if (status === 'paid') {
