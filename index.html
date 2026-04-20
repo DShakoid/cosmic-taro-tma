@@ -127,6 +127,19 @@
         <div class="btn disabled">
             <span>ᚱ</span> РУНЫ (СКОРО)
         </div>
+
+        <button onclick="openDateModal()" class="btn" style="background: rgba(236, 72, 153, 0.1); border-color: #ec4899; box-shadow: 0 0 15px rgba(236, 72, 153, 0.4);">
+    <span>📅</span> ПРОГНОЗ ПО ДАТЕ (50 ⭐)
+</button>
+
+<div id="date-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 100; align-items: center; justify-content: center;">
+    <div style="background: #1a0b2e; padding: 25px; border-radius: 20px; border: 1px solid var(--purp); text-align: center; width: 80%; max-width: 300px;">
+        <h3 style="margin-top: 0;">Ваша дата рождения</h3>
+        <input type="date" id="birth-date" style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--purp); background: #050508; color: white; margin-bottom: 20px; outline: none;">
+        <button onclick="processPayment()" class="btn" style="width: 100%; margin: 0; height: 50px;">ОПЛАТИТЬ 50 ⭐</button>
+        <button onclick="closeDateModal()" style="background: none; border: none; color: gray; margin-top: 15px; cursor: pointer;">Отмена</button>
+    </div>
+</div>
     </div>
 
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
