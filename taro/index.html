@@ -417,35 +417,32 @@
 
     // ПРИЗЕМЛЕНИЕ: 
    setTimeout(() => {
-            // 1. Берем текущие координаты, чтобы не было прыжка при смене position
-            const finalRect = card.getBoundingClientRect();
-            
-            card.style.transition = 'none';
-            card.style.left = finalRect.left + 'px';
-            card.style.top = finalRect.top + 'px';
-
-            // 2. Перекидываем в слот
+            // 1. Сначала переносим в слот
             slot.appendChild(card); 
 
-            // 3. Сбрасываем в absolute, но даем браузеру "продышаться"
-            requestAnimationFrame(() => {
-                card.style.position = 'absolute';
-                card.style.left = '0';
-                card.style.top = '0';
-                card.style.width = '100%';
-                card.style.height = '100%';
-                card.style.margin = '0';
+            // 2. Сбрасываем стили позиционирования
+            card.style.position = 'absolute';
+            card.style.left = '0';
+            card.style.top = '0';
+            card.style.width = '100%';
+            card.style.height = '100%';
+            card.style.margin = '0';
+            card.style.transition = 'none'; // Убиваем старый транзишн полета
+
+            // 3. А теперь самое главное: ЗУМ ТОЛЬКО ЕСЛИ СЛОТ LARGE
+            if (slot.classList.contains('large')) {
+                const emoji = card.querySelector('.card-emoji');
+                const name = card.querySelector('.card-name');
                 
-                // 4. Вот теперь говорим, что она приземлилась
-                // Только сейчас включится масштаб из CSS (плавно)
-                requestAnimationFrame(() => {
-                    card.classList.add('arrived');
-                });
-            });
+                // Форсируем масштаб через JS style — это ПЕРЕБЬЕТ любой CSS скачок
+                emoji.style.transform = 'scale(1.4)';
+                name.style.transform = 'scale(1.2)';
+            }
+
+            // Добавляем arrived для теней и прочего
+            card.classList.add('arrived');
 
             card.onclick = () => showModal(cardInstance);
-            
-            // Искра летит теперь СТРОГО после фиксации
             createParticles(slotRect.left + slotRect.width / 2, slotRect.top + slotRect.height / 2, '#ec4899');
             
             const nextSlot = document.getElementById('slot' + drawnCount);
