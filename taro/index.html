@@ -424,92 +424,106 @@
     }
 
     function drawCard() {
-        if (!currentMode || drawnCount >= maxCards || isAnimating) return;
-        isAnimating = true;
+    if (!currentMode || drawnCount >= maxCards || isAnimating) return;
+    isAnimating = true;
 
-        const deck = document.querySelector('.deck');
-        const deckRect = deck.getBoundingClientRect();
-        createParticles(deckRect.left + deckRect.width / 2, deckRect.top + deckRect.height / 2, '#a855f7');
+    const deck = document.querySelector('.deck');
+    const deckRect = deck.getBoundingClientRect();
+    createParticles(deckRect.left + deckRect.width / 2, deckRect.top + deckRect.height / 2, '#a855f7');
 
-        const slot = document.getElementById('slot' + drawnCount);
-        const slotRect = slot.getBoundingClientRect();
-        slot.classList.remove('active-target');
+    const slot = document.getElementById('slot' + drawnCount);
+    const slotRect = slot.getBoundingClientRect();
+    slot.classList.remove('active-target');
 
-        const availableCards = tarotDB.cards.filter(c => !selectedCards.find(s => s.id === c.id));
-        const cardData = availableCards[Math.floor(Math.random() * availableCards.length)];
-        const isReversed = Math.random() < 0.25;
-        const cardInstance = { ...cardData, isReversed };
-        selectedCards.push(cardInstance);
-        drawnCount++;
-
-        const card = document.createElement('div');
-        card.className = `card-anim`;
-        
-        const isLargeSlot = slot.classList.contains('large');
-        
-        card.style.position = 'fixed';
-        card.style.zIndex = '1000';
-        card.style.left = deckRect.left + 'px';
-        card.style.top = deckRect.top + 'px';
-        card.style.width = deckRect.width + 'px';
-        card.style.height = deckRect.height + 'px';
-        card.style.transition = 'all 0.8s cubic-bezier(0.23, 1, 0.32, 1)';
-
-        card.innerHTML = `
-            <div class="face back"></div>
-            <div class="face front">
-                <div class="card-emoji" style="transition: transform 0.8s cubic-bezier(0.23, 1, 0.32, 1);">${cardData.emoji}</div>
-                <div class="card-name" style="transition: transform 0.8s cubic-bezier(0.23, 1, 0.32, 1);">${cardData.name}</div>
-                ${isReversed ? '<div style="font-size: 6px; color: #ff4d4d; position: absolute; bottom: 5px; width:100%; text-align:center;">ПЕРЕВЕРНУТА</div>' : ''}
-            </div>
-        `;
-
-        document.body.appendChild(card);
-        updatePrediction();
-
-        requestAnimationFrame(() => {
-            card.style.left = slotRect.left + 'px';
-            card.style.top = slotRect.top + 'px';
-            card.style.width = slotRect.width + 'px';
-            card.style.height = slotRect.height + 'px';
-            
-            if (isLargeSlot) {
-                const emoji = card.querySelector('.card-emoji');
-                const name = card.querySelector('.card-name');
-                emoji.style.transform = 'scale(1.4)';
-                name.style.transform = 'scale(1.2)';
-            }
-            
-            if (isReversed) card.classList.add('is-reversed');
-            card.classList.add('flipped');
-        });
-
-        setTimeout(() => {
-            slot.appendChild(card);
-            card.style.position = 'absolute';
-            card.style.left = '0';
-            card.style.top = '0';
-            card.style.width = '100%';
-            card.style.height = '100%';
-            card.style.margin = '0';
-            
-            if (isLargeSlot) {
-                const emoji = card.querySelector('.card-emoji');
-                const name = card.querySelector('.card-name');
-                emoji.style.transform = 'scale(1.4)';
-                name.style.transform = 'scale(1.2)';
-            }
-            
-            card.classList.add('arrived');
-            card.onclick = () => showModal(cardInstance);
-            createParticles(slotRect.left + slotRect.width / 2, slotRect.top + slotRect.height / 2, '#ec4899');
-            
-            const nextSlot = document.getElementById('slot' + drawnCount);
-            if (nextSlot) nextSlot.classList.add('active-target');
-            
-            isAnimating = false;
-        }, 800);
+    // === ВЫБОР КАРТЫ С УЧЁТОМ ПЕРЕМЕШАННОГО ПОРЯДКА ===
+    let cardData;
+    const drawnIds = selectedCards.map(c => c.id);
+    
+    // Если есть перемешанная колода и она не пуста
+    if (window.shuffledRemaining && window.shuffledRemaining.length > 0) {
+        // Берём первую карту из перемешанной колоды
+        cardData = window.shuffledRemaining[0];
+        // Удаляем её из перемешанной колоды
+        window.shuffledRemaining.shift();
+    } else {
+        // Fallback: выбираем случайную из доступных
+        const availableCards = tarotDB.cards.filter(c => !drawnIds.includes(c.id));
+        cardData = availableCards[Math.floor(Math.random() * availableCards.length)];
     }
+    
+    const isReversed = Math.random() < 0.25;
+    const cardInstance = { ...cardData, isReversed };
+    selectedCards.push(cardInstance);
+    drawnCount++;
+
+    const card = document.createElement('div');
+    card.className = `card-anim`;
+    
+    const isLargeSlot = slot.classList.contains('large');
+    
+    card.style.position = 'fixed';
+    card.style.zIndex = '1000';
+    card.style.left = deckRect.left + 'px';
+    card.style.top = deckRect.top + 'px';
+    card.style.width = deckRect.width + 'px';
+    card.style.height = deckRect.height + 'px';
+    card.style.transition = 'all 0.8s cubic-bezier(0.23, 1, 0.32, 1)';
+
+    card.innerHTML = `
+        <div class="face back"></div>
+        <div class="face front">
+            <div class="card-emoji" style="transition: transform 0.8s cubic-bezier(0.23, 1, 0.32, 1);">${cardData.emoji}</div>
+            <div class="card-name" style="transition: transform 0.8s cubic-bezier(0.23, 1, 0.32, 1);">${cardData.name}</div>
+            ${isReversed ? '<div style="font-size: 6px; color: #ff4d4d; position: absolute; bottom: 5px; width:100%; text-align:center;">ПЕРЕВЕРНУТА</div>' : ''}
+        </div>
+    `;
+
+    document.body.appendChild(card);
+    updatePrediction();
+
+    requestAnimationFrame(() => {
+        card.style.left = slotRect.left + 'px';
+        card.style.top = slotRect.top + 'px';
+        card.style.width = slotRect.width + 'px';
+        card.style.height = slotRect.height + 'px';
+        
+        if (isLargeSlot) {
+            const emoji = card.querySelector('.card-emoji');
+            const name = card.querySelector('.card-name');
+            emoji.style.transform = 'scale(1.4)';
+            name.style.transform = 'scale(1.2)';
+        }
+        
+        if (isReversed) card.classList.add('is-reversed');
+        card.classList.add('flipped');
+    });
+
+    setTimeout(() => {
+        slot.appendChild(card);
+        card.style.position = 'absolute';
+        card.style.left = '0';
+        card.style.top = '0';
+        card.style.width = '100%';
+        card.style.height = '100%';
+        card.style.margin = '0';
+        
+        if (isLargeSlot) {
+            const emoji = card.querySelector('.card-emoji');
+            const name = card.querySelector('.card-name');
+            emoji.style.transform = 'scale(1.4)';
+            name.style.transform = 'scale(1.2)';
+        }
+        
+        card.classList.add('arrived');
+        card.onclick = () => showModal(cardInstance);
+        createParticles(slotRect.left + slotRect.width / 2, slotRect.top + slotRect.height / 2, '#ec4899');
+        
+        const nextSlot = document.getElementById('slot' + drawnCount);
+        if (nextSlot) nextSlot.classList.add('active-target');
+        
+        isAnimating = false;
+    }, 800);
+}
     
     function updatePrediction() {
         const box = document.getElementById('prediction-text');
@@ -665,98 +679,132 @@
 
     // === НОВАЯ РЕАЛИСТИЧНАЯ АНИМАЦИЯ ТАСОВКИ ===
     function shuffleAnimation() {
-        if (isAnimating) return;
+    if (isAnimating) return;
+    
+    const deck = document.querySelector('.deck');
+    const rect = deck.getBoundingClientRect();
+    
+    // ===== РЕАЛЬНАЯ ПЕРЕТАСОВКА ОСТАВШИХСЯ КАРТ =====
+    // 1. Получаем ID уже вытянутых карт
+    const drawnIds = selectedCards.map(c => c.id);
+    
+    // 2. Получаем оставшиеся карты (которые ещё не выпали)
+    const remainingCards = tarotDB.cards.filter(c => !drawnIds.includes(c.id));
+    
+    // 3. Перемешиваем оставшиеся карты (алгоритм Фишера-Йетса)
+    for (let i = remainingCards.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [remainingCards[i], remainingCards[j]] = [remainingCards[j], remainingCards[i]];
+    }
+    
+    // 4. Сохраняем перемешанный порядок в переменную (для следующих вытягиваний)
+    window.shuffledRemaining = remainingCards;
+    
+    // 5. Визуальный эффект сжатия колоды
+    deck.style.transform = 'scale(0.95)';
+    deck.style.transition = 'transform 0.2s ease';
+    
+    setTimeout(() => {
+        deck.style.transform = 'scale(1)';
+    }, 200);
+    
+    // 6. Хаптик
+    if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+    
+    // 7. Визуальная анимация веера (только для оставшихся карт, чтобы показать перетасовку)
+    const cardsCount = Math.min(8, remainingCards.length);
+    const cards = [];
+    
+    for (let i = 0; i < cardsCount; i++) {
+        const fakeCard = document.createElement('div');
+        fakeCard.className = 'card-anim shuffle-card';
+        fakeCard.style.position = 'fixed';
+        fakeCard.style.left = rect.left + 'px';
+        fakeCard.style.top = rect.top + 'px';
+        fakeCard.style.width = rect.width + 'px';
+        fakeCard.style.height = rect.height + 'px';
+        fakeCard.style.zIndex = '900';
+        fakeCard.style.opacity = '0';
+        fakeCard.innerHTML = '<div class="face back"></div>';
+        fakeCard.style.borderRadius = '10px';
+        fakeCard.style.boxShadow = '0 0 10px rgba(168, 85, 247, 0.5)';
         
-        const deck = document.querySelector('.deck');
-        const rect = deck.getBoundingClientRect();
+        // Добавляем текст "осталось X карт"
+        if (i === 0 && remainingCards.length > 0) {
+            const label = document.createElement('div');
+            label.innerText = `${remainingCards.length}`;
+            label.style.position = 'absolute';
+            label.style.bottom = '5px';
+            label.style.right = '5px';
+            label.style.fontSize = '10px';
+            label.style.color = '#a855f7';
+            label.style.background = 'rgba(0,0,0,0.7)';
+            label.style.padding = '2px 4px';
+            label.style.borderRadius = '8px';
+            fakeCard.appendChild(label);
+        }
         
-        // 1. Эффект сжатия колоды
-        deck.style.transform = 'scale(0.95)';
-        deck.style.transition = 'transform 0.2s ease';
+        document.body.appendChild(fakeCard);
+        cards.push(fakeCard);
+    }
+    
+    cards.forEach((card, index) => {
+        setTimeout(() => {
+            const angle = (index - cardsCount / 2) * 12;
+            const rad = angle * Math.PI / 180;
+            const offsetX = Math.sin(rad) * 60;
+            const offsetY = -Math.abs(Math.cos(rad)) * 30 + 20;
+            const rotation = angle * 0.8;
+            
+            card.style.transition = 'all 0.4s cubic-bezier(0.34, 1.2, 0.64, 1)';
+            card.style.opacity = '1';
+            card.style.transform = `translate(${offsetX}px, ${offsetY}px) rotate(${rotation}deg)`;
+            card.style.zIndex = 900 + index;
+        }, index * 40);
+    });
+    
+    setTimeout(() => {
+        cards.forEach((card, index) => {
+            setTimeout(() => {
+                card.style.transition = 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+                card.style.transform = 'translate(0px, 0px) rotate(0deg)';
+                card.style.opacity = '0';
+            }, index * 30);
+        });
+    }, 500);
+    
+    setTimeout(() => {
+        deck.style.transform = 'scale(0.98)';
+        deck.style.transition = 'transform 0.1s ease';
         
         setTimeout(() => {
             deck.style.transform = 'scale(1)';
-        }, 200);
+        }, 100);
+    }, 650);
+    
+    setTimeout(() => {
+        createParticles(rect.left + rect.width / 2, rect.top + rect.height / 2, '#a855f7');
         
-        // 2. Создаём веер карт
-        const cardsCount = 8;
-        const cards = [];
-        
-        for (let i = 0; i < cardsCount; i++) {
-            const fakeCard = document.createElement('div');
-            fakeCard.className = 'card-anim shuffle-card';
-            fakeCard.style.position = 'fixed';
-            fakeCard.style.left = rect.left + 'px';
-            fakeCard.style.top = rect.top + 'px';
-            fakeCard.style.width = rect.width + 'px';
-            fakeCard.style.height = rect.height + 'px';
-            fakeCard.style.zIndex = '900';
-            fakeCard.style.opacity = '0';
-            fakeCard.innerHTML = '<div class="face back"></div>';
-            fakeCard.style.borderRadius = '10px';
-            fakeCard.style.boxShadow = '0 0 10px rgba(168, 85, 247, 0.5)';
-            
-            document.body.appendChild(fakeCard);
-            cards.push(fakeCard);
-        }
-        
-        // 3. Анимация веера
-        cards.forEach((card, index) => {
-            setTimeout(() => {
-                const angle = (index - cardsCount / 2) * 12;
-                const rad = angle * Math.PI / 180;
-                const offsetX = Math.sin(rad) * 60;
-                const offsetY = -Math.abs(Math.cos(rad)) * 30 + 20;
-                const rotation = angle * 0.8;
-                
-                card.style.transition = 'all 0.4s cubic-bezier(0.34, 1.2, 0.64, 1)';
-                card.style.opacity = '1';
-                card.style.transform = `translate(${offsetX}px, ${offsetY}px) rotate(${rotation}deg)`;
-                card.style.zIndex = 900 + index;
-            }, index * 40);
+        cards.forEach(card => {
+            setTimeout(() => card.remove(), 400);
         });
         
-        // 4. Схлопывание карт обратно
-        setTimeout(() => {
-            cards.forEach((card, index) => {
-                setTimeout(() => {
-                    card.style.transition = 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
-                    card.style.transform = 'translate(0px, 0px) rotate(0deg)';
-                    card.style.opacity = '0';
-                }, index * 30);
-            });
-        }, 500);
-        
-        // 5. Эффект прихлопывания
-        setTimeout(() => {
-            deck.style.transform = 'scale(0.98)';
-            deck.style.transition = 'transform 0.1s ease';
-            
+        // ===== СООБЩЕНИЕ =====
+        const box = document.getElementById('prediction-text');
+        if (box) {
+            const remainingCount = remainingCards.length;
+            box.innerHTML = `<div class="fade-in">🃏 Колода перемешана! ✨<br>Осталось ${remainingCount} карт в колоде.</div>`;
             setTimeout(() => {
-                deck.style.transform = 'scale(1)';
-            }, 100);
-        }, 650);
-        
-        // 6. Финальные частицы и хаптик
-        setTimeout(() => {
-            createParticles(rect.left + rect.width / 2, rect.top + rect.height / 2, '#a855f7');
-            if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
-            
-            cards.forEach(card => {
-                setTimeout(() => card.remove(), 400);
-            });
-        }, 800);
-    }
-
-    function createParticles(x, y, color) {
-        for (let i = 0; i < 10; i++) {
-            const p = document.createElement('div'); p.className = 'particle';
-            p.style.left = x + 'px'; p.style.top = y + 'px'; p.style.background = color;
-            const a = Math.random() * Math.PI * 2, v = Math.random() * 50 + 20;
-            p.style.setProperty('--dx', Math.cos(a) * v); p.style.setProperty('--dy', Math.sin(a) * v);
-            document.body.appendChild(p); setTimeout(() => p.remove(), 800);
+                if (drawnCount < maxCards) {
+                    // Восстанавливаем текст, но оставляем комбо если были
+                    updatePrediction();
+                }
+            }, 2000);
         }
-    }
+        
+        isAnimating = false;
+    }, 800);
+}
     
     function showModal(card) {
         document.getElementById('m-emoji').innerText = card.emoji;
