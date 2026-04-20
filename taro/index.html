@@ -325,46 +325,37 @@
 
         // Небольшая задержка, чтобы браузер зафиксировал стартовую позицию перед началом движения
         setTimeout(() => {
-            // Включаем плавность (убедись, что в CSS у .card-anim тоже стоит transition 0.8s)
+            // Включаем рост и полет
             card.style.transition = 'all 0.8s cubic-bezier(0.25, 0.1, 0.25, 1)';
             
-            // Задаем ФИНАЛЬНЫЕ параметры (соответствуют слоту)
             card.style.left = slotRect.left + 'px';
             card.style.top = slotRect.top + 'px';
-            card.style.width = slotRect.width + 'px';  // Плавное увеличение
-            card.style.height = slotRect.height + 'px'; // Плавное увеличение
+            card.style.width = slotRect.width + 'px';
+            card.style.height = slotRect.height + 'px';
             
             if (isReversed) card.classList.add('is-reversed');
             card.classList.add('flipped');
         }, 20); 
 
         setTimeout(() => {
+            // Добавляем arrived ПОСЛЕ того как анимация роста закончилась
             card.classList.add('arrived');
             
-            // ПЕРЕНОС В СЛОТ
-            // Чтобы не было скачка контента, сначала фиксируем текущие вычисленные размеры
-            const finalWidth = card.style.width;
-            const finalHeight = card.style.height;
-
-            card.style.transition = 'none'; // Мгновенно отключаем анимацию
             card.style.position = 'absolute';
             card.style.left = '0';
             card.style.top = '0';
             card.style.width = '100%';
             card.style.height = '100%';
+            card.style.transition = 'none'; // Замораживаем состояние
             
-            // Вставляем в слот
             slot.appendChild(card); 
-
-            // Если иконка всё равно прыгает, можно принудительно «подтолкнуть» рендеринг
-            card.offsetHeight; 
 
             card.onclick = () => showModal(cardInstance);
             createParticles(slotRect.left + slotRect.width / 2, slotRect.top + slotRect.height / 2, '#ec4899');
             
             const nextSlot = document.getElementById('slot' + drawnCount);
             if (nextSlot) nextSlot.classList.add('active-target');
-        }, 850);
+        }, 850); // 850мс (чуть больше чем 0.8s в CSS) — это уберет рывок
     }
 
     // 6. Обновление текста предсказания (с учетом даты)
