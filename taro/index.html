@@ -97,7 +97,7 @@
         border: 2px solid var(--pink);
         transform: rotateY(180deg);
         z-index: 1;
-        position: relative; /* Важно для внутренних элементов */
+        position: relative;
     }
 
     /* Контент внутри карты */
@@ -107,8 +107,9 @@
         left: 50%;
         transform: translate(-50%, -50%);
         font-size: 2.5rem;
-        transition: all 0.8s ease; /* Плавность для роста */
+        /* Убираем лишние транзишны, если они мешают */
     }
+
     .card-name {
         position: absolute;
         bottom: 15px;
@@ -117,10 +118,9 @@
         font-size: 0.7rem;
         color: white;
         text-transform: uppercase;
-        transition: all 0.8s ease; /* Плавность для роста */
     }
 
-    /* Увеличиваем контент ТОЛЬКО в большом слоте */
+    /* Настройки для большой ячейки (День), верни свои значения */
     .slot.large .card-emoji { font-size: 4.5rem; }
     .slot.large .card-name { font-size: 1rem; }
     
