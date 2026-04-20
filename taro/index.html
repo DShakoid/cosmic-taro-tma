@@ -120,7 +120,8 @@
     /* Базовые стили содержания */
     .card-emoji { 
         font-size: 1.2rem; /* Фиксируем один размер */
-        transition: transform 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+        transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+        display: block;
         will-change: transform;
     }
     .card-name { 
@@ -130,14 +131,17 @@
         text-transform: uppercase; 
         font-weight: 600; 
         text-align: center; 
-        transition: transform 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+        transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
         will-change: transform;
     }
-    /* Режим "День" (крупный слот) — просто увеличиваем масштаб всего содержимого */
-    /*.slot.large .card-emoji,
+    .slot.large .card-emoji { 
+        transform: scale(1.2); 
+    }
+    
     .slot.large .card-name { 
         transform: scale(1.2); 
-    }*/
+        margin-top: 10px; /* Немного корректируем отступ в большом режиме */
+    }
 
     /* Если карта перевернута, сохраняем масштаб и добавляем поворот в JS или здесь */
     .card-anim.is-reversed .card-emoji,
