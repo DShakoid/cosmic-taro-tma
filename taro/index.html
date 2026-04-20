@@ -93,31 +93,37 @@
         z-index: 2; 
     }
     .face.front {
-        background: #0a070f; /* Добавил фон, чтобы карта не была прозрачной */
+        background: #0a070f;
         border: 2px solid var(--pink);
-        transform: rotateY(180deg); /* Лицо развернуто изначально */
+        transform: rotateY(180deg);
         z-index: 1;
-        padding: 10px;
+        position: relative; /* Важно для внутренних элементов */
     }
 
     /* Контент внутри карты */
     .card-emoji {
-        font-size: 2.5rem; 
-        margin-bottom: 10px;
-        transition: font-size 0.8s ease; /* Плавно растет */
+        position: absolute;
+        top: 45%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 2.5rem;
+        transition: all 0.8s ease; /* Плавность для роста */
     }
     .card-name {
+        position: absolute;
+        bottom: 15px;
+        width: 100%;
+        text-align: center;
         font-size: 0.7rem;
         color: white;
         text-transform: uppercase;
-        letter-spacing: 1px;
-        transition: font-size 0.8s ease; /* Плавно растет */
+        transition: all 0.8s ease; /* Плавность для роста */
     }
 
-    /* Размеры для режима "День" */
-    .slot.large .card-emoji { font-size: 4rem; }
+    /* Увеличиваем контент ТОЛЬКО в большом слоте */
+    .slot.large .card-emoji { font-size: 4.5rem; }
     .slot.large .card-name { font-size: 1rem; }
-
+    
     /* Остальное */
     .prediction-box {
         width: 95%; background: rgba(20, 15, 30, 0.6); border-radius: 20px;
