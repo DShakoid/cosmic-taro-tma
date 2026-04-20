@@ -226,17 +226,14 @@
     #prediction-text small { color: var(--purp); font-size: 0.75rem; letter-spacing: 1px; display: block; margin-bottom: 5px; }
 
     @keyframes deck-shake {
-        0% { transform: scale(1) rotate(0deg); }
-        25% { transform: scale(1.05) rotate(-2deg); }
-        50% { transform: scale(1.05) rotate(2deg); }
-        75% { transform: scale(1.05) rotate(-1deg); }
-        100% { transform: scale(1) rotate(0deg); }
-    }
-
-    .deck-shaking {
-        animation: deck-shake 0.3s ease-in-out infinite;
-        box-shadow: var(--neon-purp);
-    }
+    0% { transform: translateX(0px) rotate(0deg); }
+    15% { transform: translateX(-4px) rotate(-1deg); }
+    30% { transform: translateX(4px) rotate(1deg); }
+    45% { transform: translateX(-3px) rotate(-0.5deg); }
+    60% { transform: translateX(3px) rotate(0.5deg); }
+    75% { transform: translateX(-1px) rotate(-0.2deg); }
+    100% { transform: translateX(0px) rotate(0deg); }
+}
 
     .shuffle-card {
         position: fixed;
@@ -269,6 +266,29 @@
     .shuffle-btn:active {
         transform: scale(0.95);
     }
+
+    /* Эффект изгиба карты при тасовке */
+.card-anim.shuffle-card {
+    transition: all 0.4s cubic-bezier(0.34, 1.2, 0.64, 1);
+    filter: drop-shadow(0 5px 8px rgba(0,0,0,0.3));
+}
+
+.card-anim.shuffle-card .face.back {
+    transition: transform 0.2s ease;
+}
+
+/* Эффект "взгляда" на карту сбоку */
+@keyframes cardWobble {
+    0% { transform: rotateY(0deg); }
+    50% { transform: rotateY(15deg); }
+    100% { transform: rotateY(0deg); }
+}
+
+.deck-shaking {
+    animation: deck-shake 0.3s ease-in-out infinite;
+    box-shadow: var(--neon-purp);
+}
+    
 </style>
 </head>
 <body>
@@ -492,143 +512,142 @@
     }
     
     function updatePrediction() {
-    const box = document.getElementById('prediction-text');
-    if (!box) return;
-    
-    const elementColors = { "Огонь": "#ff4d4d", "Вода": "#4db8ff", "Воздух": "#ffcc00", "Земля": "#4dff88" };
-    const birthDate = localStorage.getItem('userBirthDate');
-    let personalNote = "";
-    let comboNote = "";
-
-    if (birthDate) {
-        const day = parseInt(birthDate.split('-')[2]);
-        const lastCard = selectedCards[selectedCards.length - 1];
-        if (lastCard) {
-            if (lastCard.id === day || lastCard.id === (day % 22)) {
-                personalNote = `<div style="margin-top:10px; padding:10px; border:1px solid gold; background: rgba(255,215,0,0.1); border-radius:8px; color: gold; font-size: 0.75rem;">✨ <b>Мистическая связь:</b> Эта карта — ваш личный покровитель.</div>`;
-            } else {
-                personalNote = `<div style="margin-top:10px; font-style: italic; opacity: 0.8; font-size: 0.7rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 8px;">🎯 Для рожденных ${day}-го числа...</div>`;
-            }
-        }
-    }
-
-    // === РАСШИРЕННЫЙ ПОИСК КОМБО ===
-    if (selectedCards.length >= 2) {
-        // 1. Комбо по ID карт (парные)
-        for (let i = 0; i < selectedCards.length; i++) {
-            for (let j = i + 1; j < selectedCards.length; j++) {
-                const id1 = selectedCards[i].id;
-                const id2 = selectedCards[j].id;
-                const found = tarotDB.combos[`${id1}+${id2}`] || tarotDB.combos[`${id2}+${id1}`];
-                if (found && !comboNote) comboNote = `<div style="margin-top:10px; padding:10px; border:1px solid #a855f7; background: rgba(168,85,247,0.1); border-radius:8px;">🔮 <b>Связка:</b> ${found}</div>`;
-            }
-        }
+        const box = document.getElementById('prediction-text');
+        if (!box) return;
         
-        // 2. ТРОЙНЫЕ комбо (если есть 3+ карты)
-        if (selectedCards.length >= 3 && !comboNote) {
-            const ids = selectedCards.map(c => c.id).sort();
-            // Проверяем все комбинации из 3 карт
-            for (let i = 0; i < ids.length - 2; i++) {
-                for (let j = i + 1; j < ids.length - 1; j++) {
-                    for (let k = j + 1; k < ids.length; k++) {
-                        const tripleKey = `${ids[i]}+${ids[j]}+${ids[k]}`;
-                        const tripleFound = tarotDB.combos[tripleKey];
-                        if (tripleFound && !comboNote) {
-                            comboNote = `<div style="margin-top:10px; padding:10px; border:1px solid #a855f7; background: rgba(168,85,247,0.1); border-radius:8px;">🔮 <b>Тройная связка:</b> ${tripleFound}</div>`;
-                            break;
+        const elementColors = { "Огонь": "#ff4d4d", "Вода": "#4db8ff", "Воздух": "#ffcc00", "Земля": "#4dff88" };
+        const birthDate = localStorage.getItem('userBirthDate');
+        let personalNote = "";
+        let comboNote = "";
+
+        if (birthDate) {
+            const day = parseInt(birthDate.split('-')[2]);
+            const lastCard = selectedCards[selectedCards.length - 1];
+            if (lastCard) {
+                if (lastCard.id === day || lastCard.id === (day % 22)) {
+                    personalNote = `<div style="margin-top:10px; padding:10px; border:1px solid gold; background: rgba(255,215,0,0.1); border-radius:8px; color: gold; font-size: 0.75rem;">✨ <b>Мистическая связь:</b> Эта карта — ваш личный покровитель.</div>`;
+                } else {
+                    personalNote = `<div style="margin-top:10px; font-style: italic; opacity: 0.8; font-size: 0.7rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 8px;">🎯 Для рожденных ${day}-го числа...</div>`;
+                }
+            }
+        }
+
+        // === РАСШИРЕННЫЙ ПОИСК КОМБО ===
+        if (selectedCards.length >= 2) {
+            // 1. Комбо по ID карт (парные)
+            for (let i = 0; i < selectedCards.length; i++) {
+                for (let j = i + 1; j < selectedCards.length; j++) {
+                    const id1 = selectedCards[i].id;
+                    const id2 = selectedCards[j].id;
+                    const found = tarotDB.combos[`${id1}+${id2}`] || tarotDB.combos[`${id2}+${id1}`];
+                    if (found && !comboNote) comboNote = `<div style="margin-top:10px; padding:10px; border:1px solid #a855f7; background: rgba(168,85,247,0.1); border-radius:8px;">🔮 <b>Связка:</b> ${found}</div>`;
+                }
+            }
+            
+            // 2. ТРОЙНЫЕ комбо (если есть 3+ карты)
+            if (selectedCards.length >= 3 && !comboNote) {
+                const ids = selectedCards.map(c => c.id).sort();
+                for (let i = 0; i < ids.length - 2; i++) {
+                    for (let j = i + 1; j < ids.length - 1; j++) {
+                        for (let k = j + 1; k < ids.length; k++) {
+                            const tripleKey = `${ids[i]}+${ids[j]}+${ids[k]}`;
+                            const tripleFound = tarotDB.combos[tripleKey];
+                            if (tripleFound && !comboNote) {
+                                comboNote = `<div style="margin-top:10px; padding:10px; border:1px solid #a855f7; background: rgba(168,85,247,0.1); border-radius:8px;">🔮 <b>Тройная связка:</b> ${tripleFound}</div>`;
+                                break;
+                            }
                         }
+                        if (comboNote) break;
                     }
                     if (comboNote) break;
                 }
-                if (comboNote) break;
             }
-        }
-        
-        // 3. Комбо с режимом (если есть специальный ключ)
-        if (!comboNote) {
-            const modeCombo = tarotDB.combos[`mode_${currentMode}`];
-            if (modeCombo) comboNote = `<div style="margin-top:10px; padding:10px; border:1px solid #a855f7; background: rgba(168,85,247,0.1); border-radius:8px;">🎴 <b>Режим:</b> ${modeCombo}</div>`;
-        }
-        
-        // 4. Комбо с днём недели + карта
-        if (!comboNote) {
-            const dayOfWeek = new Date().getDay();
-            const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
-            const dayKey = dayNames[dayOfWeek];
             
-            for (let card of selectedCards) {
-                const dayCombo = tarotDB.combos[`${dayKey}+${card.id}`];
-                if (dayCombo) {
-                    comboNote = `<div style="margin-top:10px; padding:10px; border:1px solid #a855f7; background: rgba(168,85,247,0.1); border-radius:8px;">📅 <b>День недели:</b> ${dayCombo}</div>`;
-                    break;
-                }
+            // 3. Комбо с режимом
+            if (!comboNote) {
+                const modeCombo = tarotDB.combos[`mode_${currentMode}`];
+                if (modeCombo) comboNote = `<div style="margin-top:10px; padding:10px; border:1px solid #a855f7; background: rgba(168,85,247,0.1); border-radius:8px;">🎴 <b>Режим:</b> ${modeCombo}</div>`;
             }
-        }
-        
-        // 5. Комбо с днём рождения + карта
-        if (!comboNote && birthDate) {
-            const birthDay = parseInt(birthDate.split('-')[2]);
-            for (let card of selectedCards) {
-                const birthdayCombo = tarotDB.combos[`birthday+${card.id}`];
-                if (birthdayCombo) {
-                    comboNote = `<div style="margin-top:10px; padding:10px; border:1px solid gold; background: rgba(255,215,0,0.1); border-radius:8px;">🎂 <b>День рождения:</b> ${birthdayCombo}</div>`;
-                    break;
-                }
-            }
-        }
-        
-        // 6. Временные комбо (час дня) + карта
-        if (!comboNote) {
-            const hour = new Date().getHours();
-            let timeKey = '';
-            if (hour >= 23 || hour <= 3) timeKey = 'midnight';
-            else if (hour >= 5 && hour <= 8) timeKey = 'morning';
-            else if (hour >= 12 && hour <= 14) timeKey = 'noon';
             
-            if (timeKey) {
+            // 4. Комбо с днём недели
+            if (!comboNote) {
+                const dayOfWeek = new Date().getDay();
+                const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+                const dayKey = dayNames[dayOfWeek];
+                
                 for (let card of selectedCards) {
-                    const timeCombo = tarotDB.combos[`${timeKey}+${card.id}`];
-                    if (timeCombo) {
-                        comboNote = `<div style="margin-top:10px; padding:10px; border:1px solid #a855f7; background: rgba(168,85,247,0.1); border-radius:8px;">⏰ <b>Магический час:</b> ${timeCombo}</div>`;
+                    const dayCombo = tarotDB.combos[`${dayKey}+${card.id}`];
+                    if (dayCombo) {
+                        comboNote = `<div style="margin-top:10px; padding:10px; border:1px solid #a855f7; background: rgba(168,85,247,0.1); border-radius:8px;">📅 <b>День недели:</b> ${dayCombo}</div>`;
+                        break;
+                    }
+                }
+            }
+            
+            // 5. Комбо с днём рождения
+            if (!comboNote && birthDate) {
+                const birthDay = parseInt(birthDate.split('-')[2]);
+                for (let card of selectedCards) {
+                    const birthdayCombo = tarotDB.combos[`birthday+${card.id}`];
+                    if (birthdayCombo) {
+                        comboNote = `<div style="margin-top:10px; padding:10px; border:1px solid gold; background: rgba(255,215,0,0.1); border-radius:8px;">🎂 <b>День рождения:</b> ${birthdayCombo}</div>`;
+                        break;
+                    }
+                }
+            }
+            
+            // 6. Временные комбо
+            if (!comboNote) {
+                const hour = new Date().getHours();
+                let timeKey = '';
+                if (hour >= 23 || hour <= 3) timeKey = 'midnight';
+                else if (hour >= 5 && hour <= 8) timeKey = 'morning';
+                else if (hour >= 12 && hour <= 14) timeKey = 'noon';
+                
+                if (timeKey) {
+                    for (let card of selectedCards) {
+                        const timeCombo = tarotDB.combos[`${timeKey}+${card.id}`];
+                        if (timeCombo) {
+                            comboNote = `<div style="margin-top:10px; padding:10px; border:1px solid #a855f7; background: rgba(168,85,247,0.1); border-radius:8px;">⏰ <b>Магический час:</b> ${timeCombo}</div>`;
+                            break;
+                        }
+                    }
+                }
+            }
+            
+            // 7. Проверка specialCombos
+            if (!comboNote) {
+                for (let special of tarotDB.specialCombos) {
+                    if (special.check(selectedCards, currentMode, new Date())) {
+                        comboNote = `<div style="margin-top:10px; padding:10px; border:1px solid #ec4899; background: rgba(236,72,153,0.1); border-radius:8px;">✨ <b>${special.name}:</b> ${special.text}</div>`;
                         break;
                     }
                 }
             }
         }
-        
-        // 7. Проверка specialCombos (только если нет других комбо)
-        if (!comboNote) {
-            for (let special of tarotDB.specialCombos) {
-                if (special.check(selectedCards, currentMode, new Date())) {
-                    comboNote = `<div style="margin-top:10px; padding:10px; border:1px solid #ec4899; background: rgba(236,72,153,0.1); border-radius:8px;">✨ <b>${special.name}:</b> ${special.text}</div>`;
-                    break;
-                }
+
+        let html = "";
+        if (selectedCards.length > 0) {
+            if (currentMode === 'day') {
+                const last = selectedCards[0];
+                html = `<div class="fade-in"><small>${last.keywords}</small><b>${last.name}</b><p>${last.isReversed ? last.advice_rev : last.advice}</p>${personalNote}${comboNote}</div>`;
+            } else {
+                const counts = {};
+                selectedCards.forEach(c => counts[c.element] = (counts[c.element] || 0) + 1);
+                const dominant = Object.keys(counts).reduce((a, b) => counts[a] > counts[b] ? a : b);
+                const color = elementColors[dominant] || "#fff";
+                
+                html = `<div class="fade-in"><div style="color: ${color}; font-weight: bold; font-size: 0.7rem;">📈 Стихия: ${dominant}</div><div style="font-size: 0.75rem; border-left: 3px solid ${color}; padding-left: 10px;">${tarotDB.elementalAdvice[dominant]}</div>${personalNote}${comboNote}</div>`;
             }
         }
-    }
+        box.innerHTML = html;
 
-    let html = "";
-    if (selectedCards.length > 0) {
-        if (currentMode === 'day') {
-            const last = selectedCards[0];
-            html = `<div class="fade-in"><small>${last.keywords}</small><b>${last.name}</b><p>${last.isReversed ? last.advice_rev : last.advice}</p>${personalNote}${comboNote}</div>`;
-        } else {
-            const counts = {};
-            selectedCards.forEach(c => counts[c.element] = (counts[c.element] || 0) + 1);
-            const dominant = Object.keys(counts).reduce((a, b) => counts[a] > counts[b] ? a : b);
-            const color = elementColors[dominant] || "#fff";
-            
-            html = `<div class="fade-in"><div style="color: ${color}; font-weight: bold; font-size: 0.7rem;">📈 Стихия: ${dominant}</div><div style="font-size: 0.75rem; border-left: 3px solid ${color}; padding-left: 10px;">${tarotDB.elementalAdvice[dominant]}</div>${personalNote}${comboNote}</div>`;
+        if (drawnCount >= maxCards && maxCards > 0) {
+            document.getElementById('reset-btn').style.display = 'inline-block';
+            document.getElementById('donate-btn').style.display = 'inline-block';
+            if (typeof saveToHistory === 'function') saveToHistory();
         }
     }
-    box.innerHTML = html;
-
-    if (drawnCount >= maxCards && maxCards > 0) {
-        document.getElementById('reset-btn').style.display = 'inline-block';
-        document.getElementById('donate-btn').style.display = 'inline-block';
-        if (typeof saveToHistory === 'function') saveToHistory();
-    }
-}
 
     function saveToHistory() {
         if (drawnCount >= maxCards) {
@@ -644,44 +663,89 @@
         }
     }
 
+    // === НОВАЯ РЕАЛИСТИЧНАЯ АНИМАЦИЯ ТАСОВКИ ===
     function shuffleAnimation() {
         if (isAnimating) return;
         
         const deck = document.querySelector('.deck');
         const rect = deck.getBoundingClientRect();
         
-        deck.classList.add('deck-shaking');
-
-        for (let i = 0; i < 6; i++) {
-            setTimeout(() => {
-                const faked = document.createElement('div');
-                faked.className = 'card-anim shuffle-card';
-                
-                faked.style.left = rect.left + 'px';
-                faked.style.top = rect.top + 'px';
-                faked.style.width = rect.width + 'px';
-                faked.style.height = rect.height + 'px';
-                faked.innerHTML = '<div class="face back"></div>';
-                
-                document.body.appendChild(faked);
-
-                const angle = (Math.random() * Math.PI * 2);
-                const dist = 50 + Math.random() * 50;
-                const x = Math.cos(angle) * dist;
-                const y = Math.sin(angle) * dist;
-
-                requestAnimationFrame(() => {
-                    faked.style.transform = `translate(${x}px, ${y}px) rotate(${x}deg)`;
-                    faked.style.opacity = '0';
-                });
-
-                setTimeout(() => faked.remove(), 600);
-            }, i * 100);
-        }
-
+        // 1. Эффект сжатия колоды
+        deck.style.transform = 'scale(0.95)';
+        deck.style.transition = 'transform 0.2s ease';
+        
         setTimeout(() => {
-            deck.classList.remove('deck-shaking');
-        }, 1000);
+            deck.style.transform = 'scale(1)';
+        }, 200);
+        
+        // 2. Создаём веер карт
+        const cardsCount = 8;
+        const cards = [];
+        
+        for (let i = 0; i < cardsCount; i++) {
+            const fakeCard = document.createElement('div');
+            fakeCard.className = 'card-anim shuffle-card';
+            fakeCard.style.position = 'fixed';
+            fakeCard.style.left = rect.left + 'px';
+            fakeCard.style.top = rect.top + 'px';
+            fakeCard.style.width = rect.width + 'px';
+            fakeCard.style.height = rect.height + 'px';
+            fakeCard.style.zIndex = '900';
+            fakeCard.style.opacity = '0';
+            fakeCard.innerHTML = '<div class="face back"></div>';
+            fakeCard.style.borderRadius = '10px';
+            fakeCard.style.boxShadow = '0 0 10px rgba(168, 85, 247, 0.5)';
+            
+            document.body.appendChild(fakeCard);
+            cards.push(fakeCard);
+        }
+        
+        // 3. Анимация веера
+        cards.forEach((card, index) => {
+            setTimeout(() => {
+                const angle = (index - cardsCount / 2) * 12;
+                const rad = angle * Math.PI / 180;
+                const offsetX = Math.sin(rad) * 60;
+                const offsetY = -Math.abs(Math.cos(rad)) * 30 + 20;
+                const rotation = angle * 0.8;
+                
+                card.style.transition = 'all 0.4s cubic-bezier(0.34, 1.2, 0.64, 1)';
+                card.style.opacity = '1';
+                card.style.transform = `translate(${offsetX}px, ${offsetY}px) rotate(${rotation}deg)`;
+                card.style.zIndex = 900 + index;
+            }, index * 40);
+        });
+        
+        // 4. Схлопывание карт обратно
+        setTimeout(() => {
+            cards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.style.transition = 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+                    card.style.transform = 'translate(0px, 0px) rotate(0deg)';
+                    card.style.opacity = '0';
+                }, index * 30);
+            });
+        }, 500);
+        
+        // 5. Эффект прихлопывания
+        setTimeout(() => {
+            deck.style.transform = 'scale(0.98)';
+            deck.style.transition = 'transform 0.1s ease';
+            
+            setTimeout(() => {
+                deck.style.transform = 'scale(1)';
+            }, 100);
+        }, 650);
+        
+        // 6. Финальные частицы и хаптик
+        setTimeout(() => {
+            createParticles(rect.left + rect.width / 2, rect.top + rect.height / 2, '#a855f7');
+            if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+            
+            cards.forEach(card => {
+                setTimeout(() => card.remove(), 400);
+            });
+        }, 800);
     }
 
     function createParticles(x, y, color) {
