@@ -202,6 +202,29 @@
         tg.setBackgroundColor('#050508');
     }
 
+    const tg = window.Telegram?.WebApp;
+
+    // 1. Добавляем функцию, которая будет обрабатывать дату
+    function generateBirthdayPrediction(date) {
+        console.log("Генерируем прогноз для даты:", date);
+        // Здесь будет логика: например, выбор карты на основе числа дня рождения
+        // Или автоматический запуск расклада
+        document.getElementById('prediction-text').innerHTML = `<h3>Ваш личный прогноз</h3><p>Для даты рождения ${date} звезды говорят...</p>`;
+    }
+
+    // 2. Добавляем этот обработчик загрузки
+    window.onload = () => {
+        const params = new URLSearchParams(window.location.search);
+        
+        // Если перешли с лендинга по кнопке "Прогноз по дате"
+        if (params.get('mode') === 'birthday') {
+            const date = localStorage.getItem('userBirthDate');
+            if (date) {
+                generateBirthdayPrediction(date); 
+            }
+        }
+    };
+    
     function setMode(newMode) {
         currentMode = newMode;
         drawnCount = 0;
