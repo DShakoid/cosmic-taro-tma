@@ -155,7 +155,31 @@
         border-radius: 12px; font-size: 0.75rem; font-weight: bold; cursor: pointer;
         transition: 0.2s; box-shadow: 0 4px 10px rgba(236, 72, 153, 0.3);
     }
-    #donate-btn { background: linear-gradient(45deg, #f59e0b, #d97706); }
+    #donate-btn {
+    /* Твой золотой градиент */
+    background: linear-gradient(to right, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
+    background-size: 200% auto; /* Для плавной анимации перелива */
+    
+    /* Цвет текста меняем на темный, чтобы он читался на золоте */
+    color: #1a0b2e; 
+    border: none;
+    box-shadow: 0 4px 15px rgba(191, 149, 63, 0.4);
+    text-shadow: none;
+    transition: 0.3s;
+    animation: gold-shimmer 3s linear infinite; /* Добавим живое сияние */
+}
+
+#donate-btn:hover {
+    box-shadow: 0 0 20px rgba(252, 246, 186, 0.6);
+    transform: translateY(-2px);
+}
+
+/* Анимация, чтобы золото "играло" на свету */
+@keyframes gold-shimmer {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
    
     .particle {
         position: fixed; width: 5px; height: 5px; border-radius: 50%;
