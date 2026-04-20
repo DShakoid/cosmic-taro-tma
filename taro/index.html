@@ -78,7 +78,6 @@
         background-image: url('/taro/back_card.jpg'); background-size: cover; background-position: center;
         border: 2px solid var(--purp); border-radius: 10px; cursor: pointer;
         box-shadow: var(--neon-purp);
-        contain: layout style paint;
     }
     .deck:active { transform: scale(0.95); box-shadow: 0 0 5px var(--purp); }
     .table { display: flex; flex-direction: column; align-items: center; gap: 12px; margin: 15px 0; width: 100%; z-index: 5; }
@@ -87,7 +86,6 @@
     .slot {
         width: 75px; height: 110px; border: 1px solid rgba(168, 85, 247, 0.15);
         border-radius: 10px; background: rgba(255,255,255,0.01); position: relative; transition: 0.3s;
-        contain: layout style paint;
     }
     .slot.large { width: 140px; height: 200px; }
     .slot.active-target { border-color: rgba(236, 72, 153, 0.4); box-shadow: 0 0 10px rgba(236, 72, 153, 0.2); }
@@ -99,10 +97,15 @@
         perspective: 1000px;
         pointer-events: none;
         border-radius: 10px;
-        contain: layout style paint;
+        transform-style: preserve-3d;
+    -webkit-transform-style: preserve-3d; /* ВАЖНО */
     }
-
-    .card-anim.flipped { transform: rotateY(180deg); transition: transform 0.7s, left 0.8s, top 0.8s, width 0.8s, height 0.8s; }
+    .card-anim,
+.face {
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+}
+    .card-anim.flipped {  transform: rotateY(180deg) translate3d(0,0,1px);}
     .card-anim.is-reversed.flipped { transform: rotateY(180deg) rotateZ(180deg); }
     .card-anim.arrived { box-shadow: var(--neon-pink); pointer-events: auto; }
     
@@ -111,6 +114,8 @@
         display: flex; flex-direction: column; align-items: center; justify-content: center;
         box-sizing: border-box; 
         overflow: hidden; 
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden; /* ВАЖНО */
     }
     .face.back { background: #1e1b4b url('/taro/back_card.jpg') center/cover; border: 2px solid var(--purp); z-index: 2; }
     .face.front { background: #0f172a; border: 2px solid var(--pink); transform: rotateY(180deg); padding: 8px; z-index: 3; border-radius: 8px}
