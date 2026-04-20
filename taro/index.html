@@ -93,26 +93,27 @@
         z-index: 2; 
     }
     /* Возвращаем оригинальное лицо карты */
+    /* Лицо карты — возвращаем твой оригинал */
     .face.front {
         background: #0a070f;
         border: 2px solid var(--pink);
         transform: rotateY(180deg);
         z-index: 1;
-        position: relative; /* Для работы абсолютов внутри */
+        position: relative;
     }
 
-    /* Возвращаем твоё позиционирование по центру */
+    /* Эмодзи — ровно по центру, как было */
     .card-emoji {
         position: absolute;
         top: 45%;
         left: 50%;
         transform: translate(-50%, -50%);
         font-size: 2.5rem;
-        display: block; /* Убираем флекс */
-        transition: font-size 0.8s ease-in-out; /* Только рост, без смены позиции */
+        display: block;
+        transition: font-size 0.8s ease-in-out; /* Чтобы росло плавно в полете */
     }
 
-    /* Возвращаем подпись вниз */
+    /* Название — внизу */
     .card-name {
         position: absolute;
         bottom: 15px;
@@ -123,10 +124,10 @@
         color: white;
         text-transform: uppercase;
         letter-spacing: 1px;
-        transition: font-size 0.8s ease-in-out;
+        transition: font-size 0.8s ease-in-out; /* Чтобы росло плавно в полете */
     }
 
-    /* Твои настройки размеров для слота День */
+    /* Твои фиксы для режима "День" (Slot Large) */
     .slot.large .card-emoji { font-size: 4.5rem; }
     .slot.large .card-name { font-size: 1rem; }
     
