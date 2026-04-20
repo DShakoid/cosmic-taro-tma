@@ -119,33 +119,27 @@
     .face.front { background: #0f172a; border: 2px solid var(--pink); transform: rotateY(180deg); padding: 8px; z-index: 3; border-radius: 8px}
     /* Базовые стили содержания */
     .card-emoji { 
-        font-size: 1.2rem; /* Фиксируем один размер */
-        transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
-        display: block;
-        will-change: transform;
-    }
-    .card-name { 
-        font-size: 0.4rem; /* Фиксируем один размер */
-        color: #f3e8ff; 
-        margin-top: 5px; 
-        text-transform: uppercase; 
-        font-weight: 600; 
-        text-align: center; 
-        transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
-        will-change: transform;
-    }
-    /* Вместо этого оставьте только: */
-.slot.large .card-emoji,
-.slot.large .card-name {
-    /* scale будет применяться через JS с transition */
+    font-size: 1.2rem;
+    transition: transform 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+    display: block;
+    will-change: transform;
+}
+.card-name { 
+    font-size: 0.4rem;
+    color: #f3e8ff; 
+    margin-top: 5px; 
+    text-transform: uppercase; 
+    font-weight: 600; 
+    text-align: center; 
+    transition: transform 0.8s cubic-bezier(0.23, 1, 0.32, 1);
     will-change: transform;
 }
 
-    /* Если карта перевернута, сохраняем масштаб и добавляем поворот в JS или здесь */
-    .card-anim.is-reversed .card-emoji,
-    .card-anim.is-reversed .card-name {
-        /* transform: scale(1) rotate(180deg); — если захочешь крутить только контент */
-    }
+/* Полностью удалите или закомментируйте этот блок */
+/* .slot.large .card-emoji,
+.slot.large .card-name {
+    will-change: transform;
+} */
     .prediction-box {
         width: 95%; background: rgba(20, 15, 30, 0.6); border-radius: 20px;
         padding: 18px; border: 1px solid rgba(168, 85, 247, 0.15);
@@ -382,6 +376,9 @@ function drawCard() {
     const card = document.createElement('div');
     card.className = `card-anim`;
     
+    // Определяем, будет ли слот большим
+    const isLargeSlot = slot.classList.contains('large');
+    
     card.style.position = 'fixed';
     card.style.zIndex = '1000';
     card.style.left = deckRect.left + 'px';
@@ -393,8 +390,8 @@ function drawCard() {
     card.innerHTML = `
         <div class="face back"></div>
         <div class="face front">
-            <div class="card-emoji">${cardData.emoji}</div>
-            <div class="card-name">${cardData.name}</div>
+            <div class="card-emoji" style="transition: transform 0.8s cubic-bezier(0.23, 1, 0.32, 1);">${cardData.emoji}</div>
+            <div class="card-name" style="transition: transform 0.8s cubic-bezier(0.23, 1, 0.32, 1);">${cardData.name}</div>
             ${isReversed ? '<div style="font-size: 6px; color: #ff4d4d; position: absolute; bottom: 5px; width:100%; text-align:center;">ПЕРЕВЕРНУТА</div>' : ''}
         </div>
     `;
@@ -402,22 +399,28 @@ function drawCard() {
     document.body.appendChild(card);
     updatePrediction();
 
-    // ПОЛЕТ
+    // ПОЛЁТ С ПЛАВНЫМ МАСШТАБИРОВАНИЕМ
     requestAnimationFrame(() => {
+        // Анимируем позицию и размер карты
         card.style.left = slotRect.left + 'px';
         card.style.top = slotRect.top + 'px';
         card.style.width = slotRect.width + 'px';
         card.style.height = slotRect.height + 'px';
+        
+        // Если слот большой - плавно увеличиваем контент во время полёта
+        if (isLargeSlot) {
+            const emoji = card.querySelector('.card-emoji');
+            const name = card.querySelector('.card-name');
+            emoji.style.transform = 'scale(1.4)';
+            name.style.transform = 'scale(1.2)';
+        }
+        
         if (isReversed) card.classList.add('is-reversed');
         card.classList.add('flipped');
     });
 
     // ПРИЗЕМЛЕНИЕ
     setTimeout(() => {
-        // Сохраняем текущие размеры перед перемещением
-        const currentWidth = slotRect.width;
-        const currentHeight = slotRect.height;
-        
         slot.appendChild(card);
         
         card.style.position = 'absolute';
@@ -427,28 +430,16 @@ function drawCard() {
         card.style.height = '100%';
         card.style.margin = '0';
         
-        // ВАЖНО: НЕ убиваем transition полностью, а только сбрасываем transform
-        // и добавляем класс для плавного масштабирования
-        
-        // Добавляем класс arrived (для теней)
-        card.classList.add('arrived');
-        
-        // Плавное масштабирование контента для large слота
-        if (slot.classList.contains('large')) {
+        // Сохраняем достигнутый масштаб (он уже правильный)
+        if (isLargeSlot) {
             const emoji = card.querySelector('.card-emoji');
             const name = card.querySelector('.card-name');
-            
-            // Добавляем transition для плавного изменения scale
-            emoji.style.transition = 'transform 0.4s cubic-bezier(0.23, 1, 0.32, 1)';
-            name.style.transition = 'transform 0.4s cubic-bezier(0.23, 1, 0.32, 1)';
-            
-            // Немного задерживаем применение scale для плавности
-            requestAnimationFrame(() => {
-                emoji.style.transform = 'scale(1.4)';
-                name.style.transform = 'scale(1.2)';
-            });
+            // Убеждаемся, что масштаб остался
+            emoji.style.transform = 'scale(1.4)';
+            name.style.transform = 'scale(1.2)';
         }
-
+        
+        card.classList.add('arrived');
         card.onclick = () => showModal(cardInstance);
         createParticles(slotRect.left + slotRect.width / 2, slotRect.top + slotRect.height / 2, '#ec4899');
         
