@@ -337,153 +337,85 @@
     // 5. Вытягивание карты (Исправленная логика без скачков)
 
     function drawCard() {
-
         if (!currentMode || drawnCount >= maxCards) return;
 
-
-
         const deck = document.querySelector('.deck');
-
         const deckRect = deck.getBoundingClientRect();
-
+        
+        // Искры на колоде
         createParticles(deckRect.left + deckRect.width / 2, deckRect.top + deckRect.height / 2, '#a855f7');
 
-
-
         const slot = document.getElementById('slot' + drawnCount);
-
         const slotRect = slot.getBoundingClientRect();
-
         slot.classList.remove('active-target');
 
-
-
         const availableCards = tarotDB.cards.filter(c => !selectedCards.find(s => s.id === c.id));
-
         const cardData = availableCards[Math.floor(Math.random() * availableCards.length)];
-
         const isReversed = Math.random() < 0.25;
-
         const cardInstance = { ...cardData, isReversed };
-
         selectedCards.push(cardInstance);
-
         drawnCount++;
 
-
-
         const card = document.createElement('div');
-
         card.className = `card-anim`;
-
         
-
-        // Стартовая позиция и размер (как у колоды)
-
-        card.style.width = deckRect.width + 'px';
-
-        card.style.height = deckRect.height + 'px';
-
-        card.style.left = deckRect.left + 'px';
-
-        card.style.top = deckRect.top + 'px';
-
-        card.style.position = 'fixed'; // Важно для плавного полета по всему экрану
-
+        // Фиксируем стартовую позицию и transition сразу в JS для надежности
+        card.style.position = 'fixed';
         card.style.zIndex = '1000';
+        card.style.left = deckRect.left + 'px';
+        card.style.top = deckRect.top + 'px';
+        card.style.width = deckRect.width + 'px';
+        card.style.height = deckRect.height + 'px';
+        card.style.transition = 'all 0.8s cubic-bezier(0.23, 1, 0.32, 1)';
 
-
-
-        const revLabel = isReversed ? `<div style="font-size: 6px; color: #ff4d4d; position: absolute; bottom: 5px; font-weight:bold;">ПЕРЕВЕРНУТА</div>` : '';
-
-
+        const revLabel = isReversed ? `<div style="font-size: 6px; color: #ff4d4d; position: absolute; bottom: 5px; font-weight:bold; width:100%; text-align:center;">ПЕРЕВЕРНУТА</div>` : '';
 
         card.innerHTML = `
-
             <div class="face back"></div>
-
             <div class="face front">
-
                 <div class="card-emoji">${cardData.emoji}</div>
-
                 <div class="card-name">${cardData.name}</div>
-
                 ${revLabel}
-
             </div>
-
         `;
 
-
-
         document.body.appendChild(card);
-
         updatePrediction();
 
-
-
-        // Запуск анимации
-
+        // Запуск полета и переворота
         requestAnimationFrame(() => {
-
-            // Задаем ФИНАЛЬНЫЕ координаты и РАЗМЕР слота сразу
-
             card.style.left = slotRect.left + 'px';
-
             card.style.top = slotRect.top + 'px';
-
-            card.style.width = slotRect.width + 'px'; // Карта плавно растет в полете
-
+            card.style.width = slotRect.width + 'px';
             card.style.height = slotRect.height + 'px';
-
             
-
             if (isReversed) card.classList.add('is-reversed');
-
             card.classList.add('flipped');
-
         });
 
-
-
+        // Фиксация в слоте (через 850мс, когда анимация 0.8s закончилась)
         setTimeout(() => {
-
             card.classList.add('arrived');
-
             
-
-            // ПЕРЕНОС В СЛОТ: меняем фиксированное позиционирование на относительное внутри ячейки
-
-            // Убираем пиксели, ставим 100%, чтобы карта заполнила слот идеально
-
+            // Перекидываем в слот и сбрасываем фиксированные координаты
             card.style.position = 'absolute';
-
             card.style.left = '0';
-
             card.style.top = '0';
-
             card.style.width = '100%';
-
             card.style.height = '100%';
-
+            card.style.margin = '0';
+            card.style.transition = 'none'; // Замораживаем
             
-
             slot.appendChild(card); 
 
-
-
             card.onclick = () => showModal(cardInstance);
-
-            createParticles(slotRect.left + slotRect.width / 2, slotRect.top + slotRect.height / 2, '#ec4899');
-
             
-
+            // Искры приземления
+            createParticles(slotRect.left + slotRect.width / 2, slotRect.top + slotRect.height / 2, '#ec4899');
+            
             const nextSlot = document.getElementById('slot' + drawnCount);
-
             if (nextSlot) nextSlot.classList.add('active-target');
-
-        }, 850); // Время должно быть чуть больше, чем transition в CSS (0.8s)
-
+        }, 850);
     }
 
     
