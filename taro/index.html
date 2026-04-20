@@ -18,34 +18,50 @@
         --neon-purp: 0 0 15px rgba(168, 85, 247, 0.6);
         --neon-pink: 0 0 20px rgba(236, 72, 153, 0.7);
     }
-    
+   
     body {
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-        margin: 0; background: var(--bg); color: #f3e8ff;
-        display: flex; justify-content: center; min-height: 100vh;
-        overflow-x: hidden; overflow-y: auto; user-select: none;
+        margin: 0; 
+        background: var(--bg); 
+        color: #f3e8ff;
+        display: flex; 
+        justify-content: center; 
+        min-height: 100vh; 
+        /* Убираем overflow: hidden; и заменяем на прокрутку по вертикали */
+        overflow-x: hidden;
+        overflow-y: auto; 
+        user-select: none; 
         -webkit-user-select: none;
     }
-
     .stars {
-        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        position: fixed; 
+        top: 0; 
+        left: 0; 
+        width: 100%; 
+        height: 100%;
         background: radial-gradient(circle at 50% 50%, #1a0b2e 0%, #050505 100%);
-        z-index: 1; pointer-events: none;
+        z-index: 1;
+        pointer-events: none;
     }
-
     .container {
-        position: relative; z-index: 10; width: 100%; max-width: 400px;
-        display: flex; flex-direction: column; align-items: center;
+        position: relative; 
+        z-index: 10; 
+        width: 100%; 
+        max-width: 400px;
+        display: flex; 
+        flex-direction: column; 
+        align-items: center; 
+        /* Увеличиваем нижний отступ, чтобы кнопки не прилипали к краю */
         padding: calc(env(safe-area-inset-top, 0px) + 55px) 15px 80px 15px;
-        box-sizing: border-box; min-height: 100%;
+        box-sizing: border-box;
+        /* Разрешаем контейнеру расти вместе с контентом */
+        min-height: 100%;
     }
-
-    /* Меню и Кнопки */
     .menu { display: flex; gap: 8px; margin-bottom: 20px; width: 100%; z-index: 100; }
     .menu-btn {
         background: var(--glass); border: 1px solid rgba(168, 85, 247, 0.2);
         color: rgba(255,255,255,0.6); padding: 10px 5px; border-radius: 12px;
-        font-size: 0.7rem; flex: 1; transition: 0.3s; cursor: pointer;
+        font-size: 0.7rem; flex: 1; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer;
         backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
         text-transform: uppercase; letter-spacing: 1px;
     }
@@ -53,85 +69,51 @@
         background: rgba(168, 85, 247, 0.15); color: white; border-color: var(--purp);
         box-shadow: var(--neon-purp);
     }
-
-    /* Колода и Слоты */
     .deck-container { display: flex; flex-direction: column; align-items: center; margin-bottom: 15px; z-index: 50; }
     .deck {
         width: 65px; height: 95px;
-        background: #1e1b4b url('/taro/back_card.jpg') center/cover;
+        background-image: url('/taro/back_card.jpg'); background-size: cover; background-position: center;
         border: 2px solid var(--purp); border-radius: 10px; cursor: pointer;
         box-shadow: var(--neon-purp);
     }
-    .table { display: flex; flex-direction: column; align-items: center; gap: 12px; margin: 15px 0; width: 100%; }
+    .deck:active { transform: scale(0.95); box-shadow: 0 0 5px var(--purp); }
+    .table { display: flex; flex-direction: column; align-items: center; gap: 12px; margin: 15px 0; width: 100%; z-index: 5; }
+    .table-row { display: flex; justify-content: center; gap: 10px; width: 100%; }
+   
     .slot {
         width: 75px; height: 110px; border: 1px solid rgba(168, 85, 247, 0.15);
-        border-radius: 10px; background: rgba(255,255,255,0.01); position: relative;
+        border-radius: 10px; background: rgba(255,255,255,0.01); position: relative; transition: 0.3s;
     }
     .slot.large { width: 140px; height: 200px; }
-    .slot.active-target { border-color: rgba(236, 72, 153, 0.4); }
-
-    /* АНИМАЦИЯ КАРТЫ */
+    .slot.active-target { border-color: rgba(236, 72, 153, 0.4); box-shadow: 0 0 10px rgba(236, 72, 153, 0.2); }
     .card-anim { 
-        position: fixed; z-index: 500; 
-        transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
-        transform-style: preserve-3d; perspective: 1000px;
-        pointer-events: none;
-    }
-    .card-anim.flipped { transform: rotateY(180deg); }
+    position: fixed; 
+    z-index: 500; 
+    transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+    transform-style: preserve-3d; 
+    perspective: 1000px; /* Добавь перспективу для глубины */
+    pointer-events: none;
+    border-radius: 10px; 
+}
+
+    .card-anim.flipped { transform: rotateY(180deg); transition: transform 0.7s, left 0.8s, top 0.8s, width 0.8s, height 0.8s; }
     .card-anim.is-reversed.flipped { transform: rotateY(180deg) rotateZ(180deg); }
     .card-anim.arrived { box-shadow: var(--neon-pink); pointer-events: auto; }
 
     .face { 
-        position: absolute; width: 100%; height: 100%; 
-        backface-visibility: hidden; border-radius: 10px;
+        position: absolute; width: 100%; height: 100%; backface-visibility: hidden; 
+        /* УБИРАЕМ border-radius отсюда */
         display: flex; flex-direction: column; align-items: center; justify-content: center;
-        box-sizing: border-box; overflow: hidden;
+        box-sizing: border-box; 
+        /* ФИКС УГОЛКОВ И ЗДЕСЬ ТОЖЕ */
+        overflow: hidden; 
     }
-    .face.back { 
-        background: #1e1b4b url('/taro/back_card.jpg') center/cover; 
-        border: 2px solid var(--purp); 
-        z-index: 2; 
-    }
-    /* Возвращаем оригинальное лицо карты */
-    /* Лицо карты — возвращаем твой оригинал */
-    .face.front {
-        background: #0a070f;
-        border: 2px solid var(--pink);
-        transform: rotateY(180deg);
-        z-index: 1;
-        position: relative;
-    }
-
-    /* Эмодзи — ровно по центру, как было */
-    .card-emoji {
-        position: absolute;
-        top: 45%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        font-size: 2.5rem;
-        display: block;
-        transition: font-size 0.8s ease-in-out; /* Чтобы росло плавно в полете */
-    }
-
-    /* Название — внизу */
-    .card-name {
-        position: absolute;
-        bottom: 15px;
-        left: 0;
-        width: 100%;
-        text-align: center;
-        font-size: 0.7rem;
-        color: white;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        transition: font-size 0.8s ease-in-out; /* Чтобы росло плавно в полете */
-    }
-
-    /* Твои фиксы для режима "День" (Slot Large) */
-    .slot.large .card-emoji { font-size: 4.5rem; }
-    .slot.large .card-name { font-size: 1rem; }
-    
-    /* Остальное */
+    .face.back { background: #1e1b4b url('/taro/back_card.jpg') center/cover; border: 2px solid var(--purp); z-index: 2; }
+    .face.front { background: #0f172a; border: 2px solid var(--pink); transform: rotateY(180deg); padding: 8px; z-index: 3; border-radius: 8px}
+    .card-emoji { font-size: 24px; }
+    .slot.large .card-emoji { font-size: 50px; }
+    .card-name { font-size: 8px; color: #f3e8ff; margin-top: 5px; text-transform: uppercase; font-weight: 600; text-align: center; }
+    .slot.large .card-name { font-size: 12px; }
     .prediction-box {
         width: 95%; background: rgba(20, 15, 30, 0.6); border-radius: 20px;
         padding: 18px; border: 1px solid rgba(168, 85, 247, 0.15);
@@ -139,30 +121,41 @@
     }
     .overlay {
         position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-        background: rgba(0,0,0,0.85); z-index: 10000; display: none; 
-        align-items: center; justify-content: center; backdrop-filter: blur(5px);
+        background: rgba(0,0,0,0.85); z-index: 10000; display: none; align-items: center; justify-content: center;
+        opacity: 0; transition: opacity 0.3s ease; backdrop-filter: blur(5px);
     }
     .overlay.active { display: flex; opacity: 1; }
     .modal-card {
         width: 85%; max-width: 320px; background: rgba(10, 7, 15, 0.95);
         border: 2px solid var(--purp); border-radius: 24px; padding: 25px;
         text-align: center; box-shadow: var(--neon-purp);
+        transform: scale(0.9); transition: transform 0.3s ease;
     }
+    .overlay.active .modal-card { transform: scale(1); }
+    .btn-row { display: flex; gap: 10px; justify-content: center; margin-top: 15px; }
     .action-btn {
         background: var(--pink); border: none; color: white; padding: 10px 20px;
         border-radius: 12px; font-size: 0.75rem; font-weight: bold; cursor: pointer;
+        transition: 0.2s; box-shadow: 0 4px 10px rgba(236, 72, 153, 0.3);
     }
     #donate-btn { background: linear-gradient(45deg, #f59e0b, #d97706); }
-    
+   
     .particle {
         position: fixed; width: 5px; height: 5px; border-radius: 50%;
-        pointer-events: none; z-index: 1000;
-        animation: particle-fly 0.8s forwards;
+        pointer-events: none; opacity: 0; z-index: 1000;
+        animation: particle-fly 0.8s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
     }
     @keyframes particle-fly {
         0% { transform: translate(0, 0) scale(1.5); opacity: 1; }
         100% { transform: translate(calc(var(--dx) * 1px), calc(var(--dy) * 1px)) scale(0); opacity: 0; }
     }
+   
+    .fade-in { animation: fadeIn 0.5s ease forwards; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+   
+    #prediction-text { font-size: 0.7rem; line-height: 1.5; color: #e2d5f5; }
+    #prediction-text b { color: white; font-size: 0.8rem; text-transform: uppercase; }
+    #prediction-text small { color: var(--purp); font-size: 0.75rem; letter-spacing: 1px; display: block; margin-bottom: 5px; }
 </style>
 </head>
 <body>
