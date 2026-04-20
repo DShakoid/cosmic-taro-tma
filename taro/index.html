@@ -192,6 +192,8 @@
     text-shadow: none;
     transition: 0.3s;
     animation: gold-shimmer 3s linear infinite; /* Добавим живое сияние */
+        border-radius: 12px; font-size: 0.75rem; font-weight: bold; cursor: pointer;
+        transition: 0.2s; box-shadow: 0 4px 10px rgba(236, 72, 153, 0.3);
 }
 
 #donate-btn:hover {
@@ -288,8 +290,8 @@
         <div id="prediction-box" class="prediction-box">
             <div id="prediction-text" class="fade-in">Выберите режим и прикоснитесь к колоде</div>
             <div class="btn-row">
-                <button id="reset-btn" onclick="setMode(currentMode)" style="display:none;" class="action-btn">ЗАНОВО</button>
-                <button id="donate-btn" class="action-btn" style="display:none;">⭐ ПОБЛАГОДАРИТЬ</button>
+                <button id="reset-btn" onclick="setMode(currentMode)" style="display:none;" class="reset-btn">ЗАНОВО</button>
+                <button id="donate-btn" class="donate-btn" style="display:none;">⭐ ПОБЛАГОДАРИТЬ</button>
             </div>
         </div>
     </div>
