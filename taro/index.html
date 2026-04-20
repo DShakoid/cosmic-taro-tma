@@ -92,7 +92,7 @@
     .slot.large { width: 140px; height: 200px; }
     .slot.active-target { border-color: rgba(236, 72, 153, 0.4); box-shadow: 0 0 10px rgba(236, 72, 153, 0.2); }
     
-    /* ===== ИСПРАВЛЕННАЯ АНИМАЦИЯ КАРТ (работает везде) ===== */
+    /* ===== АНИМАЦИЯ ПОЛЁТА + ПЕРЕВОРОТ (работает везде) ===== */
     .card-anim { 
         position: fixed; 
         z-index: 500; 
@@ -102,7 +102,7 @@
         contain: layout style paint;
     }
 
-    /* Анимация переворота через scale + rotate (работает на всех платформах) */
+    /* Полёт + переворот через scale (чиним Android) */
     .card-anim.flipped .face.back {
         transform: scale(0);
         opacity: 0;
@@ -115,7 +115,7 @@
         transition: transform 0.4s ease 0.2s, opacity 0.3s ease 0.2s;
     }
     
-    /* Перевёрнутая карта (реверс) */
+    /* Перевёрнутая карта */
     .card-anim.is-reversed .face.front {
         transform: scale(1) rotateZ(180deg);
     }
