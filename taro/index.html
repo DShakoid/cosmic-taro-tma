@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Cosmic Tarot v6 - Magic Returns</title>
+    <title>Cosmic Tarot - Magic Returns</title>
     <link rel="icon" type="image/png" href="/icon_cosmic_taro128.png">
    
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -67,9 +67,10 @@
     }
     .deck-container {
         display: flex;
-        flex-direction: column;
+        flex-wrap: wrap;
+        justify-content: center;
         align-items: center;
-        gap: 10px;
+        gap: 8px;
         margin-bottom: 20px;
     }
     .deck {
@@ -150,62 +151,53 @@
     }
     .overlay.active .modal-card { transform: scale(1); }
     .btn-row { display: flex; gap: 10px; justify-content: center; margin-top: 15px; }
-    #reset-btn {
-    /* Прозрачный фон с легким оттенком, как на лендингах */
-    background: rgba(168, 85, 247, 0.1); 
-    /* Тонкая, едва заметная рамка */
-    border: 1px solid rgba(168, 85, 247, 0.4);
-    color: white;
-    padding: 10px 20px;
-    border-radius: 12px;
-    font-size: 0.75rem;
-    font-weight: bold;
-    cursor: pointer;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    /* Эффект размытия заднего плана (стекло) */
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-}
-
-#reset-btn:hover {
-    background: rgba(168, 85, 247, 0.2);
-    border-color: var(--purp);
-    box-shadow: var(--neon-purp); /* Твое фирменное фиолетовое свечение */
-    transform: translateY(-1px);
-}
-
-#reset-btn:active {
-    transform: scale(0.95);
-}
-    #donate-btn {
-    /* Твой золотой градиент */
-    background: linear-gradient(to right, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
-    background-size: 200% auto; /* Для плавной анимации перелива */
     
-    /* Цвет текста меняем на темный, чтобы он читался на золоте */
-    color: #1a0b2e; 
-    border: none;
-    box-shadow: 0 4px 15px rgba(191, 149, 63, 0.4);
-    text-shadow: none;
-    animation: gold-shimmer 3s linear infinite; /* Добавим живое сияние */
-        border-radius: 12px; font-size: 0.75rem; font-weight: bold; cursor: pointer;
-        transition: 0.2s; box-shadow: 0 4px 10px rgba(236, 72, 153, 0.3);
-}
-
-#donate-btn:hover {
-    box-shadow: 0 0 20px rgba(252, 246, 186, 0.6);
-    transform: translateY(-2px);
-}
-
-/* Анимация, чтобы золото "играло" на свету */
-@keyframes gold-shimmer {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-}
+    #reset-btn {
+        background: rgba(168, 85, 247, 0.1); 
+        border: 1px solid rgba(168, 85, 247, 0.4);
+        color: white;
+        padding: 10px 20px;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: bold;
+        cursor: pointer;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        backdrop-filter: blur(8px);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+    #reset-btn:hover {
+        background: rgba(168, 85, 247, 0.2);
+        border-color: var(--purp);
+        box-shadow: var(--neon-purp);
+        transform: translateY(-1px);
+    }
+    #reset-btn:active { transform: scale(0.95); }
+    
+    #donate-btn {
+        background: linear-gradient(to right, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
+        background-size: 200% auto;
+        color: #1a0b2e;
+        border: none;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: bold;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(191, 149, 63, 0.4);
+        transition: 0.3s;
+        animation: gold-shimmer 3s linear infinite;
+        padding: 10px 20px;
+    }
+    #donate-btn:hover {
+        box-shadow: 0 0 20px rgba(252, 246, 186, 0.6);
+        transform: translateY(-2px);
+    }
+    @keyframes gold-shimmer {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
    
     .particle {
         position: fixed; width: 5px; height: 5px; border-radius: 50%;
@@ -225,14 +217,14 @@
     #prediction-text small { color: var(--purp); font-size: 0.75rem; letter-spacing: 1px; display: block; margin-bottom: 5px; }
 
     @keyframes deck-shake {
-    0% { transform: translateX(0px) rotate(0deg); }
-    15% { transform: translateX(-4px) rotate(-1deg); }
-    30% { transform: translateX(4px) rotate(1deg); }
-    45% { transform: translateX(-3px) rotate(-0.5deg); }
-    60% { transform: translateX(3px) rotate(0.5deg); }
-    75% { transform: translateX(-1px) rotate(-0.2deg); }
-    100% { transform: translateX(0px) rotate(0deg); }
-}
+        0% { transform: translateX(0px) rotate(0deg); }
+        15% { transform: translateX(-4px) rotate(-1deg); }
+        30% { transform: translateX(4px) rotate(1deg); }
+        45% { transform: translateX(-3px) rotate(-0.5deg); }
+        60% { transform: translateX(3px) rotate(0.5deg); }
+        75% { transform: translateX(-1px) rotate(-0.2deg); }
+        100% { transform: translateX(0px) rotate(0deg); }
+    }
 
     .shuffle-card {
         position: fixed;
@@ -245,15 +237,18 @@
         background: rgba(168, 85, 247, 0.1);
         border: 1px solid rgba(168, 85, 247, 0.3);
         color: var(--purp);
-        padding: 6px 15px;
+        padding: 6px 12px;
         border-radius: 20px;
-        font-size: 0.65rem;
+        font-size: 0.7rem;
         font-weight: bold;
         cursor: pointer;
         transition: 0.3s;
         letter-spacing: 1px;
         text-transform: uppercase;
         backdrop-filter: blur(5px);
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
     }
 
     .shuffle-btn:hover {
@@ -262,78 +257,114 @@
         color: white;
     }
 
-    .shuffle-btn:active {
-        transform: scale(0.95);
+    .shuffle-btn:active { transform: scale(0.95); }
+
+    .card-anim.shuffle-card {
+        transition: all 0.4s cubic-bezier(0.34, 1.2, 0.64, 1);
+        filter: drop-shadow(0 5px 8px rgba(0,0,0,0.3));
     }
-
-    /* Эффект изгиба карты при тасовке */
-.card-anim.shuffle-card {
-    transition: all 0.4s cubic-bezier(0.34, 1.2, 0.64, 1);
-    filter: drop-shadow(0 5px 8px rgba(0,0,0,0.3));
-}
-
-.card-anim.shuffle-card .face.back {
-    transition: transform 0.2s ease;
-}
-
-/* Эффект "взгляда" на карту сбоку */
-@keyframes cardWobble {
-    0% { transform: rotateY(0deg); }
-    50% { transform: rotateY(15deg); }
-    100% { transform: rotateY(0deg); }
-}
-
-.deck-shaking {
-    animation: deck-shake 0.3s ease-in-out infinite;
-    box-shadow: var(--neon-purp);
-}
+    .card-anim.shuffle-card .face.back { transition: transform 0.2s ease; }
+    @keyframes cardWobble {
+        0% { transform: rotateY(0deg); }
+        50% { transform: rotateY(15deg); }
+        100% { transform: rotateY(0deg); }
+    }
+    .deck-shaking { animation: deck-shake 0.3s ease-in-out infinite; box-shadow: var(--neon-purp); }
     
+    .deck-label {
+        font-size: 0.6rem;
+        letter-spacing: 2px;
+        opacity: 0.6;
+        margin-top: 5px;
+    }
+    
+    .button-group {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 8px;
+        margin-top: 5px;
+    }
 </style>
 </head>
 <body>
     <div class="stars"></div>
     <div class="container">
         <div class="menu">
-            <button class="menu-btn" id="btn-day" onclick="setMode('day')" aria-label="Режим Карта дня">День</button>
-            <button class="menu-btn" id="btn-week" onclick="setMode('week')" aria-label="Режим Неделя">Неделя</button>
-            <button class="menu-btn" id="btn-advice" onclick="setMode('advice')" aria-label="Режим Совет">Совет</button>
+            <button class="menu-btn" id="btn-day" onclick="setMode('day')" aria-label="Режим Карта дня">ДЕНЬ</button>
+            <button class="menu-btn" id="btn-week" onclick="setMode('week')" aria-label="Режим Неделя">НЕДЕЛЯ</button>
+            <button class="menu-btn" id="btn-advice" onclick="setMode('advice')" aria-label="Режим Совет">СОВЕТ</button>
         </div>
+        
         <div class="deck-container">
             <div class="deck" onclick="drawCard()" role="button" tabindex="0" aria-label="Вытянуть карту"></div>
             <div class="deck-label">ТЯНИ КАРТУ</div>
-            <button class="shuffle-btn" onclick="shuffleAnimation()" aria-label="Перемешать колоду">
-                <span>ПЕРЕМЕШАТЬ</span>
-            </button>
-            <button class="shuffle-btn" onclick="showHistory()" style="margin-left: 8px;">
-    <span>📜 ИСТОРИЯ</span>
-</button>
+            <div class="button-group">
+                <button class="shuffle-btn" onclick="shuffleAnimation()" aria-label="Перемешать колоду">
+                    <span>🃏</span> ПЕРЕМЕШАТЬ
+                </button>
+                <button class="shuffle-btn" onclick="showHistory()" aria-label="История раскладов">
+                    <span>📜</span> ИСТОРИЯ
+                </button>
+                <button class="shuffle-btn" onclick="showInfo()" aria-label="О приложении">
+                    <span>ℹ️</span>
+                </button>
+                <button class="shuffle-btn" onclick="shareApp()" aria-label="Поделиться">
+                    <span>📤</span>
+                </button>
+            </div>
         </div>
+        
         <div id="table" class="table"></div>
+        
         <div id="prediction-box" class="prediction-box">
             <div id="prediction-text" class="fade-in">Выберите режим и прикоснитесь к колоде</div>
             <div class="btn-row">
-                <button id="reset-btn" onclick="setMode(currentMode)" style="display:none;" class="">ЗАНОВО</button>
-                <button id="donate-btn" class="donate-btn" style="display:none;">⭐ ПОБЛАГОДАРИТЬ</button>
+                <button id="reset-btn" onclick="setMode(currentMode)" style="display:none;">ЗАНОВО</button>
+                <button id="donate-btn" style="display:none;">⭐ ПОБЛАГОДАРИТЬ</button>
             </div>
         </div>
     </div>
 
+    <!-- Модалка для карты -->
     <div id="card-overlay" class="overlay" onclick="closeModal()">
         <div class="modal-card" onclick="event.stopPropagation()">
             <div id="m-emoji" style="font-size: 60px; filter: drop-shadow(0 0 10px white);"></div>
             <div id="m-name" style="color: white; font-weight: bold; font-size: 1.3rem; margin: 10px 0;"></div>
             <div id="m-desc" style="font-size: 0.9rem; text-align: left; line-height: 1.5; color: #e2d5f5;"></div>
-            <button onclick="closeModal()" style="margin-top:20px; width:100%; padding:12px; border-radius:12px; background:var(--purp); border:none; color:white; font-weight:bold; cursor:pointer; font-size:0.9rem; box-shadow:var(--neon-purp);">ПОНЯТНО</button>
+            <button onclick="closeModal()" style="margin-top:20px; width:100%; padding:12px; border-radius:12px; background:var(--purp); border:none; color:white; font-weight:bold; cursor:pointer;">ПОНЯТНО</button>
         </div>
     </div>
-<div id="history-modal" class="overlay" onclick="closeHistoryModal()">
-    <div class="modal-card" style="max-width: 400px; max-height: 70vh; overflow-y: auto;" onclick="event.stopPropagation()">
-        <h3 style="margin-top: 0; color: var(--purp);">📜 История раскладов</h3>
-        <div id="history-list" style="text-align: left; font-size: 0.75rem;"></div>
-        <button onclick="clearHistory()" class="action-btn" style="background: #444; margin-top: 15px;">🗑️ ОЧИСТИТЬ</button>
-        <button onclick="closeHistoryModal()" class="action-btn" style="background: var(--purp); margin-top: 10px;">ЗАКРЫТЬ</button>
+
+    <!-- Модалка для истории -->
+    <div id="history-modal" class="overlay" onclick="closeHistoryModal()">
+        <div class="modal-card" style="max-width: 400px; max-height: 70vh; overflow-y: auto; text-align: left;" onclick="event.stopPropagation()">
+            <h3 style="margin-top: 0; color: var(--purp); text-align: center;">📜 История раскладов</h3>
+            <div id="history-list" style="font-size: 0.75rem;"></div>
+            <button onclick="clearHistory()" style="background: #444; margin-top: 15px; width:100%; padding:10px; border-radius:12px; border:none; color:white; cursor:pointer;">🗑️ ОЧИСТИТЬ</button>
+            <button onclick="closeHistoryModal()" style="background: var(--purp); margin-top: 10px; width:100%; padding:10px; border-radius:12px; border:none; color:white; cursor:pointer;">ЗАКРЫТЬ</button>
+        </div>
     </div>
-</div>
+
+    <!-- Модалка для информации -->
+    <div id="info-modal" class="overlay" onclick="closeInfoModal()">
+        <div class="modal-card" style="max-width: 400px; max-height: 70vh; overflow-y: auto; text-align: left;" onclick="event.stopPropagation()">
+            <h3 style="margin-top: 0; color: var(--purp); text-align: center;">🔮 COSMIC TAROT</h3>
+            <div style="font-size: 0.75rem; line-height: 1.5; color: #e2d5f5;">
+                <p>✨ <b>Полная колода Таро (78 карт)</b><br>22 Старших Аркана + 56 Младших. Прямые и перевёрнутые значения (25% шанс).</p>
+                <p>📌 <b>Три режима раскладов</b><br>• <b>День</b> — одна карта с советом на сегодня<br>• <b>Неделя</b> — прогноз на 7 дней<br>• <b>Совет</b> — 6 карт на волнующий вопрос</p>
+                <p>🔗 <b>Умные комбинации</b><br>Более 200 парных и тройных связок. Стихийный анализ (Огонь, Вода, Воздух, Земля).</p>
+                <p>📅 <b>Персональный прогноз по дате рождения</b><br>50 звёзд Telegram — и ты получаешь карту-покровителя и персональные комбо.</p>
+                <p>📜 <b>История раскладов</b><br>Последние 10 раскладов сохраняются. Можно повторить любой.</p>
+                <hr style="border-color: rgba(168,85,247,0.3); margin: 12px 0;">
+                <p>⚡ <b style="color: #fbbf24;">Не забывай про энергообмен!</b><br>Карты — это зеркало твоего состояния. Подходи к раскладу осознанно, благодари колоду за ответ — и она будет говорить с тобой честно и глубоко.</p>
+                <hr style="border-color: rgba(168,85,247,0.3); margin: 12px 0;">
+                <p style="text-align: center; font-size: 0.7rem; opacity: 0.7;">🌙 Тяни карту. Слушай тишину. Доверяй звёздам.</p>
+            </div>
+            <button onclick="closeInfoModal()" style="margin-top: 15px; width: 100%; padding: 12px; border-radius: 12px; background: var(--purp); border: none; color: white; font-weight: bold; cursor: pointer;">ПОНЯТНО</button>
+        </div>
+    </div>
+
 <script>
     let currentMode = '';
     let drawnCount = 0;
@@ -355,10 +386,7 @@
 
     function preloadImages() {
         const images = ['/taro/back_card.jpg'];
-        images.forEach(src => {
-            const img = new Image();
-            img.src = src;
-        });
+        images.forEach(src => { const img = new Image(); img.src = src; });
     }
     preloadImages();
 
@@ -377,38 +405,30 @@
     window.addEventListener('load', () => {
         const params = new URLSearchParams(window.location.search);
         setMode('day');
-
         if (params.get('mode') === 'birthday') {
             const date = localStorage.getItem('userBirthDate');
-            if (date) {
-                generateBirthdayPrediction(date);
-            }
+            if (date) generateBirthdayPrediction(date);
         }
     });
 
     function setMode(newMode) {
         if (isAnimating) return;
-        
         currentMode = newMode;
         drawnCount = 0;
         selectedCards = [];
+        window.shuffledRemaining = null;
         const table = document.getElementById('table');
         if (!table) return;
-        
         table.innerHTML = '';
         document.querySelectorAll('.card-anim').forEach(c => c.remove());
         document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
-        
         const activeBtn = document.getElementById('btn-' + newMode);
         if (activeBtn) activeBtn.classList.add('active');
-        
         document.getElementById('reset-btn').style.display = 'none';
         document.getElementById('donate-btn').style.display = 'none';
-
         if (newMode === 'day') { createRow(0, 1, true); maxCards = 1; }
         else if (newMode === 'week') { createRow(0, 4); createRow(4, 7); maxCards = 7; }
         else if (newMode === 'advice') { createRow(0, 3); createRow(3, 6); maxCards = 6; }
-
         function createRow(startId, endId, isLarge = false) {
             const row = document.createElement('div');
             row.className = 'table-row';
@@ -420,12 +440,10 @@
             }
             table.appendChild(row);
         }
-
         if (maxCards > 0) {
             const firstSlot = document.getElementById('slot0');
             if (firstSlot) firstSlot.classList.add('active-target');
         }
-
         const box = document.getElementById('prediction-text');
         if (box && !box.innerHTML.includes('Ваш личный прогноз')) {
             box.innerHTML = "Колода перемешана. Тяните карту.";
@@ -433,116 +451,91 @@
     }
 
     function drawCard() {
-    if (!currentMode || drawnCount >= maxCards || isAnimating) return;
-    isAnimating = true;
-
-    const deck = document.querySelector('.deck');
-    const deckRect = deck.getBoundingClientRect();
-    createParticles(deckRect.left + deckRect.width / 2, deckRect.top + deckRect.height / 2, '#a855f7');
-
-    const slot = document.getElementById('slot' + drawnCount);
-    const slotRect = slot.getBoundingClientRect();
-    slot.classList.remove('active-target');
-
-    // === ВЫБОР КАРТЫ С УЧЁТОМ ПЕРЕМЕШАННОГО ПОРЯДКА ===
-    let cardData;
-    const drawnIds = selectedCards.map(c => c.id);
-    
-    // Если есть перемешанная колода и она не пуста
-    if (window.shuffledRemaining && window.shuffledRemaining.length > 0) {
-        // Берём первую карту из перемешанной колоды
-        cardData = window.shuffledRemaining[0];
-        // Удаляем её из перемешанной колоды
-        window.shuffledRemaining.shift();
-    } else {
-        // Fallback: выбираем случайную из доступных
-        const availableCards = tarotDB.cards.filter(c => !drawnIds.includes(c.id));
-        cardData = availableCards[Math.floor(Math.random() * availableCards.length)];
+        if (!currentMode || drawnCount >= maxCards || isAnimating) return;
+        isAnimating = true;
+        const deck = document.querySelector('.deck');
+        const deckRect = deck.getBoundingClientRect();
+        createParticles(deckRect.left + deckRect.width / 2, deckRect.top + deckRect.height / 2, '#a855f7');
+        const slot = document.getElementById('slot' + drawnCount);
+        const slotRect = slot.getBoundingClientRect();
+        slot.classList.remove('active-target');
+        let cardData;
+        const drawnIds = selectedCards.map(c => c.id);
+        if (window.shuffledRemaining && window.shuffledRemaining.length > 0) {
+            cardData = window.shuffledRemaining[0];
+            window.shuffledRemaining.shift();
+        } else {
+            const availableCards = tarotDB.cards.filter(c => !drawnIds.includes(c.id));
+            cardData = availableCards[Math.floor(Math.random() * availableCards.length)];
+        }
+        const isReversed = Math.random() < 0.25;
+        const cardInstance = { ...cardData, isReversed };
+        selectedCards.push(cardInstance);
+        drawnCount++;
+        const card = document.createElement('div');
+        card.className = `card-anim`;
+        const isLargeSlot = slot.classList.contains('large');
+        card.style.position = 'fixed';
+        card.style.zIndex = '1000';
+        card.style.left = deckRect.left + 'px';
+        card.style.top = deckRect.top + 'px';
+        card.style.width = deckRect.width + 'px';
+        card.style.height = deckRect.height + 'px';
+        card.style.transition = 'all 0.8s cubic-bezier(0.23, 1, 0.32, 1)';
+        card.innerHTML = `
+            <div class="face back"></div>
+            <div class="face front">
+                <div class="card-emoji" style="transition: transform 0.8s cubic-bezier(0.23, 1, 0.32, 1);">${cardData.emoji}</div>
+                <div class="card-name" style="transition: transform 0.8s cubic-bezier(0.23, 1, 0.32, 1);">${cardData.name}</div>
+                ${isReversed ? '<div style="font-size: 6px; color: #ff4d4d; position: absolute; bottom: 5px; width:100%; text-align:center;">ПЕРЕВЕРНУТА</div>' : ''}
+            </div>
+        `;
+        document.body.appendChild(card);
+        updatePrediction();
+        requestAnimationFrame(() => {
+            card.style.left = slotRect.left + 'px';
+            card.style.top = slotRect.top + 'px';
+            card.style.width = slotRect.width + 'px';
+            card.style.height = slotRect.height + 'px';
+            if (isLargeSlot) {
+                const emoji = card.querySelector('.card-emoji');
+                const name = card.querySelector('.card-name');
+                emoji.style.transform = 'scale(1.4)';
+                name.style.transform = 'scale(1.2)';
+            }
+            if (isReversed) card.classList.add('is-reversed');
+            card.classList.add('flipped');
+        });
+        setTimeout(() => {
+            slot.appendChild(card);
+            card.style.position = 'absolute';
+            card.style.left = '0';
+            card.style.top = '0';
+            card.style.width = '100%';
+            card.style.height = '100%';
+            card.style.margin = '0';
+            if (isLargeSlot) {
+                const emoji = card.querySelector('.card-emoji');
+                const name = card.querySelector('.card-name');
+                emoji.style.transform = 'scale(1.4)';
+                name.style.transform = 'scale(1.2)';
+            }
+            card.classList.add('arrived');
+            card.onclick = () => showModal(cardInstance);
+            createParticles(slotRect.left + slotRect.width / 2, slotRect.top + slotRect.height / 2, '#ec4899');
+            const nextSlot = document.getElementById('slot' + drawnCount);
+            if (nextSlot) nextSlot.classList.add('active-target');
+            isAnimating = false;
+        }, 800);
     }
-    
-    const isReversed = Math.random() < 0.25;
-    const cardInstance = { ...cardData, isReversed };
-    selectedCards.push(cardInstance);
-    drawnCount++;
-
-    const card = document.createElement('div');
-    card.className = `card-anim`;
-    
-    const isLargeSlot = slot.classList.contains('large');
-    
-    card.style.position = 'fixed';
-    card.style.zIndex = '1000';
-    card.style.left = deckRect.left + 'px';
-    card.style.top = deckRect.top + 'px';
-    card.style.width = deckRect.width + 'px';
-    card.style.height = deckRect.height + 'px';
-    card.style.transition = 'all 0.8s cubic-bezier(0.23, 1, 0.32, 1)';
-
-    card.innerHTML = `
-        <div class="face back"></div>
-        <div class="face front">
-            <div class="card-emoji" style="transition: transform 0.8s cubic-bezier(0.23, 1, 0.32, 1);">${cardData.emoji}</div>
-            <div class="card-name" style="transition: transform 0.8s cubic-bezier(0.23, 1, 0.32, 1);">${cardData.name}</div>
-            ${isReversed ? '<div style="font-size: 6px; color: #ff4d4d; position: absolute; bottom: 5px; width:100%; text-align:center;">ПЕРЕВЕРНУТА</div>' : ''}
-        </div>
-    `;
-
-    document.body.appendChild(card);
-    updatePrediction();
-
-    requestAnimationFrame(() => {
-        card.style.left = slotRect.left + 'px';
-        card.style.top = slotRect.top + 'px';
-        card.style.width = slotRect.width + 'px';
-        card.style.height = slotRect.height + 'px';
-        
-        if (isLargeSlot) {
-            const emoji = card.querySelector('.card-emoji');
-            const name = card.querySelector('.card-name');
-            emoji.style.transform = 'scale(1.4)';
-            name.style.transform = 'scale(1.2)';
-        }
-        
-        if (isReversed) card.classList.add('is-reversed');
-        card.classList.add('flipped');
-    });
-
-    setTimeout(() => {
-        slot.appendChild(card);
-        card.style.position = 'absolute';
-        card.style.left = '0';
-        card.style.top = '0';
-        card.style.width = '100%';
-        card.style.height = '100%';
-        card.style.margin = '0';
-        
-        if (isLargeSlot) {
-            const emoji = card.querySelector('.card-emoji');
-            const name = card.querySelector('.card-name');
-            emoji.style.transform = 'scale(1.4)';
-            name.style.transform = 'scale(1.2)';
-        }
-        
-        card.classList.add('arrived');
-        card.onclick = () => showModal(cardInstance);
-        createParticles(slotRect.left + slotRect.width / 2, slotRect.top + slotRect.height / 2, '#ec4899');
-        
-        const nextSlot = document.getElementById('slot' + drawnCount);
-        if (nextSlot) nextSlot.classList.add('active-target');
-        
-        isAnimating = false;
-    }, 800);
-}
     
     function updatePrediction() {
         const box = document.getElementById('prediction-text');
         if (!box) return;
-        
         const elementColors = { "Огонь": "#ff4d4d", "Вода": "#4db8ff", "Воздух": "#ffcc00", "Земля": "#4dff88" };
         const birthDate = localStorage.getItem('userBirthDate');
         let personalNote = "";
         let comboNote = "";
-
         if (birthDate) {
             const day = parseInt(birthDate.split('-')[2]);
             const lastCard = selectedCards[selectedCards.length - 1];
@@ -554,10 +547,7 @@
                 }
             }
         }
-
-        // === РАСШИРЕННЫЙ ПОИСК КОМБО ===
         if (selectedCards.length >= 2) {
-            // 1. Комбо по ID карт (парные)
             for (let i = 0; i < selectedCards.length; i++) {
                 for (let j = i + 1; j < selectedCards.length; j++) {
                     const id1 = selectedCards[i].id;
@@ -566,8 +556,6 @@
                     if (found && !comboNote) comboNote = `<div style="margin-top:10px; padding:10px; border:1px solid #a855f7; background: rgba(168,85,247,0.1); border-radius:8px;">🔮 <b>Связка:</b> ${found}</div>`;
                 }
             }
-            
-            // 2. ТРОЙНЫЕ комбо (если есть 3+ карты)
             if (selectedCards.length >= 3 && !comboNote) {
                 const ids = selectedCards.map(c => c.id).sort();
                 for (let i = 0; i < ids.length - 2; i++) {
@@ -585,60 +573,34 @@
                     if (comboNote) break;
                 }
             }
-            
-            // 3. Комбо с режимом
-            if (!comboNote) {
-                const modeCombo = tarotDB.combos[`mode_${currentMode}`];
-                if (modeCombo) comboNote = `<div style="margin-top:10px; padding:10px; border:1px solid #a855f7; background: rgba(168,85,247,0.1); border-radius:8px;">🎴 <b>Режим:</b> ${modeCombo}</div>`;
-            }
-            
-            // 4. Комбо с днём недели
             if (!comboNote) {
                 const dayOfWeek = new Date().getDay();
                 const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
                 const dayKey = dayNames[dayOfWeek];
-                
                 for (let card of selectedCards) {
                     const dayCombo = tarotDB.combos[`${dayKey}+${card.id}`];
-                    if (dayCombo) {
-                        comboNote = `<div style="margin-top:10px; padding:10px; border:1px solid #a855f7; background: rgba(168,85,247,0.1); border-radius:8px;">📅 <b>День недели:</b> ${dayCombo}</div>`;
-                        break;
-                    }
+                    if (dayCombo) { comboNote = `<div style="margin-top:10px; padding:10px; border:1px solid #a855f7; background: rgba(168,85,247,0.1); border-radius:8px;">📅 <b>День недели:</b> ${dayCombo}</div>`; break; }
                 }
             }
-            
-            // 5. Комбо с днём рождения
             if (!comboNote && birthDate) {
-                const birthDay = parseInt(birthDate.split('-')[2]);
                 for (let card of selectedCards) {
                     const birthdayCombo = tarotDB.combos[`birthday+${card.id}`];
-                    if (birthdayCombo) {
-                        comboNote = `<div style="margin-top:10px; padding:10px; border:1px solid gold; background: rgba(255,215,0,0.1); border-radius:8px;">🎂 <b>День рождения:</b> ${birthdayCombo}</div>`;
-                        break;
-                    }
+                    if (birthdayCombo) { comboNote = `<div style="margin-top:10px; padding:10px; border:1px solid gold; background: rgba(255,215,0,0.1); border-radius:8px;">🎂 <b>День рождения:</b> ${birthdayCombo}</div>`; break; }
                 }
             }
-            
-            // 6. Временные комбо
             if (!comboNote) {
                 const hour = new Date().getHours();
                 let timeKey = '';
                 if (hour >= 23 || hour <= 3) timeKey = 'midnight';
                 else if (hour >= 5 && hour <= 8) timeKey = 'morning';
                 else if (hour >= 12 && hour <= 14) timeKey = 'noon';
-                
                 if (timeKey) {
                     for (let card of selectedCards) {
                         const timeCombo = tarotDB.combos[`${timeKey}+${card.id}`];
-                        if (timeCombo) {
-                            comboNote = `<div style="margin-top:10px; padding:10px; border:1px solid #a855f7; background: rgba(168,85,247,0.1); border-radius:8px;">⏰ <b>Магический час:</b> ${timeCombo}</div>`;
-                            break;
-                        }
+                        if (timeCombo) { comboNote = `<div style="margin-top:10px; padding:10px; border:1px solid #a855f7; background: rgba(168,85,247,0.1); border-radius:8px;">⏰ <b>Магический час:</b> ${timeCombo}</div>`; break; }
                     }
                 }
             }
-            
-            // 7. Проверка specialCombos
             if (!comboNote) {
                 for (let special of tarotDB.specialCombos) {
                     if (special.check(selectedCards, currentMode, new Date())) {
@@ -648,7 +610,6 @@
                 }
             }
         }
-
         let html = "";
         if (selectedCards.length > 0) {
             if (currentMode === 'day') {
@@ -659,238 +620,200 @@
                 selectedCards.forEach(c => counts[c.element] = (counts[c.element] || 0) + 1);
                 const dominant = Object.keys(counts).reduce((a, b) => counts[a] > counts[b] ? a : b);
                 const color = elementColors[dominant] || "#fff";
-                
                 html = `<div class="fade-in"><div style="color: ${color}; font-weight: bold; font-size: 0.7rem;">📈 Стихия: ${dominant}</div><div style="font-size: 0.75rem; border-left: 3px solid ${color}; padding-left: 10px;">${tarotDB.elementalAdvice[dominant]}</div>${personalNote}${comboNote}</div>`;
             }
         }
         box.innerHTML = html;
-
         if (drawnCount >= maxCards && maxCards > 0) {
             document.getElementById('reset-btn').style.display = 'inline-block';
             document.getElementById('donate-btn').style.display = 'inline-block';
-            if (typeof saveToHistory === 'function') saveToHistory();
+            saveToHistory();
         }
     }
 
     function saveToHistory() {
-    if (drawnCount >= maxCards) {
-        const history = {
-            date: new Date().toISOString(),
-            mode: currentMode,
-            cards: selectedCards.map(c => ({ 
-                id: c.id, 
-                name: c.name, 
-                isReversed: c.isReversed 
-            }))
-        };
-        let saved = JSON.parse(localStorage.getItem('tarotHistory') || '[]');
-        saved.unshift(history);
-        if (saved.length > 10) saved.pop();
-        localStorage.setItem('tarotHistory', JSON.stringify(saved));
+        if (drawnCount >= maxCards) {
+            const history = {
+                date: new Date().toISOString(),
+                mode: currentMode,
+                cards: selectedCards.map(c => ({ id: c.id, name: c.name, isReversed: c.isReversed }))
+            };
+            let saved = JSON.parse(localStorage.getItem('tarotHistory') || '[]');
+            saved.unshift(history);
+            if (saved.length > 10) saved.pop();
+            localStorage.setItem('tarotHistory', JSON.stringify(saved));
+        }
     }
-}
-    
+
     function showHistory() {
-    const saved = JSON.parse(localStorage.getItem('tarotHistory') || '[]');
-    const historyList = document.getElementById('history-list');
-    
-    if (saved.length === 0) {
-        historyList.innerHTML = '<div style="text-align: center; padding: 20px;">📭 Пока нет сохранённых раскладов</div>';
-    } else {
-        let html = '';
-        saved.forEach((item, index) => {
-            const date = new Date(item.date).toLocaleString();
-            const modeNames = { day: 'День', week: 'Неделя', advice: 'Совет' };
-            const modeName = modeNames[item.mode] || item.mode;
-            
-            html += `
-                <div style="border-bottom: 1px solid rgba(168,85,247,0.2); padding: 12px 0;">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                        <span style="color: var(--purp); font-weight: bold;">${modeName}</span>
-                        <span style="font-size: 0.65rem; opacity: 0.7;">${date}</span>
-                    </div>
-                    <div style="display: flex; flex-wrap: wrap; gap: 5px;">
-                        ${item.cards.map(card => `
-                            <span style="background: rgba(168,85,247,0.2); padding: 2px 8px; border-radius: 15px; font-size: 0.65rem;">
-                                ${card.name} ${card.isReversed ? '🔄' : ''}
-                            </span>
-                        `).join('')}
-                    </div>
-                    <button onclick="repeatHistory(${index})" style="margin-top: 8px; background: none; border: 1px solid var(--purp); color: var(--purp); padding: 4px 12px; border-radius: 15px; font-size: 0.6rem; cursor: pointer;">
-                        🔮 Повторить этот расклад
-                    </button>
-                </div>
-            `;
-        });
-        historyList.innerHTML = html;
-    }
-    
-    document.getElementById('history-modal').style.display = 'flex';
-    document.getElementById('history-modal').classList.add('active');
-}
-
-function closeHistoryModal() {
-    document.getElementById('history-modal').classList.remove('active');
-    setTimeout(() => {
-        document.getElementById('history-modal').style.display = 'none';
-    }, 300);
-}
-
-function clearHistory() {
-    if (confirm('Очистить всю историю раскладов?')) {
-        localStorage.removeItem('tarotHistory');
-        showHistory(); // Обновляем отображение
-        if (tg?.showAlert) tg.showAlert('История очищена ✨');
-    }
-}
-
-function repeatHistory(index) {
-    const saved = JSON.parse(localStorage.getItem('tarotHistory') || '[]');
-    const historyItem = saved[index];
-    
-    if (historyItem) {
-        setMode(historyItem.mode);
-        
-        const message = `Повтор расклада "${historyItem.mode}" от ${new Date(historyItem.date).toLocaleDateString()}\n\nВыпали карты: ${historyItem.cards.map(c => c.name).join(', ')}`;
-        
-        if (tg?.showAlert) {
-            tg.showAlert(message);
+        const saved = JSON.parse(localStorage.getItem('tarotHistory') || '[]');
+        const historyList = document.getElementById('history-list');
+        if (saved.length === 0) {
+            historyList.innerHTML = '<div style="text-align: center; padding: 20px;">📭 Пока нет сохранённых раскладов</div>';
         } else {
-            alert(message);
+            let html = '';
+            saved.forEach((item, index) => {
+                const date = new Date(item.date).toLocaleString();
+                const modeNames = { day: 'День', week: 'Неделя', advice: 'Совет' };
+                const modeName = modeNames[item.mode] || item.mode;
+                html += `
+                    <div style="border-bottom: 1px solid rgba(168,85,247,0.2); padding: 12px 0;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                            <span style="color: var(--purp); font-weight: bold;">${modeName}</span>
+                            <span style="font-size: 0.65rem; opacity: 0.7;">${date}</span>
+                        </div>
+                        <div style="display: flex; flex-wrap: wrap; gap: 5px;">
+                            ${item.cards.map(card => `<span style="background: rgba(168,85,247,0.2); padding: 2px 8px; border-radius: 15px; font-size: 0.65rem;">${card.name} ${card.isReversed ? '🔄' : ''}</span>`).join('')}
+                        </div>
+                        <button onclick="repeatHistory(${index})" style="margin-top: 8px; background: none; border: 1px solid var(--purp); color: var(--purp); padding: 4px 12px; border-radius: 15px; font-size: 0.6rem; cursor: pointer;">🔮 Повторить этот расклад</button>
+                    </div>
+                `;
+            });
+            historyList.innerHTML = html;
         }
-        
-        closeHistoryModal();
+        document.getElementById('history-modal').style.display = 'flex';
+        document.getElementById('history-modal').classList.add('active');
     }
-}
 
-    // === НОВАЯ РЕАЛИСТИЧНАЯ АНИМАЦИЯ ТАСОВКИ ===
-    function shuffleAnimation() {
-    if (isAnimating) return;
-    
-    const deck = document.querySelector('.deck');
-    const rect = deck.getBoundingClientRect();
-    
-    // ===== РЕАЛЬНАЯ ПЕРЕТАСОВКА ОСТАВШИХСЯ КАРТ =====
-    // 1. Получаем ID уже вытянутых карт
-    const drawnIds = selectedCards.map(c => c.id);
-    
-    // 2. Получаем оставшиеся карты (которые ещё не выпали)
-    const remainingCards = tarotDB.cards.filter(c => !drawnIds.includes(c.id));
-    
-    // 3. Перемешиваем оставшиеся карты (алгоритм Фишера-Йетса)
-    for (let i = remainingCards.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [remainingCards[i], remainingCards[j]] = [remainingCards[j], remainingCards[i]];
+    function closeHistoryModal() {
+        document.getElementById('history-modal').classList.remove('active');
+        setTimeout(() => { document.getElementById('history-modal').style.display = 'none'; }, 300);
     }
-    
-    // 4. Сохраняем перемешанный порядок в переменную (для следующих вытягиваний)
-    window.shuffledRemaining = remainingCards;
-    
-    // 5. Визуальный эффект сжатия колоды
-    deck.style.transform = 'scale(0.95)';
-    deck.style.transition = 'transform 0.2s ease';
-    
-    setTimeout(() => {
-        deck.style.transform = 'scale(1)';
-    }, 200);
-    
-    // 6. Хаптик
-    if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
-    
-    // 7. Визуальная анимация веера (только для оставшихся карт, чтобы показать перетасовку)
-    const cardsCount = Math.min(8, remainingCards.length);
-    const cards = [];
-    
-    for (let i = 0; i < cardsCount; i++) {
-        const fakeCard = document.createElement('div');
-        fakeCard.className = 'card-anim shuffle-card';
-        fakeCard.style.position = 'fixed';
-        fakeCard.style.left = rect.left + 'px';
-        fakeCard.style.top = rect.top + 'px';
-        fakeCard.style.width = rect.width + 'px';
-        fakeCard.style.height = rect.height + 'px';
-        fakeCard.style.zIndex = '900';
-        fakeCard.style.opacity = '0';
-        fakeCard.innerHTML = '<div class="face back"></div>';
-        fakeCard.style.borderRadius = '10px';
-        fakeCard.style.boxShadow = '0 0 10px rgba(168, 85, 247, 0.5)';
-        
-        // Добавляем текст "осталось X карт"
-        if (i === 0 && remainingCards.length > 0) {
-            const label = document.createElement('div');
-            label.innerText = `${remainingCards.length}`;
-            label.style.position = 'absolute';
-            label.style.bottom = '5px';
-            label.style.right = '5px';
-            label.style.fontSize = '10px';
-            label.style.color = '#a855f7';
-            label.style.background = 'rgba(0,0,0,0.7)';
-            label.style.padding = '2px 4px';
-            label.style.borderRadius = '8px';
-            fakeCard.appendChild(label);
+
+    function clearHistory() {
+        if (confirm('Очистить всю историю раскладов?')) {
+            localStorage.removeItem('tarotHistory');
+            showHistory();
+            if (tg?.showAlert) tg.showAlert('История очищена ✨');
         }
-        
-        document.body.appendChild(fakeCard);
-        cards.push(fakeCard);
     }
-    
-    cards.forEach((card, index) => {
-        setTimeout(() => {
-            const angle = (index - cardsCount / 2) * 12;
-            const rad = angle * Math.PI / 180;
-            const offsetX = Math.sin(rad) * 60;
-            const offsetY = -Math.abs(Math.cos(rad)) * 30 + 20;
-            const rotation = angle * 0.8;
-            
-            card.style.transition = 'all 0.4s cubic-bezier(0.34, 1.2, 0.64, 1)';
-            card.style.opacity = '1';
-            card.style.transform = `translate(${offsetX}px, ${offsetY}px) rotate(${rotation}deg)`;
-            card.style.zIndex = 900 + index;
-        }, index * 40);
-    });
-    
-    setTimeout(() => {
+
+    function repeatHistory(index) {
+        const saved = JSON.parse(localStorage.getItem('tarotHistory') || '[]');
+        const historyItem = saved[index];
+        if (historyItem) {
+            setMode(historyItem.mode);
+            const message = `Повтор расклада "${historyItem.mode}" от ${new Date(historyItem.date).toLocaleDateString()}\n\nВыпали карты: ${historyItem.cards.map(c => c.name).join(', ')}`;
+            if (tg?.showAlert) tg.showAlert(message);
+            else alert(message);
+            closeHistoryModal();
+        }
+    }
+
+    function showInfo() {
+        document.getElementById('info-modal').style.display = 'flex';
+        document.getElementById('info-modal').classList.add('active');
+    }
+
+    function closeInfoModal() {
+        document.getElementById('info-modal').classList.remove('active');
+        setTimeout(() => { document.getElementById('info-modal').style.display = 'none'; }, 300);
+    }
+
+    function shareApp() {
+        const url = 'https://t.me/Cosmic_taro_rich_bot/cosmictaro';
+        if (tg?.showShareButton) {
+            tg.showShareButton(url);
+        } else {
+            alert('Отправь друзьям ссылку: ' + url);
+        }
+    }
+
+    function shuffleAnimation() {
+        if (isAnimating) return;
+        const deck = document.querySelector('.deck');
+        const rect = deck.getBoundingClientRect();
+        const drawnIds = selectedCards.map(c => c.id);
+        const remainingCards = tarotDB.cards.filter(c => !drawnIds.includes(c.id));
+        for (let i = remainingCards.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [remainingCards[i], remainingCards[j]] = [remainingCards[j], remainingCards[i]];
+        }
+        window.shuffledRemaining = remainingCards;
+        deck.style.transform = 'scale(0.95)';
+        deck.style.transition = 'transform 0.2s ease';
+        setTimeout(() => { deck.style.transform = 'scale(1)'; }, 200);
+        if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+        const cardsCount = Math.min(8, remainingCards.length);
+        const cards = [];
+        for (let i = 0; i < cardsCount; i++) {
+            const fakeCard = document.createElement('div');
+            fakeCard.className = 'card-anim shuffle-card';
+            fakeCard.style.position = 'fixed';
+            fakeCard.style.left = rect.left + 'px';
+            fakeCard.style.top = rect.top + 'px';
+            fakeCard.style.width = rect.width + 'px';
+            fakeCard.style.height = rect.height + 'px';
+            fakeCard.style.zIndex = '900';
+            fakeCard.style.opacity = '0';
+            fakeCard.innerHTML = '<div class="face back"></div>';
+            fakeCard.style.borderRadius = '10px';
+            fakeCard.style.boxShadow = '0 0 10px rgba(168, 85, 247, 0.5)';
+            if (i === 0 && remainingCards.length > 0) {
+                const label = document.createElement('div');
+                label.innerText = `${remainingCards.length}`;
+                label.style.position = 'absolute';
+                label.style.bottom = '5px';
+                label.style.right = '5px';
+                label.style.fontSize = '10px';
+                label.style.color = '#a855f7';
+                label.style.background = 'rgba(0,0,0,0.7)';
+                label.style.padding = '2px 4px';
+                label.style.borderRadius = '8px';
+                fakeCard.appendChild(label);
+            }
+            document.body.appendChild(fakeCard);
+            cards.push(fakeCard);
+        }
         cards.forEach((card, index) => {
             setTimeout(() => {
-                card.style.transition = 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
-                card.style.transform = 'translate(0px, 0px) rotate(0deg)';
-                card.style.opacity = '0';
-            }, index * 30);
+                const angle = (index - cardsCount / 2) * 12;
+                const rad = angle * Math.PI / 180;
+                const offsetX = Math.sin(rad) * 60;
+                const offsetY = -Math.abs(Math.cos(rad)) * 30 + 20;
+                const rotation = angle * 0.8;
+                card.style.transition = 'all 0.4s cubic-bezier(0.34, 1.2, 0.64, 1)';
+                card.style.opacity = '1';
+                card.style.transform = `translate(${offsetX}px, ${offsetY}px) rotate(${rotation}deg)`;
+                card.style.zIndex = 900 + index;
+            }, index * 40);
         });
-    }, 500);
-    
-    setTimeout(() => {
-        deck.style.transform = 'scale(0.98)';
-        deck.style.transition = 'transform 0.1s ease';
-        
         setTimeout(() => {
-            deck.style.transform = 'scale(1)';
-        }, 100);
-    }, 650);
-    
-    setTimeout(() => {
-        createParticles(rect.left + rect.width / 2, rect.top + rect.height / 2, '#a855f7');
-        
-        cards.forEach(card => {
-            setTimeout(() => card.remove(), 400);
-        });
-        
-        // ===== СООБЩЕНИЕ =====
-        const box = document.getElementById('prediction-text');
-        if (box) {
-            const remainingCount = remainingCards.length;
-            box.innerHTML = `<div class="fade-in">🃏 Колода перемешана! ✨<br>Осталось ${remainingCount} карт в колоде.</div>`;
-            setTimeout(() => {
-                if (drawnCount < maxCards) {
-                    // Восстанавливаем текст, но оставляем комбо если были
-                    updatePrediction();
-                }
-            }, 2000);
+            cards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.style.transition = 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+                    card.style.transform = 'translate(0px, 0px) rotate(0deg)';
+                    card.style.opacity = '0';
+                }, index * 30);
+            });
+        }, 500);
+        setTimeout(() => {
+            deck.style.transform = 'scale(0.98)';
+            deck.style.transition = 'transform 0.1s ease';
+            setTimeout(() => { deck.style.transform = 'scale(1)'; }, 100);
+        }, 650);
+        setTimeout(() => {
+            createParticles(rect.left + rect.width / 2, rect.top + rect.height / 2, '#a855f7');
+            cards.forEach(card => { setTimeout(() => card.remove(), 400); });
+            const box = document.getElementById('prediction-text');
+            if (box) {
+                const remainingCount = remainingCards.length;
+                box.innerHTML = `<div class="fade-in">🃏 Колода перемешана! ✨<br>Осталось ${remainingCount} карт в колоде.</div>`;
+                setTimeout(() => { if (drawnCount < maxCards) updatePrediction(); }, 2000);
+            }
+            isAnimating = false;
+        }, 800);
+    }
+
+    function createParticles(x, y, color) {
+        for (let i = 0; i < 10; i++) {
+            const p = document.createElement('div'); p.className = 'particle';
+            p.style.left = x + 'px'; p.style.top = y + 'px'; p.style.background = color;
+            const a = Math.random() * Math.PI * 2, v = Math.random() * 50 + 20;
+            p.style.setProperty('--dx', Math.cos(a) * v); p.style.setProperty('--dy', Math.sin(a) * v);
+            document.body.appendChild(p); setTimeout(() => p.remove(), 800);
         }
-        
-        isAnimating = false;
-    }, 800);
-}
+    }
     
     function showModal(card) {
         document.getElementById('m-emoji').innerText = card.emoji;
