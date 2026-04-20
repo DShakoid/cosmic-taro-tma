@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -27,7 +26,6 @@
         display: flex; 
         justify-content: center; 
         min-height: 100vh; 
-        /* Убираем overflow: hidden; и заменяем на прокрутку по вертикали */
         overflow-x: hidden;
         overflow-y: auto; 
         user-select: none; 
@@ -51,10 +49,8 @@
         display: flex; 
         flex-direction: column; 
         align-items: center; 
-        /* Увеличиваем нижний отступ, чтобы кнопки не прилипали к краю */
         padding: calc(env(safe-area-inset-top, 0px) + 55px) 15px 80px 15px;
         box-sizing: border-box;
-        /* Разрешаем контейнеру расти вместе с контентом */
         min-height: 100%;
     }
     .menu { display: flex; gap: 8px; margin-bottom: 20px; width: 100%; z-index: 100; }
@@ -70,17 +66,18 @@
         box-shadow: var(--neon-purp);
     }
     .deck-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px; /* Отступ между колодой, текстом и кнопкой */
-    margin-bottom: 20px;
-}
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
     .deck {
         width: 65px; height: 95px;
         background-image: url('/taro/back_card.jpg'); background-size: cover; background-position: center;
         border: 2px solid var(--purp); border-radius: 10px; cursor: pointer;
         box-shadow: var(--neon-purp);
+        contain: layout style paint;
     }
     .deck:active { transform: scale(0.95); box-shadow: 0 0 5px var(--purp); }
     .table { display: flex; flex-direction: column; align-items: center; gap: 12px; margin: 15px 0; width: 100%; z-index: 5; }
@@ -89,57 +86,51 @@
     .slot {
         width: 75px; height: 110px; border: 1px solid rgba(168, 85, 247, 0.15);
         border-radius: 10px; background: rgba(255,255,255,0.01); position: relative; transition: 0.3s;
+        contain: layout style paint;
     }
     .slot.large { width: 140px; height: 200px; }
     .slot.active-target { border-color: rgba(236, 72, 153, 0.4); box-shadow: 0 0 10px rgba(236, 72, 153, 0.2); }
     .card-anim { 
-    position: fixed; 
-    z-index: 500; 
-    transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
-    transform-style: preserve-3d; 
-    perspective: 1000px; /* Добавь перспективу для глубины */
-    pointer-events: none;
-    border-radius: 10px; 
-}
+        position: fixed; 
+        z-index: 500; 
+        transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+        transform-style: preserve-3d; 
+        perspective: 1000px;
+        pointer-events: none;
+        border-radius: 10px;
+        contain: layout style paint;
+    }
 
     .card-anim.flipped { transform: rotateY(180deg); transition: transform 0.7s, left 0.8s, top 0.8s, width 0.8s, height 0.8s; }
     .card-anim.is-reversed.flipped { transform: rotateY(180deg) rotateZ(180deg); }
     .card-anim.arrived { box-shadow: var(--neon-pink); pointer-events: auto; }
     
-
     .face { 
         position: absolute; width: 100%; height: 100%; backface-visibility: hidden; 
-        /* УБИРАЕМ border-radius отсюда */
         display: flex; flex-direction: column; align-items: center; justify-content: center;
         box-sizing: border-box; 
-        /* ФИКС УГОЛКОВ И ЗДЕСЬ ТОЖЕ */
         overflow: hidden; 
     }
     .face.back { background: #1e1b4b url('/taro/back_card.jpg') center/cover; border: 2px solid var(--purp); z-index: 2; }
     .face.front { background: #0f172a; border: 2px solid var(--pink); transform: rotateY(180deg); padding: 8px; z-index: 3; border-radius: 8px}
-    /* Базовые стили содержания */
+    
     .card-emoji { 
-    font-size: 1.2rem;
-    transition: transform 0.8s cubic-bezier(0.23, 1, 0.32, 1);
-    display: block;
-    will-change: transform;
-}
-.card-name { 
-    font-size: 0.4rem;
-    color: #f3e8ff; 
-    margin-top: 5px; 
-    text-transform: uppercase; 
-    font-weight: 600; 
-    text-align: center; 
-    transition: transform 0.8s cubic-bezier(0.23, 1, 0.32, 1);
-    will-change: transform;
-}
+        font-size: 1.2rem;
+        transition: transform 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+        display: block;
+        will-change: transform;
+    }
+    .card-name { 
+        font-size: 0.4rem;
+        color: #f3e8ff; 
+        margin-top: 5px; 
+        text-transform: uppercase; 
+        font-weight: 600; 
+        text-align: center; 
+        transition: transform 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+        will-change: transform;
+    }
 
-/* Полностью удалите или закомментируйте этот блок */
-/* .slot.large .card-emoji,
-.slot.large .card-name {
-    will-change: transform;
-} */
     .prediction-box {
         width: 95%; background: rgba(20, 15, 30, 0.6); border-radius: 20px;
         padding: 18px; border: 1px solid rgba(168, 85, 247, 0.15);
@@ -183,69 +174,67 @@
     #prediction-text b { color: white; font-size: 0.8rem; text-transform: uppercase; }
     #prediction-text small { color: var(--purp); font-size: 0.75rem; letter-spacing: 1px; display: block; margin-bottom: 5px; }
 
-    /* Тряска самой колоды */
-@keyframes deck-shake {
-    0% { transform: scale(1) rotate(0deg); }
-    25% { transform: scale(1.05) rotate(-2deg); }
-    50% { transform: scale(1.05) rotate(2deg); }
-    75% { transform: scale(1.05) rotate(-1deg); }
-    100% { transform: scale(1) rotate(0deg); }
-}
+    @keyframes deck-shake {
+        0% { transform: scale(1) rotate(0deg); }
+        25% { transform: scale(1.05) rotate(-2deg); }
+        50% { transform: scale(1.05) rotate(2deg); }
+        75% { transform: scale(1.05) rotate(-1deg); }
+        100% { transform: scale(1) rotate(0deg); }
+    }
 
-.deck-shaking {
-    animation: deck-shake 0.3s ease-in-out infinite;
-    box-shadow: var(--neon-purp);
-}
+    .deck-shaking {
+        animation: deck-shake 0.3s ease-in-out infinite;
+        box-shadow: var(--neon-purp);
+    }
 
-/* Плавный вылет фантомных карт */
-.shuffle-card {
-    position: fixed;
-    z-index: 999;
-    pointer-events: none;
-    transition: all 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
-}
+    .shuffle-card {
+        position: fixed;
+        z-index: 999;
+        pointer-events: none;
+        transition: all 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
+    }
 
     .shuffle-btn {
-    background: rgba(168, 85, 247, 0.1);
-    border: 1px solid rgba(168, 85, 247, 0.3);
-    color: var(--purp);
-    padding: 6px 15px;
-    border-radius: 20px;
-    font-size: 0.65rem;
-    font-weight: bold;
-    cursor: pointer;
-    transition: 0.3s;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    backdrop-filter: blur(5px);
-}
+        background: rgba(168, 85, 247, 0.1);
+        border: 1px solid rgba(168, 85, 247, 0.3);
+        color: var(--purp);
+        padding: 6px 15px;
+        border-radius: 20px;
+        font-size: 0.65rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: 0.3s;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        backdrop-filter: blur(5px);
+    }
 
-.shuffle-btn:hover {
-    background: rgba(168, 85, 247, 0.2);
-    box-shadow: var(--neon-purp);
-    color: white;
-}
+    .shuffle-btn:hover {
+        background: rgba(168, 85, 247, 0.2);
+        box-shadow: var(--neon-purp);
+        color: white;
+    }
 
-.shuffle-btn:active {
-    transform: scale(0.95);
-}
+    .shuffle-btn:active {
+        transform: scale(0.95);
+    }
 </style>
 </head>
 <body>
     <div class="stars"></div>
     <div class="container">
         <div class="menu">
-            <button class="menu-btn" id="btn-day" onclick="setMode('day')">День</button>
-            <button class="menu-btn" id="btn-week" onclick="setMode('week')">Неделя</button>
-            <button class="menu-btn" id="btn-advice" onclick="setMode('advice')">Совет</button>
+            <button class="menu-btn" id="btn-day" onclick="setMode('day')" aria-label="Режим Карта дня">День</button>
+            <button class="menu-btn" id="btn-week" onclick="setMode('week')" aria-label="Режим Неделя">Неделя</button>
+            <button class="menu-btn" id="btn-advice" onclick="setMode('advice')" aria-label="Режим Совет">Совет</button>
         </div>
         <div class="deck-container">
-    <div class="deck" onclick="drawCard()"></div>
-    <div class="deck-label">ТЯНИ КАРТУ</div>
-    <button class="shuffle-btn" onclick="shuffleAnimation()">
-        <span>ПЕРЕМЕШАТЬ</span>
-    </button>
-</div>
+            <div class="deck" onclick="drawCard()" role="button" tabindex="0" aria-label="Вытянуть карту"></div>
+            <div class="deck-label">ТЯНИ КАРТУ</div>
+            <button class="shuffle-btn" onclick="shuffleAnimation()" aria-label="Перемешать колоду">
+                <span>ПЕРЕМЕШАТЬ</span>
+            </button>
+        </div>
         <div id="table" class="table"></div>
         <div id="prediction-box" class="prediction-box">
             <div id="prediction-text" class="fade-in">Выберите режим и прикоснитесь к колоде</div>
@@ -266,13 +255,12 @@
     </div>
 
 <script>
-    // 1. Инициализация переменных (ОДИН РАЗ)
     let currentMode = '';
     let drawnCount = 0;
     let maxCards = 0;
     let selectedCards = [];
+    let isAnimating = false;
 
-    // 2. Настройка Telegram (ОДИН РАЗ)
     const tg = window.Telegram?.WebApp;
     if (tg) {
         tg.ready();
@@ -285,7 +273,19 @@
         });
     }
 
-    // 3. Логика загрузки и режима дня рождения
+    function preloadImages() {
+        const images = ['/taro/back_card.jpg'];
+        images.forEach(src => {
+            const img = new Image();
+            img.src = src;
+        });
+    }
+    preloadImages();
+
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js').catch(console.log);
+    }
+
     function generateBirthdayPrediction(date) {
         const day = date.split('-')[2];
         const box = document.getElementById('prediction-text');
@@ -296,11 +296,8 @@
 
     window.addEventListener('load', () => {
         const params = new URLSearchParams(window.location.search);
-        
-        // Устанавливаем режим по умолчанию (Карта дня)
         setMode('day');
 
-        // Проверяем, пришел ли пользователь после оплаты даты
         if (params.get('mode') === 'birthday') {
             const date = localStorage.getItem('userBirthDate');
             if (date) {
@@ -309,8 +306,9 @@
         }
     });
 
-    // 4. Управление режимами раскладов
     function setMode(newMode) {
+        if (isAnimating) return;
+        
         currentMode = newMode;
         drawnCount = 0;
         selectedCards = [];
@@ -354,101 +352,94 @@
         }
     }
 
-    // 5. Вытягивание карты (Исправленная логика без скачков)
-function drawCard() {
-    if (!currentMode || drawnCount >= maxCards) return;
+    function drawCard() {
+        if (!currentMode || drawnCount >= maxCards || isAnimating) return;
+        isAnimating = true;
 
-    const deck = document.querySelector('.deck');
-    const deckRect = deck.getBoundingClientRect();
-    createParticles(deckRect.left + deckRect.width / 2, deckRect.top + deckRect.height / 2, '#a855f7');
+        const deck = document.querySelector('.deck');
+        const deckRect = deck.getBoundingClientRect();
+        createParticles(deckRect.left + deckRect.width / 2, deckRect.top + deckRect.height / 2, '#a855f7');
 
-    const slot = document.getElementById('slot' + drawnCount);
-    const slotRect = slot.getBoundingClientRect();
-    slot.classList.remove('active-target');
+        const slot = document.getElementById('slot' + drawnCount);
+        const slotRect = slot.getBoundingClientRect();
+        slot.classList.remove('active-target');
 
-    const availableCards = tarotDB.cards.filter(c => !selectedCards.find(s => s.id === c.id));
-    const cardData = availableCards[Math.floor(Math.random() * availableCards.length)];
-    const isReversed = Math.random() < 0.25;
-    const cardInstance = { ...cardData, isReversed };
-    selectedCards.push(cardInstance);
-    drawnCount++;
+        const availableCards = tarotDB.cards.filter(c => !selectedCards.find(s => s.id === c.id));
+        const cardData = availableCards[Math.floor(Math.random() * availableCards.length)];
+        const isReversed = Math.random() < 0.25;
+        const cardInstance = { ...cardData, isReversed };
+        selectedCards.push(cardInstance);
+        drawnCount++;
 
-    const card = document.createElement('div');
-    card.className = `card-anim`;
+        const card = document.createElement('div');
+        card.className = `card-anim`;
+        
+        const isLargeSlot = slot.classList.contains('large');
+        
+        card.style.position = 'fixed';
+        card.style.zIndex = '1000';
+        card.style.left = deckRect.left + 'px';
+        card.style.top = deckRect.top + 'px';
+        card.style.width = deckRect.width + 'px';
+        card.style.height = deckRect.height + 'px';
+        card.style.transition = 'all 0.8s cubic-bezier(0.23, 1, 0.32, 1)';
+
+        card.innerHTML = `
+            <div class="face back"></div>
+            <div class="face front">
+                <div class="card-emoji" style="transition: transform 0.8s cubic-bezier(0.23, 1, 0.32, 1);">${cardData.emoji}</div>
+                <div class="card-name" style="transition: transform 0.8s cubic-bezier(0.23, 1, 0.32, 1);">${cardData.name}</div>
+                ${isReversed ? '<div style="font-size: 6px; color: #ff4d4d; position: absolute; bottom: 5px; width:100%; text-align:center;">ПЕРЕВЕРНУТА</div>' : ''}
+            </div>
+        `;
+
+        document.body.appendChild(card);
+        updatePrediction();
+
+        requestAnimationFrame(() => {
+            card.style.left = slotRect.left + 'px';
+            card.style.top = slotRect.top + 'px';
+            card.style.width = slotRect.width + 'px';
+            card.style.height = slotRect.height + 'px';
+            
+            if (isLargeSlot) {
+                const emoji = card.querySelector('.card-emoji');
+                const name = card.querySelector('.card-name');
+                emoji.style.transform = 'scale(1.4)';
+                name.style.transform = 'scale(1.2)';
+            }
+            
+            if (isReversed) card.classList.add('is-reversed');
+            card.classList.add('flipped');
+        });
+
+        setTimeout(() => {
+            slot.appendChild(card);
+            card.style.position = 'absolute';
+            card.style.left = '0';
+            card.style.top = '0';
+            card.style.width = '100%';
+            card.style.height = '100%';
+            card.style.margin = '0';
+            
+            if (isLargeSlot) {
+                const emoji = card.querySelector('.card-emoji');
+                const name = card.querySelector('.card-name');
+                emoji.style.transform = 'scale(1.4)';
+                name.style.transform = 'scale(1.2)';
+            }
+            
+            card.classList.add('arrived');
+            card.onclick = () => showModal(cardInstance);
+            createParticles(slotRect.left + slotRect.width / 2, slotRect.top + slotRect.height / 2, '#ec4899');
+            
+            const nextSlot = document.getElementById('slot' + drawnCount);
+            if (nextSlot) nextSlot.classList.add('active-target');
+            
+            isAnimating = false;
+        }, 800);
+    }
     
-    // Определяем, будет ли слот большим
-    const isLargeSlot = slot.classList.contains('large');
-    
-    card.style.position = 'fixed';
-    card.style.zIndex = '1000';
-    card.style.left = deckRect.left + 'px';
-    card.style.top = deckRect.top + 'px';
-    card.style.width = deckRect.width + 'px';
-    card.style.height = deckRect.height + 'px';
-    card.style.transition = 'all 0.8s cubic-bezier(0.23, 1, 0.32, 1)';
-
-    card.innerHTML = `
-        <div class="face back"></div>
-        <div class="face front">
-            <div class="card-emoji" style="transition: transform 0.8s cubic-bezier(0.23, 1, 0.32, 1);">${cardData.emoji}</div>
-            <div class="card-name" style="transition: transform 0.8s cubic-bezier(0.23, 1, 0.32, 1);">${cardData.name}</div>
-            ${isReversed ? '<div style="font-size: 6px; color: #ff4d4d; position: absolute; bottom: 5px; width:100%; text-align:center;">ПЕРЕВЕРНУТА</div>' : ''}
-        </div>
-    `;
-
-    document.body.appendChild(card);
-    updatePrediction();
-
-    // ПОЛЁТ С ПЛАВНЫМ МАСШТАБИРОВАНИЕМ
-    requestAnimationFrame(() => {
-        // Анимируем позицию и размер карты
-        card.style.left = slotRect.left + 'px';
-        card.style.top = slotRect.top + 'px';
-        card.style.width = slotRect.width + 'px';
-        card.style.height = slotRect.height + 'px';
-        
-        // Если слот большой - плавно увеличиваем контент во время полёта
-        if (isLargeSlot) {
-            const emoji = card.querySelector('.card-emoji');
-            const name = card.querySelector('.card-name');
-            emoji.style.transform = 'scale(1.4)';
-            name.style.transform = 'scale(1.2)';
-        }
-        
-        if (isReversed) card.classList.add('is-reversed');
-        card.classList.add('flipped');
-    });
-
-    // ПРИЗЕМЛЕНИЕ
-    setTimeout(() => {
-        slot.appendChild(card);
-        
-        card.style.position = 'absolute';
-        card.style.left = '0';
-        card.style.top = '0';
-        card.style.width = '100%';
-        card.style.height = '100%';
-        card.style.margin = '0';
-        
-        // Сохраняем достигнутый масштаб (он уже правильный)
-        if (isLargeSlot) {
-            const emoji = card.querySelector('.card-emoji');
-            const name = card.querySelector('.card-name');
-            // Убеждаемся, что масштаб остался
-            emoji.style.transform = 'scale(1.4)';
-            name.style.transform = 'scale(1.2)';
-        }
-        
-        card.classList.add('arrived');
-        card.onclick = () => showModal(cardInstance);
-        createParticles(slotRect.left + slotRect.width / 2, slotRect.top + slotRect.height / 2, '#ec4899');
-        
-        const nextSlot = document.getElementById('slot' + drawnCount);
-        if (nextSlot) nextSlot.classList.add('active-target');
-    }, 800);
-}
-    
-    // 6. Обновление текста предсказания (с учетом даты)
     function updatePrediction() {
         const box = document.getElementById('prediction-text');
         if (!box) return;
@@ -497,55 +488,64 @@ function drawCard() {
         if (drawnCount >= maxCards && maxCards > 0) {
             document.getElementById('reset-btn').style.display = 'inline-block';
             document.getElementById('donate-btn').style.display = 'inline-block';
+            saveToHistory();
         }
-    }    
-
-    function shuffleAnimation() {
-    const deck = document.querySelector('.deck');
-    const rect = deck.getBoundingClientRect();
-    
-    // Включаем тряску колоды
-    deck.classList.add('deck-shaking');
-
-    // Создаем 6 вылетающих карт
-    for (let i = 0; i < 6; i++) {
-        setTimeout(() => {
-            const faked = document.createElement('div');
-            faked.className = 'card-anim shuffle-card';
-            
-            // Стартуем из колоды
-            faked.style.left = rect.left + 'px';
-            faked.style.top = rect.top + 'px';
-            faked.style.width = rect.width + 'px';
-            faked.style.height = rect.height + 'px';
-            faked.innerHTML = '<div class="face back"></div>';
-            
-            document.body.appendChild(faked);
-
-            // Генерируем случайный вылет
-            const angle = (Math.random() * Math.PI * 2);
-            const dist = 50 + Math.random() * 50;
-            const x = Math.cos(angle) * dist;
-            const y = Math.sin(angle) * dist;
-
-            requestAnimationFrame(() => {
-                faked.style.transform = `translate(${x}px, ${y}px) rotate(${x}deg)`;
-                faked.style.opacity = '0';
-            });
-
-            // Удаляем карту после анимации
-            setTimeout(() => faked.remove(), 600);
-        }, i * 100);
     }
 
-    // Выключаем тряску через секунду
-    setTimeout(() => {
-        deck.classList.remove('deck-shaking');
-        // Тут можно добавить звук тасовки, если есть
-    }, 1000);
-}
+    function saveToHistory() {
+        if (drawnCount >= maxCards) {
+            const history = {
+                date: new Date().toISOString(),
+                mode: currentMode,
+                cards: selectedCards.map(c => ({ id: c.id, name: c.name, isReversed: c.isReversed }))
+            };
+            let saved = JSON.parse(localStorage.getItem('tarotHistory') || '[]');
+            saved.unshift(history);
+            if (saved.length > 10) saved.pop();
+            localStorage.setItem('tarotHistory', JSON.stringify(saved));
+        }
+    }
 
-    // 7. Вспомогательные функции (Частицы, Модалки, Донат)
+    function shuffleAnimation() {
+        if (isAnimating) return;
+        
+        const deck = document.querySelector('.deck');
+        const rect = deck.getBoundingClientRect();
+        
+        deck.classList.add('deck-shaking');
+
+        for (let i = 0; i < 6; i++) {
+            setTimeout(() => {
+                const faked = document.createElement('div');
+                faked.className = 'card-anim shuffle-card';
+                
+                faked.style.left = rect.left + 'px';
+                faked.style.top = rect.top + 'px';
+                faked.style.width = rect.width + 'px';
+                faked.style.height = rect.height + 'px';
+                faked.innerHTML = '<div class="face back"></div>';
+                
+                document.body.appendChild(faked);
+
+                const angle = (Math.random() * Math.PI * 2);
+                const dist = 50 + Math.random() * 50;
+                const x = Math.cos(angle) * dist;
+                const y = Math.sin(angle) * dist;
+
+                requestAnimationFrame(() => {
+                    faked.style.transform = `translate(${x}px, ${y}px) rotate(${x}deg)`;
+                    faked.style.opacity = '0';
+                });
+
+                setTimeout(() => faked.remove(), 600);
+            }, i * 100);
+        }
+
+        setTimeout(() => {
+            deck.classList.remove('deck-shaking');
+        }, 1000);
+    }
+
     function createParticles(x, y, color) {
         for (let i = 0; i < 10; i++) {
             const p = document.createElement('div'); p.className = 'particle';
