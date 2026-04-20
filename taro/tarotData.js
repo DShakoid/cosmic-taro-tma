@@ -433,7 +433,31 @@ const tarotDB = {
                 return (now >= 12 && now <= 14) && cards.length >= 2;
             },
             text: "🥗 Полдень. Самое время для честных решений — твой ум максимально объективен."
-        }
+        },
+        {
+        name: "Магический час",
+        check: (cards, mode, now) => {
+            const hour = now.getHours();
+            return (hour >= 23 || hour <= 3) && cards.length >= 2;
+        },
+        text: "🌙 Сейчас магический час! Твои карты получили усиление. Интуиция обострена как никогда."
+    },
+    {
+        name: "Утренняя роса",
+        check: (cards, mode, now) => {
+            const hour = now.getHours();
+            return (hour >= 5 && hour <= 8) && cards.length >= 2;
+        },
+        text: "☀️ Утро — время ясности. Ответы будут простыми и понятными, без лишних загадок."
+    },
+    {
+        name: "Золотая середина",
+        check: (cards, mode, now) => {
+            const hour = now.getHours();
+            return (hour >= 12 && hour <= 14) && cards.length >= 2;
+        },
+        text: "🥗 Полдень. Самое время для честных решений — твой ум максимально объективен."
+    }
     ]
 };
 
