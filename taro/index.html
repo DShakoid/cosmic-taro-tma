@@ -514,59 +514,95 @@
 
     // === РАСШИРЕННЫЙ ПОИСК КОМБО ===
     if (selectedCards.length >= 2) {
-        // 1. Комбо по ID карт (было)
+        // 1. Комбо по ID карт (парные)
         for (let i = 0; i < selectedCards.length; i++) {
             for (let j = i + 1; j < selectedCards.length; j++) {
                 const id1 = selectedCards[i].id;
                 const id2 = selectedCards[j].id;
                 const found = tarotDB.combos[`${id1}+${id2}`] || tarotDB.combos[`${id2}+${id1}`];
-                if (found) comboNote = `<div style="margin-top:10px; padding:10px; border:1px solid #a855f7; background: rgba(168,85,247,0.1); border-radius:8px;">🔮 <b>Связка:</b> ${found}</div>`;
+                if (found && !comboNote) comboNote = `<div style="margin-top:10px; padding:10px; border:1px solid #a855f7; background: rgba(168,85,247,0.1); border-radius:8px;">🔮 <b>Связка:</b> ${found}</div>`;
             }
         }
         
-        // 2. Комбо с режимом
-        const modeKey = `mode_${currentMode}`;
-        const modeCombo = tarotDB.combos[modeKey];
-        if (modeCombo && !comboNote) comboNote = `<div style="margin-top:10px; padding:10px; border:1px solid #a855f7; background: rgba(168,85,247,0.1); border-radius:8px;">🎴 <b>Режим:</b> ${modeCombo}</div>`;
-        
-        // 3. Комбо с днём недели
-        const dayOfWeek = new Date().getDay(); // 0-6 (0 воскресенье)
-        const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
-        const dayKey = dayNames[dayOfWeek];
-        
-        for (let card of selectedCards) {
-            const dayCombo = tarotDB.combos[`${dayKey}+${card.id}`];
-            if (dayCombo && !comboNote) comboNote = `<div style="margin-top:10px; padding:10px; border:1px solid #a855f7; background: rgba(168,85,247,0.1); border-radius:8px;">📅 <b>День недели:</b> ${dayCombo}</div>`;
+        // 2. ТРОЙНЫЕ комбо (если есть 3+ карты)
+        if (selectedCards.length >= 3 && !comboNote) {
+            const ids = selectedCards.map(c => c.id).sort();
+            // Проверяем все комбинации из 3 карт
+            for (let i = 0; i < ids.length - 2; i++) {
+                for (let j = i + 1; j < ids.length - 1; j++) {
+                    for (let k = j + 1; k < ids.length; k++) {
+                        const tripleKey = `${ids[i]}+${ids[j]}+${ids[k]}`;
+                        const tripleFound = tarotDB.combos[tripleKey];
+                        if (tripleFound && !comboNote) {
+                            comboNote = `<div style="margin-top:10px; padding:10px; border:1px solid #a855f7; background: rgba(168,85,247,0.1); border-radius:8px;">🔮 <b>Тройная связка:</b> ${tripleFound}</div>`;
+                            break;
+                        }
+                    }
+                    if (comboNote) break;
+                }
+                if (comboNote) break;
+            }
         }
         
-        // 4. Комбо с днём рождения
-        if (birthDate) {
+        // 3. Комбо с режимом (если есть специальный ключ)
+        if (!comboNote) {
+            const modeCombo = tarotDB.combos[`mode_${currentMode}`];
+            if (modeCombo) comboNote = `<div style="margin-top:10px; padding:10px; border:1px solid #a855f7; background: rgba(168,85,247,0.1); border-radius:8px;">🎴 <b>Режим:</b> ${modeCombo}</div>`;
+        }
+        
+        // 4. Комбо с днём недели + карта
+        if (!comboNote) {
+            const dayOfWeek = new Date().getDay();
+            const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+            const dayKey = dayNames[dayOfWeek];
+            
+            for (let card of selectedCards) {
+                const dayCombo = tarotDB.combos[`${dayKey}+${card.id}`];
+                if (dayCombo) {
+                    comboNote = `<div style="margin-top:10px; padding:10px; border:1px solid #a855f7; background: rgba(168,85,247,0.1); border-radius:8px;">📅 <b>День недели:</b> ${dayCombo}</div>`;
+                    break;
+                }
+            }
+        }
+        
+        // 5. Комбо с днём рождения + карта
+        if (!comboNote && birthDate) {
             const birthDay = parseInt(birthDate.split('-')[2]);
             for (let card of selectedCards) {
                 const birthdayCombo = tarotDB.combos[`birthday+${card.id}`];
-                if (birthdayCombo && !comboNote) comboNote = `<div style="margin-top:10px; padding:10px; border:1px solid gold; background: rgba(255,215,0,0.1); border-radius:8px;">🎂 <b>День рождения:</b> ${birthdayCombo}</div>`;
+                if (birthdayCombo) {
+                    comboNote = `<div style="margin-top:10px; padding:10px; border:1px solid gold; background: rgba(255,215,0,0.1); border-radius:8px;">🎂 <b>День рождения:</b> ${birthdayCombo}</div>`;
+                    break;
+                }
             }
         }
         
-        // 5. Временные комбо (час дня)
-        const hour = new Date().getHours();
-        let timeKey = '';
-        if (hour >= 23 || hour <= 3) timeKey = 'midnight';
-        else if (hour >= 5 && hour <= 8) timeKey = 'morning';
-        else if (hour >= 12 && hour <= 14) timeKey = 'noon';
-        
-        if (timeKey) {
-            for (let card of selectedCards) {
-                const timeCombo = tarotDB.combos[`${timeKey}+${card.id}`];
-                if (timeCombo && !comboNote) comboNote = `<div style="margin-top:10px; padding:10px; border:1px solid #a855f7; background: rgba(168,85,247,0.1); border-radius:8px;">⏰ <b>Магический час:</b> ${timeCombo}</div>`;
+        // 6. Временные комбо (час дня) + карта
+        if (!comboNote) {
+            const hour = new Date().getHours();
+            let timeKey = '';
+            if (hour >= 23 || hour <= 3) timeKey = 'midnight';
+            else if (hour >= 5 && hour <= 8) timeKey = 'morning';
+            else if (hour >= 12 && hour <= 14) timeKey = 'noon';
+            
+            if (timeKey) {
+                for (let card of selectedCards) {
+                    const timeCombo = tarotDB.combos[`${timeKey}+${card.id}`];
+                    if (timeCombo) {
+                        comboNote = `<div style="margin-top:10px; padding:10px; border:1px solid #a855f7; background: rgba(168,85,247,0.1); border-radius:8px;">⏰ <b>Магический час:</b> ${timeCombo}</div>`;
+                        break;
+                    }
+                }
             }
         }
         
-        // 6. Проверка specialCombos
-        for (let special of tarotDB.specialCombos) {
-            if (special.check(selectedCards, currentMode, new Date())) {
-                comboNote = `<div style="margin-top:10px; padding:10px; border:1px solid #ec4899; background: rgba(236,72,153,0.1); border-radius:8px;">✨ <b>${special.name}:</b> ${special.text}</div>`;
-                break;
+        // 7. Проверка specialCombos (только если нет других комбо)
+        if (!comboNote) {
+            for (let special of tarotDB.specialCombos) {
+                if (special.check(selectedCards, currentMode, new Date())) {
+                    comboNote = `<div style="margin-top:10px; padding:10px; border:1px solid #ec4899; background: rgba(236,72,153,0.1); border-radius:8px;">✨ <b>${special.name}:</b> ${special.text}</div>`;
+                    break;
+                }
             }
         }
     }
@@ -590,7 +626,7 @@
     if (drawnCount >= maxCards && maxCards > 0) {
         document.getElementById('reset-btn').style.display = 'inline-block';
         document.getElementById('donate-btn').style.display = 'inline-block';
-        saveToHistory();
+        if (typeof saveToHistory === 'function') saveToHistory();
     }
 }
 
