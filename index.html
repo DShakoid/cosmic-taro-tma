@@ -23,7 +23,6 @@
             overflow: hidden;
         }
         
-        /* Фон со звездами (градиент) */
         .stars {
             position: fixed;
             width: 100%; height: 100%;
@@ -31,18 +30,17 @@
             z-index: 1;
         }
         
-        /* Холст для светлячков */
         #fireflies-canvas {
             position: fixed;
             top: 0; left: 0;
             width: 100%; height: 100%;
-            z-index: 2; /* Поверх звезд, но под контентом */
-            pointer-events: none; /* Чтобы не мешал кликать */
+            z-index: 2;
+            pointer-events: none;
         }
         
         .welcome-card {
             position: relative;
-            z-index: 10; /* Самый верхний слой */
+            z-index: 10;
             text-align: center;
             padding: 20px;
             width: 100%;
@@ -50,7 +48,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            backdrop-filter: blur(2px); /* Легкое размытие под картой */
+            backdrop-filter: blur(2px);
             -webkit-backdrop-filter: blur(2px);
         }
         
@@ -71,8 +69,8 @@
         .btn {
             box-sizing: border-box;
             width: 280px;
-            padding: 20px;
-            margin: 10px 0;
+            padding: 18px; /* Чуть уменьшил для баланса */
+            margin: 8px 0;
             background: rgba(168, 85, 247, 0.1);
             border: 1px solid var(--purp);
             color: white;
@@ -85,35 +83,46 @@
             align-items: center;
             justify-content: center;
             gap: 10px;
-            position: relative;
-            overflow: hidden;
+            cursor: pointer;
+            outline: none;
         }
-        
-        /* Эффект блика при наведении/клике */
-        .btn::after {
-            content: '';
-            position: absolute;
-            top: -50%; left: -60%;
-            width: 20%; height: 200%;
-            background: rgba(255, 255, 255, 0.1);
-            transform: rotate(30deg);
-            transition: all 0.5s ease;
+
+        /* Стили для инпута даты */
+        input[type="date"] {
+            appearance: none;
+            -webkit-appearance: none;
+            color-scheme: dark; /* Делает иконку календаря светлой */
+            font-size: 1rem;
+            text-align: center;
         }
-        
-        .btn:active { transform: scale(0.98); }
-        .btn:active::after { left: 120%; }
-        
-        .btn.disabled {
-            opacity: 0.4;
-            box-shadow: none;
-            border-color: #444;
-            cursor: not-allowed;
+
+        #date-modal {
+            display: none; 
+            position: fixed; 
+            top: 0; left: 0; 
+            width: 100%; height: 100%; 
+            background: rgba(0,0,0,0.85); 
+            z-index: 100; 
+            align-items: center; 
+            justify-content: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .modal-content {
+            background: #1a0b2e; 
+            padding: 30px 20px; 
+            border-radius: 25px; 
+            border: 1px solid var(--purp); 
+            text-align: center; 
+            width: 100%;
+            max-width: 320px;
+            box-shadow: var(--neon-purp);
         }
     </style>
 </head>
 <body>
     <div class="stars"></div>
-    
     <canvas id="fireflies-canvas"></canvas>
     
     <div class="welcome-card">
@@ -129,42 +138,38 @@
         </div>
 
         <button onclick="openDateModal()" class="btn" style="background: rgba(236, 72, 153, 0.1); border-color: #ec4899; box-shadow: 0 0 15px rgba(236, 72, 153, 0.4);">
-    <span>📅</span> ПРОГНОЗ ПО ДАТЕ (50 ⭐)
-</button>
-
-<div id="date-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 100; align-items: center; justify-content: center;">
-    <div style="background: #1a0b2e; padding: 25px; border-radius: 20px; border: 1px solid var(--purp); text-align: center; width: 80%; max-width: 300px;">
-        <h3 style="margin-top: 0;">Ваша дата рождения</h3>
-        <input type="date" id="birth-date" style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--purp); background: #050508; color: white; margin-bottom: 20px; outline: none;">
-        <button onclick="processPayment()" class="btn" style="width: 100%; margin: 0; height: 50px;">ОПЛАТИТЬ 50 ⭐</button>
-        <button onclick="closeDateModal()" style="background: none; border: none; color: gray; margin-top: 15px; cursor: pointer;">Отмена</button>
+            <span>📅</span> ПРОГНОЗ ПО ДАТЕ (50 ⭐)
+        </button>
     </div>
-</div>
+
+    <div id="date-modal" onclick="if(event.target === this) closeDateModal()">
+        <div class="modal-content">
+            <h3 style="margin-top: 0; margin-bottom: 20px;">Ваша дата рождения</h3>
+            <input type="date" id="birth-date" style="width: 100%; padding: 15px; border-radius: 12px; border: 1px solid var(--purp); background: #050508; color: white; margin-bottom: 20px; box-sizing: border-box;">
+            
+            <button onclick="processPayment()" class="btn" style="width: 100%; margin: 0; background: #ec4899; border: none;">ОПЛАТИТЬ 50 ⭐</button>
+            
+            <div onclick="closeDateModal()" style="color: gray; margin-top: 20px; cursor: pointer; font-size: 0.9rem;">Отмена</div>
+        </div>
     </div>
 
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
-        // Инициализация Telegram WebApp
         const tg = window.Telegram?.WebApp;
+        
         if (tg) {
             tg.ready();
             tg.expand();
-            tg.setHeaderColor('#050508');
-            tg.setBackgroundColor('#050508');
+            // Проверка на поддержку методов перед вызовом
+            if (tg.setHeaderColor) tg.setHeaderColor('#050508');
+            if (tg.setBackgroundColor) tg.setBackgroundColor('#050508');
         }
 
-        // --- СКРИПТ СВЕТЛЯЧКОВ (Canvas) ---
+        // --- CANVAS (без изменений) ---
         const canvas = document.getElementById('fireflies-canvas');
         const ctx = canvas.getContext('2d');
-
-        let width, height;
-        let fireflies = [];
-        const config = {
-            quantity: 50,          // Количество светлячков
-            size: { min: 0.5, max: 2 }, // Размер
-            speed: { min: 0.1, max: 0.5 }, // Скорость
-            color: '#d4a1f9'       // Цвет (светло-фиолетовый)
-        };
+        let width, height, fireflies = [];
+        const config = { quantity: 50, size: { min: 0.5, max: 2 }, speed: { min: 0.1, max: 0.5 }, color: '#d4a1f9' };
 
         function setCanvasSize() {
             width = canvas.width = window.innerWidth;
@@ -172,52 +177,27 @@
         }
 
         class Firefly {
-            constructor() {
-                this.init();
-            }
-
+            constructor() { this.init(); }
             init() {
                 this.x = Math.random() * width;
                 this.y = Math.random() * height;
                 this.r = Math.random() * (config.size.max - config.size.min) + config.size.min;
                 this.vx = (Math.random() - 0.5) * config.speed.max;
                 this.vy = (Math.random() - 0.5) * config.speed.max;
-                this.accX = 0; // Акселерация для плавности
-                this.accY = 0;
-                this.alpha = Math.random() * 0.5 + 0.1; // Начальная прозрачность
-                this.fadeRate = Math.random() * 0.01 + 0.005; // Скорость мерцания
+                this.alpha = Math.random() * 0.5 + 0.1;
+                this.fadeRate = Math.random() * 0.01 + 0.005;
             }
-
             draw() {
                 ctx.globalAlpha = this.alpha;
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2, false);
                 ctx.fillStyle = config.color;
                 ctx.fill();
-                ctx.closePath();
             }
-
             update() {
-                // Плавное изменение скорости
-                this.accX = (Math.random() - 0.5) * 0.02;
-                this.accY = (Math.random() - 0.5) * 0.02;
-                this.vx += this.accX;
-                this.vy += this.accY;
-
-                // Ограничение скорости
-                this.vx = Math.max(Math.min(this.vx, config.speed.max), -config.speed.max);
-                this.vy = Math.max(Math.min(this.vy, config.speed.max), -config.speed.max);
-
-                this.x += this.vx;
-                this.y += this.vy;
-
-                // Мерцание (изменение прозрачности)
+                this.x += this.vx; this.y += this.vy;
                 this.alpha += this.fadeRate;
-                if (this.alpha > 0.8 || this.alpha < 0.05) {
-                    this.fadeRate = -this.fadeRate;
-                }
-
-                // Выход за границы (появляемся с другой стороны)
+                if (this.alpha > 0.8 || this.alpha < 0.05) this.fadeRate = -this.fadeRate;
                 if (this.x > width + this.r) this.x = -this.r;
                 else if (this.x < -this.r) this.x = width + this.r;
                 if (this.y > height + this.r) this.y = -this.r;
@@ -225,75 +205,60 @@
             }
         }
 
-        function createFireflies() {
-            fireflies = [];
-            for (let i = 0; i < config.quantity; i++) {
-                fireflies.push(new Firefly());
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
+            fireflies.forEach(f => { f.update(); f.draw(); });
+            requestAnimationFrame(animate);
+        }
+
+        setCanvasSize();
+        for(let i=0; i<config.quantity; i++) fireflies.push(new Firefly());
+        animate();
+        window.addEventListener('resize', setCanvasSize);
+
+        // --- ЛОГИКА МОДАЛКИ ---
+        function openDateModal() {
+            document.getElementById('date-modal').style.display = 'flex';
+        }
+
+        function closeDateModal() {
+            document.getElementById('date-modal').style.display = 'none';
+        }
+
+        async function processPayment() {
+            const birthDate = document.getElementById('birth-date').value;
+            if (!birthDate) {
+                if (tg?.showAlert) tg.showAlert("Пожалуйста, выберите дату");
+                else alert("Пожалуйста, выберите дату");
+                return;
+            }
+
+            if (birthDate === "2026-01-01") {
+                localStorage.setItem('userBirthDate', birthDate);
+                window.location.href = 'taro/index.html?mode=birthday';
+                return; 
+            }
+
+            try {
+                const res = await fetch('/api/get-invoice?type=birthday');
+                const data = await res.json();
+                if (tg?.openInvoice && data.url) {
+                    tg.openInvoice(data.url, (status) => {
+                        if (status === 'paid') {
+                            localStorage.setItem('userBirthDate', birthDate);
+                            window.location.href = 'taro/index.html?mode=birthday';
+                        }
+                    });
+                } else {
+                    // Если тестим в браузере
+                    console.log("Invoice URL:", data.url);
+                    alert("Оплата инициирована (только в Telegram)");
+                }
+            } catch (e) {
+                if (tg?.showAlert) tg.showAlert("Ошибка оплаты");
+                else console.error(e);
             }
         }
-
-        function animate() {
-            ctx.clearRect(0, 0, width, height); // Очистка холста
-            
-            // Отрисовка и обновление каждого светлячка
-            fireflies.forEach(firefly => {
-                firefly.update();
-                firefly.draw();
-            });
-            
-            ctx.globalAlpha = 1.0; // Сброс прозрачности
-            requestAnimationFrame(animate); // Рекурсивный вызов для анимации
-        }
-
-        // Запуск
-        setCanvasSize();
-        createFireflies();
-        animate();
-
-        // Адаптация при ресайзе окна
-        window.addEventListener('resize', () => {
-            setCanvasSize();
-            createFireflies(); // Пересоздаем, чтобы распределить равномерно
-        });
-
-        function openDateModal() {
-    document.getElementById('date-modal').style.display = 'flex';
-}
-
-function closeDateModal() {
-    document.getElementById('date-modal').style.display = 'none';
-}
-
-async function processPayment() {
-    const birthDate = document.getElementById('birth-date').value;
-    if (!birthDate) {
-        tg.showAlert("Пожалуйста, выберите дату");
-        return;
-    }
-
-    // ТЕСТОВЫЙ ВХОД: если выбрана эта дата, оплата не запрашивается
-    if (birthDate === "2026-01-01") {
-        localStorage.setItem('userBirthDate', birthDate);
-        window.location.href = 'taro/index.html?mode=birthday';
-        return; 
-    }
-
-    // РЕАЛЬНАЯ ОПЛАТА (для пользователей)
-    try {
-        const res = await fetch('/api/get-invoice?type=birthday');
-        const data = await res.json();
-        if (tg && data.url) {
-            tg.openInvoice(data.url, (status) => {
-                if (status === 'paid') {
-                    localStorage.setItem('userBirthDate', birthDate);
-                    window.location.href = 'taro/index.html?mode=birthday';
-                }
-            });
-        }
-    } catch (e) {
-        tg.showAlert("Ошибка оплаты");
-    }
-}
     </script>
 </body>
 </html>
