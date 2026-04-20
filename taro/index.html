@@ -305,6 +305,9 @@
             <button class="shuffle-btn" onclick="shuffleAnimation()" aria-label="Перемешать колоду">
                 <span>ПЕРЕМЕШАТЬ</span>
             </button>
+            <button class="shuffle-btn" onclick="showHistory()" style="margin-left: 8px;">
+    <span>📜 ИСТОРИЯ</span>
+</button>
         </div>
         <div id="table" class="table"></div>
         <div id="prediction-box" class="prediction-box">
@@ -324,7 +327,14 @@
             <button onclick="closeModal()" style="margin-top:20px; width:100%; padding:12px; border-radius:12px; background:var(--purp); border:none; color:white; font-weight:bold; cursor:pointer; font-size:0.9rem; box-shadow:var(--neon-purp);">ПОНЯТНО</button>
         </div>
     </div>
-
+<div id="history-modal" class="overlay" onclick="closeHistoryModal()">
+    <div class="modal-card" style="max-width: 400px; max-height: 70vh; overflow-y: auto;" onclick="event.stopPropagation()">
+        <h3 style="margin-top: 0; color: var(--purp);">📜 История раскладов</h3>
+        <div id="history-list" style="text-align: left; font-size: 0.75rem;"></div>
+        <button onclick="clearHistory()" class="action-btn" style="background: #444; margin-top: 15px;">🗑️ ОЧИСТИТЬ</button>
+        <button onclick="closeHistoryModal()" class="action-btn" style="background: var(--purp); margin-top: 10px;">ЗАКРЫТЬ</button>
+    </div>
+</div>
 <script>
     let currentMode = '';
     let drawnCount = 0;
@@ -663,19 +673,75 @@
         }
     }
 
-    function saveToHistory() {
-        if (drawnCount >= maxCards) {
-            const history = {
-                date: new Date().toISOString(),
-                mode: currentMode,
-                cards: selectedCards.map(c => ({ id: c.id, name: c.name, isReversed: c.isReversed }))
-            };
-            let saved = JSON.parse(localStorage.getItem('tarotHistory') || '[]');
-            saved.unshift(history);
-            if (saved.length > 10) saved.pop();
-            localStorage.setItem('tarotHistory', JSON.stringify(saved));
-        }
+    function showHistory() {
+    const saved = JSON.parse(localStorage.getItem('tarotHistory') || '[]');
+    const historyList = document.getElementById('history-list');
+    
+    if (saved.length === 0) {
+        historyList.innerHTML = '<div style="text-align: center; padding: 20px;">📭 Пока нет сохранённых раскладов</div>';
+    } else {
+        let html = '';
+        saved.forEach((item, index) => {
+            const date = new Date(item.date).toLocaleString();
+            const modeNames = { day: 'День', week: 'Неделя', advice: 'Совет' };
+            const modeName = modeNames[item.mode] || item.mode;
+            
+            html += `
+                <div style="border-bottom: 1px solid rgba(168,85,247,0.2); padding: 12px 0;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span style="color: var(--purp); font-weight: bold;">${modeName}</span>
+                        <span style="font-size: 0.65rem; opacity: 0.7;">${date}</span>
+                    </div>
+                    <div style="display: flex; flex-wrap: wrap; gap: 5px;">
+                        ${item.cards.map(card => `
+                            <span style="background: rgba(168,85,247,0.2); padding: 2px 8px; border-radius: 15px; font-size: 0.65rem;">
+                                ${card.name} ${card.isReversed ? '🔄' : ''}
+                            </span>
+                        `).join('')}
+                    </div>
+                    <button onclick="repeatHistory(${index})" style="margin-top: 8px; background: none; border: 1px solid var(--purp); color: var(--purp); padding: 4px 12px; border-radius: 15px; font-size: 0.6rem; cursor: pointer;">
+                        🔮 Повторить этот расклад
+                    </button>
+                </div>
+            `;
+        });
+        historyList.innerHTML = html;
     }
+    
+    document.getElementById('history-modal').style.display = 'flex';
+    document.getElementById('history-modal').classList.add('active');
+}
+
+function closeHistoryModal() {
+    document.getElementById('history-modal').classList.remove('active');
+    setTimeout(() => {
+        document.getElementById('history-modal').style.display = 'none';
+    }, 300);
+}
+
+function clearHistory() {
+    if (confirm('Очистить всю историю раскладов?')) {
+        localStorage.removeItem('tarotHistory');
+        showHistory(); // Обновляем отображение
+        if (tg?.showAlert) tg.showAlert('История очищена ✨');
+    }
+}
+
+function repeatHistory(index) {
+    const saved = JSON.parse(localStorage.getItem('tarotHistory') || '[]');
+    const historyItem = saved[index];
+    
+    if (historyItem) {
+        // Устанавливаем режим
+        setMode(historyItem.mode);
+        
+        // Симулируем вытягивание карт
+        // (можно сделать красивую анимацию или просто вывести результат)
+        alert(`Повтор расклада "${historyItem.mode}" от ${new Date(historyItem.date).toLocaleDateString()}\n\nВыпали карты: ${historyItem.cards.map(c => c.name).join(', ')}`);
+        
+        closeHistoryModal();
+    }
+}
 
     // === НОВАЯ РЕАЛИСТИЧНАЯ АНИМАЦИЯ ТАСОВКИ ===
     function shuffleAnimation() {
