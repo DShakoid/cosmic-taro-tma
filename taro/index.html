@@ -92,35 +92,41 @@
         border: 2px solid var(--purp); 
         z-index: 2; 
     }
+    /* Возвращаем оригинальное лицо карты */
     .face.front {
         background: #0a070f;
         border: 2px solid var(--pink);
         transform: rotateY(180deg);
         z-index: 1;
-        position: relative;
+        position: relative; /* Для работы абсолютов внутри */
     }
 
-    /* Контент внутри карты */
+    /* Возвращаем твоё позиционирование по центру */
     .card-emoji {
         position: absolute;
         top: 45%;
         left: 50%;
         transform: translate(-50%, -50%);
         font-size: 2.5rem;
-        /* Убираем лишние транзишны, если они мешают */
+        display: block; /* Убираем флекс */
+        transition: font-size 0.8s ease-in-out; /* Только рост, без смены позиции */
     }
 
+    /* Возвращаем подпись вниз */
     .card-name {
         position: absolute;
         bottom: 15px;
+        left: 0;
         width: 100%;
         text-align: center;
         font-size: 0.7rem;
         color: white;
         text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: font-size 0.8s ease-in-out;
     }
 
-    /* Настройки для большой ячейки (День), верни свои значения */
+    /* Твои настройки размеров для слота День */
     .slot.large .card-emoji { font-size: 4.5rem; }
     .slot.large .card-name { font-size: 1rem; }
     
@@ -278,7 +284,6 @@
         }
     }
 
-    // 5. Вытягивание карты (Финальная версия без скачков размера)
     function drawCard() {
         if (!currentMode || drawnCount >= maxCards) return;
 
@@ -287,6 +292,11 @@
         const slot = document.getElementById('slot' + drawnCount);
         const slotRect = slot.getBoundingClientRect();
         
+        // Искры на старте
+        if (typeof createParticles === 'function') {
+            createParticles(deckRect.left + deckRect.width / 2, deckRect.top + deckRect.height / 2, '#a855f7');
+        }
+
         const availableCards = tarotDB.cards.filter(c => !selectedCards.find(s => s.id === c.id));
         const cardData = availableCards[Math.floor(Math.random() * availableCards.length)];
         const isReversed = Math.random() < 0.25;
@@ -297,42 +307,62 @@
         const card = document.createElement('div');
         card.className = `card-anim`;
         
+        // Стартовая позиция точно на колоде
         card.style.position = 'fixed';
+        card.style.zIndex = '1000';
         card.style.left = deckRect.left + 'px';
         card.style.top = deckRect.top + 'px';
         card.style.width = deckRect.width + 'px';
         card.style.height = deckRect.height + 'px';
+
+        const revLabel = isReversed ? `<div style="font-size: 6px; color: #ff4d4d; position: absolute; bottom: 5px; width:100%; text-align:center; font-weight:bold;">ПЕРЕВЕРНУТА</div>` : '';
 
         card.innerHTML = `
             <div class="face back"></div>
             <div class="face front">
                 <div class="card-emoji">${cardData.emoji}</div>
                 <div class="card-name">${cardData.name}</div>
+                ${revLabel}
             </div>
         `;
 
         document.body.appendChild(card);
+        if (typeof updatePrediction === 'function') updatePrediction();
 
-        requestAnimationFrame(() => {
+        // Запуск анимации
+        setTimeout(() => {
             card.style.left = slotRect.left + 'px';
             card.style.top = slotRect.top + 'px';
             card.style.width = slotRect.width + 'px';
             card.style.height = slotRect.height + 'px';
             card.classList.add('flipped');
             if (isReversed) card.classList.add('is-reversed');
-        });
+        }, 30);
 
+        // Фиксация в слоте
         setTimeout(() => {
             card.style.position = 'absolute';
             card.style.left = '0';
             card.style.top = '0';
             card.style.width = '100%';
             card.style.height = '100%';
+            card.style.transition = 'none'; // Чтобы не дергалась при appendChild
+            
             slot.appendChild(card);
             card.classList.add('arrived');
-        }, 800);
-    }
+            slot.classList.remove('active-target');
 
+            card.onclick = () => showModal(cardInstance);
+            
+            // Искры на финише
+            if (typeof createParticles === 'function') {
+                createParticles(slotRect.left + slotRect.width / 2, slotRect.top + slotRect.height / 2, '#ec4899');
+            }
+            
+            const nextSlot = document.getElementById('slot' + drawnCount);
+            if (nextSlot) nextSlot.classList.add('active-target');
+        }, 830); // 830ms — чуть больше 0.8s, чтобы анимация закончилась до вставки
+    }
     // 6. Обновление текста предсказания (с учетом даты)
     function updatePrediction() {
         const box = document.getElementById('prediction-text');
