@@ -435,6 +435,19 @@
         document.getElementById('card-overlay').classList.remove('active'); 
     }
 
+    // Проверяем наличие WebApp
+if (tg) {
+    // Показываем кнопку "Назад"
+    tg.BackButton.show();
+
+    // Вешаем на неё действие — переход на главную (лендинг)
+    tg.BackButton.onClick(() => {
+        // Поскольку taro/index.html находится в папке, 
+        // нам нужно выйти на уровень выше к корню
+        window.location.href = '../index.html'; 
+    });
+}
+    
     setMode('day');
 </script>
 </body>
