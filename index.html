@@ -29,13 +29,17 @@
             z-index: 1;
         }
         .welcome-card {
-            position: relative;
-            z-index: 10;
-            text-align: center;
-            padding: 20px;
-            width: 90%;
-            max-width: 350px;
-        }
+    position: relative;
+    z-index: 10;
+    text-align: center;
+    padding: 20px;
+    width: 100%; /* Занимаем всю ширину для точного центра */
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Центрируем дочерние элементы по горизонтали */
+}
+
         h1 {
             font-size: 2.5rem;
             color: var(--purp);
@@ -43,6 +47,9 @@
             margin-bottom: 10px;
         }
         .btn {
+            box-sizing: border-box; /* Чтобы padding не раздувал ширину */
+    width: 280px; /* Фиксированная ширина сделает кнопки одинаковыми */
+    margin: 10px 0; /* Убираем лишние отступы по бокам */
             display: block;
             width: 100%;
             padding: 20px;
@@ -67,14 +74,10 @@
 <body>
     <div class="stars"></div>
     
-    <div class="welcome-card">
-        <h1>COSMIC TARO</h1>
-        <p>Выберите инструмент предсказания:</p>
-        
-        <a href="taro/index.html" class="btn">🔮 КАРТЫ ТАРО</a>
-        
-        <div class="btn disabled">ᚱ РУНЫ (СКОРО)</div>
-    </div>
+    <div style="display: flex; justify-content: center; gap: 10px; width: 100%; margin-top: 15px;">
+    <button id="reset-btn" class="menu-btn" style="flex: 1; max-width: 150px;">ЗАНОВО</button>
+    <button id="donate-btn" class="menu-btn" style="flex: 1; max-width: 150px; background: orange;">⭐ ПОБЛАГОДАРИТЬ</button>
+</div>
 
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
