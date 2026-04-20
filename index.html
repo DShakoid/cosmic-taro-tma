@@ -22,23 +22,38 @@
             height: 100vh;
             overflow: hidden;
         }
+        
+        /* Фон со звездами (градиент) */
         .stars {
             position: fixed;
             width: 100%; height: 100%;
             background: radial-gradient(circle at 50% 50%, #1a0b2e 0%, #050505 100%);
             z-index: 1;
         }
+        
+        /* Холст для светлячков */
+        #fireflies-canvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 2; /* Поверх звезд, но под контентом */
+            pointer-events: none; /* Чтобы не мешал кликать */
+        }
+        
         .welcome-card {
             position: relative;
-            z-index: 10;
+            z-index: 10; /* Самый верхний слой */
             text-align: center;
             padding: 20px;
             width: 100%;
             max-width: 400px;
             display: flex;
             flex-direction: column;
-            align-items: center; /* Строго по центру */
+            align-items: center;
+            backdrop-filter: blur(2px); /* Легкое размытие под картой */
+            -webkit-backdrop-filter: blur(2px);
         }
+        
         h1 {
             font-size: 2.5rem;
             color: var(--purp);
@@ -46,14 +61,16 @@
             margin-bottom: 5px;
             margin-top: 0;
         }
+        
         .subtitle {
             margin-bottom: 30px;
             opacity: 0.8;
             font-size: 0.9rem;
         }
+        
         .btn {
             box-sizing: border-box;
-            width: 280px; /* Фиксированная ширина для идеального центра */
+            width: 280px;
             padding: 20px;
             margin: 10px 0;
             background: rgba(168, 85, 247, 0.1);
@@ -62,14 +79,30 @@
             border-radius: 15px;
             text-decoration: none;
             font-weight: bold;
-            transition: 0.3s;
+            transition: all 0.3s ease;
             box-shadow: var(--neon-purp);
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 10px;
+            position: relative;
+            overflow: hidden;
         }
+        
+        /* Эффект блика при наведении/клике */
+        .btn::after {
+            content: '';
+            position: absolute;
+            top: -50%; left: -60%;
+            width: 20%; height: 200%;
+            background: rgba(255, 255, 255, 0.1);
+            transform: rotate(30deg);
+            transition: all 0.5s ease;
+        }
+        
         .btn:active { transform: scale(0.98); }
+        .btn:active::after { left: 120%; }
+        
         .btn.disabled {
             opacity: 0.4;
             box-shadow: none;
@@ -80,6 +113,8 @@
 </head>
 <body>
     <div class="stars"></div>
+    
+    <canvas id="fireflies-canvas"></canvas>
     
     <div class="welcome-card">
         <h1>COSMIC TARO</h1>
@@ -96,14 +131,117 @@
 
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
+        // Инициализация Telegram WebApp
         const tg = window.Telegram?.WebApp;
         if (tg) {
             tg.ready();
             tg.expand();
-            // Устанавливаем цвета темы сразу на лендинге
             tg.setHeaderColor('#050508');
             tg.setBackgroundColor('#050508');
         }
+
+        // --- СКРИПТ СВЕТЛЯЧКОВ (Canvas) ---
+        const canvas = document.getElementById('fireflies-canvas');
+        const ctx = canvas.getContext('2d');
+
+        let width, height;
+        let fireflies = [];
+        const config = {
+            quantity: 50,          // Количество светлячков
+            size: { min: 0.5, max: 2 }, // Размер
+            speed: { min: 0.1, max: 0.5 }, // Скорость
+            color: '#d4a1f9'       // Цвет (светло-фиолетовый)
+        };
+
+        function setCanvasSize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+
+        class Firefly {
+            constructor() {
+                this.init();
+            }
+
+            init() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.r = Math.random() * (config.size.max - config.size.min) + config.size.min;
+                this.vx = (Math.random() - 0.5) * config.speed.max;
+                this.vy = (Math.random() - 0.5) * config.speed.max;
+                this.accX = 0; // Акселерация для плавности
+                this.accY = 0;
+                this.alpha = Math.random() * 0.5 + 0.1; // Начальная прозрачность
+                this.fadeRate = Math.random() * 0.01 + 0.005; // Скорость мерцания
+            }
+
+            draw() {
+                ctx.globalAlpha = this.alpha;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2, false);
+                ctx.fillStyle = config.color;
+                ctx.fill();
+                ctx.closePath();
+            }
+
+            update() {
+                // Плавное изменение скорости
+                this.accX = (Math.random() - 0.5) * 0.02;
+                this.accY = (Math.random() - 0.5) * 0.02;
+                this.vx += this.accX;
+                this.vy += this.accY;
+
+                // Ограничение скорости
+                this.vx = Math.max(Math.min(this.vx, config.speed.max), -config.speed.max);
+                this.vy = Math.max(Math.min(this.vy, config.speed.max), -config.speed.max);
+
+                this.x += this.vx;
+                this.y += this.vy;
+
+                // Мерцание (изменение прозрачности)
+                this.alpha += this.fadeRate;
+                if (this.alpha > 0.8 || this.alpha < 0.05) {
+                    this.fadeRate = -this.fadeRate;
+                }
+
+                // Выход за границы (появляемся с другой стороны)
+                if (this.x > width + this.r) this.x = -this.r;
+                else if (this.x < -this.r) this.x = width + this.r;
+                if (this.y > height + this.r) this.y = -this.r;
+                else if (this.y < -this.r) this.y = height + this.r;
+            }
+        }
+
+        function createFireflies() {
+            fireflies = [];
+            for (let i = 0; i < config.quantity; i++) {
+                fireflies.push(new Firefly());
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, width, height); // Очистка холста
+            
+            // Отрисовка и обновление каждого светлячка
+            fireflies.forEach(firefly => {
+                firefly.update();
+                firefly.draw();
+            });
+            
+            ctx.globalAlpha = 1.0; // Сброс прозрачности
+            requestAnimationFrame(animate); // Рекурсивный вызов для анимации
+        }
+
+        // Запуск
+        setCanvasSize();
+        createFireflies();
+        animate();
+
+        // Адаптация при ресайзе окна
+        window.addEventListener('resize', () => {
+            setCanvasSize();
+            createFireflies(); // Пересоздаем, чтобы распределить равномерно
+        });
     </script>
 </body>
 </html>
