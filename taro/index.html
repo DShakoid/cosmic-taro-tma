@@ -673,6 +673,24 @@
         }
     }
 
+    function saveToHistory() {
+    if (drawnCount >= maxCards) {
+        const history = {
+            date: new Date().toISOString(),
+            mode: currentMode,
+            cards: selectedCards.map(c => ({ 
+                id: c.id, 
+                name: c.name, 
+                isReversed: c.isReversed 
+            }))
+        };
+        let saved = JSON.parse(localStorage.getItem('tarotHistory') || '[]');
+        saved.unshift(history);
+        if (saved.length > 10) saved.pop();
+        localStorage.setItem('tarotHistory', JSON.stringify(saved));
+    }
+}
+    
     function showHistory() {
     const saved = JSON.parse(localStorage.getItem('tarotHistory') || '[]');
     const historyList = document.getElementById('history-list');
@@ -732,12 +750,15 @@ function repeatHistory(index) {
     const historyItem = saved[index];
     
     if (historyItem) {
-        // Устанавливаем режим
         setMode(historyItem.mode);
         
-        // Симулируем вытягивание карт
-        // (можно сделать красивую анимацию или просто вывести результат)
-        alert(`Повтор расклада "${historyItem.mode}" от ${new Date(historyItem.date).toLocaleDateString()}\n\nВыпали карты: ${historyItem.cards.map(c => c.name).join(', ')}`);
+        const message = `Повтор расклада "${historyItem.mode}" от ${new Date(historyItem.date).toLocaleDateString()}\n\nВыпали карты: ${historyItem.cards.map(c => c.name).join(', ')}`;
+        
+        if (tg?.showAlert) {
+            tg.showAlert(message);
+        } else {
+            alert(message);
+        }
         
         closeHistoryModal();
     }
