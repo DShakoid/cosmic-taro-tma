@@ -500,6 +500,19 @@ if (tg) {
         window.location.href = '../index.html'; 
     });
 }
+
+    // Как только страница загрузилась, проверяем, не "платный" ли это вход
+window.addEventListener('load', () => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('mode') === 'birthday') {
+        const savedDate = localStorage.getItem('userBirthDate');
+        if (savedDate) {
+            console.log("Платный режим активирован для даты:", savedDate);
+            // Принудительно обновляем текст, чтобы показать, что дата подтянулась
+            updatePrediction(); 
+        }
+    }
+});
     
     setMode('day');
 </script>
