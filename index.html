@@ -255,6 +255,46 @@
             setCanvasSize();
             createFireflies(); // Пересоздаем, чтобы распределить равномерно
         });
+
+        function openDateModal() {
+    document.getElementById('date-modal').style.display = 'flex';
+}
+
+function closeDateModal() {
+    document.getElementById('date-modal').style.display = 'none';
+}
+
+async function processPayment() {
+    const birthDate = document.getElementById('birth-date').value;
+    if (!birthDate) {
+        tg.showAlert("Пожалуйста, выберите дату");
+        return;
+    }
+
+    if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+
+    try {
+        // Вызываем твой бэкенд для создания инвойса на 50 звезд
+        // Тебе нужно будет в get-invoice передавать цену или создать новый роут
+        const res = await fetch('/api/get-invoice?type=birthday'); 
+        const data = await res.json();
+        
+        if (tg && data.url) {
+            tg.openInvoice(data.url, (status) => {
+                if (status === 'paid') {
+                    // Сохраняем дату локально, чтобы taro/index.html мог её прочитать
+                    localStorage.setItem('userBirthDate', birthDate);
+                    
+                    tg.showConfirm("Оплата прошла! Перейти к вашему прогнозу?", (ok) => {
+                        if (ok) window.location.href = 'taro/index.html?mode=birthday';
+                    });
+                }
+            });
+        }
+    } catch (e) {
+        tg.showAlert("Ошибка при формировании счета");
+    }
+}
     </script>
 </body>
 </html>
