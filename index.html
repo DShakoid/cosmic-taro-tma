@@ -271,28 +271,27 @@ async function processPayment() {
         return;
     }
 
-    if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+    // ТЕСТОВЫЙ ВХОД: если выбрана эта дата, оплата не запрашивается
+    if (birthDate === "2026-01-01") {
+        localStorage.setItem('userBirthDate', birthDate);
+        window.location.href = 'taro/index.html?mode=birthday';
+        return; 
+    }
 
+    // РЕАЛЬНАЯ ОПЛАТА (для пользователей)
     try {
-        // Вызываем твой бэкенд для создания инвойса на 50 звезд
-        // Тебе нужно будет в get-invoice передавать цену или создать новый роут
-        const res = await fetch('/api/get-invoice?type=birthday'); 
+        const res = await fetch('/api/get-invoice?type=birthday');
         const data = await res.json();
-        
         if (tg && data.url) {
             tg.openInvoice(data.url, (status) => {
                 if (status === 'paid') {
-                    // Сохраняем дату локально, чтобы taro/index.html мог её прочитать
                     localStorage.setItem('userBirthDate', birthDate);
-                    
-                    tg.showConfirm("Оплата прошла! Перейти к вашему прогнозу?", (ok) => {
-                        if (ok) window.location.href = 'taro/index.html?mode=birthday';
-                    });
+                    window.location.href = 'taro/index.html?mode=birthday';
                 }
             });
         }
     } catch (e) {
-        tg.showAlert("Ошибка при формировании счета");
+        tg.showAlert("Ошибка оплаты");
     }
 }
     </script>
