@@ -119,6 +119,20 @@
             max-width: 320px;
             box-shadow: var(--neon-purp);
         }
+        .btn.disabled {
+    opacity: 0.5; /* Слегка увеличил прозрачность для читаемости */
+    box-shadow: none !important; /* Убираем неоновое свечение */
+    border-color: #444 !important; /* Делаем границу темно-серой */
+    color: #888; /* Цвет текста делаем тусклым */
+    cursor: not-allowed;
+    filter: grayscale(1); /* Делает иконку ᚱ серой */
+    background: rgba(255, 255, 255, 0.05); /* Совсем слабый фон */
+}
+
+/* Убираем эффект блика для неактивной кнопки */
+.btn.disabled::after {
+    display: none;
+}
     </style>
 </head>
 <body>
