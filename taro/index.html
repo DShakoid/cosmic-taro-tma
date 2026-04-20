@@ -300,16 +300,15 @@
         const card = document.createElement('div');
         card.className = `card-anim`;
         
-        // Устанавливаем СТАРТОВЫЕ параметры (соответствуют колоде)
+        // Стартуем точно из колоды
         card.style.position = 'fixed';
         card.style.zIndex = '1000';
         card.style.left = deckRect.left + 'px';
         card.style.top = deckRect.top + 'px';
         card.style.width = deckRect.width + 'px';
         card.style.height = deckRect.height + 'px';
-        card.style.transition = 'none'; // Отключаем анимацию для мгновенного появления у колоды
 
-        const revLabel = isReversed ? `<div style="font-size: 6px; color: #ff4d4d; position: absolute; bottom: 5px; font-weight:bold;">ПЕРЕВЕРНУТА</div>` : '';
+        const revLabel = isReversed ? `<div style="font-size: 6px; color: #ff4d4d; position: absolute; bottom: 5px; font-weight:bold; width:100%; text-align:center;">ПЕРЕВЕРНУТА</div>` : '';
 
         card.innerHTML = `
             <div class="face back"></div>
@@ -323,11 +322,9 @@
         document.body.appendChild(card);
         updatePrediction();
 
-        // Небольшая задержка, чтобы браузер зафиксировал стартовую позицию перед началом движения
+        // Запуск анимации с микро-задержкой для стабильности
         setTimeout(() => {
-            // Включаем рост и полет
-            card.style.transition = 'all 0.8s cubic-bezier(0.25, 0.1, 0.25, 1)';
-            
+            // Твои 0.8s из CSS сделают всё плавно
             card.style.left = slotRect.left + 'px';
             card.style.top = slotRect.top + 'px';
             card.style.width = slotRect.width + 'px';
@@ -335,18 +332,18 @@
             
             if (isReversed) card.classList.add('is-reversed');
             card.classList.add('flipped');
-        }, 20); 
+        }, 30);
 
         setTimeout(() => {
-            // Добавляем arrived ПОСЛЕ того как анимация роста закончилась
             card.classList.add('arrived');
             
+            // ВАЖНО: сначала убираем фиксированные размеры, потом переносим
             card.style.position = 'absolute';
             card.style.left = '0';
             card.style.top = '0';
             card.style.width = '100%';
             card.style.height = '100%';
-            card.style.transition = 'none'; // Замораживаем состояние
+            card.style.transition = 'none'; // Чтобы не дергалась при вставке
             
             slot.appendChild(card); 
 
@@ -355,7 +352,7 @@
             
             const nextSlot = document.getElementById('slot' + drawnCount);
             if (nextSlot) nextSlot.classList.add('active-target');
-        }, 850); // 850мс (чуть больше чем 0.8s в CSS) — это уберет рывок
+        }, 830); // 830мс — анимация 800мс уже кончилась, карта уже нужного размера. Прыжка не будет.
     }
 
     // 6. Обновление текста предсказания (с учетом даты)
