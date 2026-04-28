@@ -1,3 +1,13 @@
+:root {
+        --purp: #a855f7;
+        --pink: #ec4899;
+        --bg: #050508;
+        --glass: rgba(255, 255, 255, 0.03);
+        --neon-purp: 0 0 15px rgba(168, 85, 247, 0.6);
+        --neon-pink: 0 0 20px rgba(236, 72, 153, 0.7);
+        --cosm-grad: linear-gradient(90deg, #a855f7 0%, #ec4899 100%);
+    }
+
 #fireflies-canvas {
     position: fixed; /* Фиксируем на весь экран */
     top: 0;
