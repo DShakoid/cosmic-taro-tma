@@ -109,3 +109,44 @@ button#header-back-btn {
     transform: scale(0.9);
     filter: drop-shadow(0 0 8px rgba(236, 72, 153, 0.6));
 }
+
+#app-footer {
+    text-align: center;
+    padding: 20px;
+    font-size: 0.75rem; /* Чуть увеличил для читаемости градиента */
+    opacity: 0.8; /* Поднял видимость, чтобы градиент "играл" */
+    color: #fff;
+    font-family: sans-serif;
+}
+
+#insta-link {
+    text-decoration: none;
+    font-weight: 800;
+    transition: all 0.4s ease;
+    display: inline-block;
+    
+    /* Тот самый космический градиент */
+    background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
+    -webkit-background-clip: text; /* Магия: обрезаем фон по форме букв */
+    -webkit-text-fill-color: transparent; /* Делаем основной цвет прозрачным */
+    
+    /* Линия под текстом тоже должна быть в тему */
+    border-bottom: 1.5px solid #a855f7;
+    position: relative;
+}
+
+#insta-link:hover {
+    /* При наведении немного смещаем градиент и добавляем свечение */
+    filter: drop-shadow(0 0 10px rgba(236, 72, 153, 0.6));
+    transform: translateY(-1px);
+    border-bottom-color: #ec4899;
+}
+
+/* Эффект для "created by" — сделаем его чуть мягче */
+#app-footer span {
+    letter-spacing: 0.5px;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 4px 12px;
+    border-radius: 20px;
+    border: 1px solid rgba(168, 85, 247, 0.2);
+}
