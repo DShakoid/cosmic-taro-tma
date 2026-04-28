@@ -65,7 +65,7 @@
 }
     .deck {
         width: 65px; height: 95px;
-        background-image: url('/taro/back_card.jpg'); background-size: cover; background-position: center;
+        background-image: url('/taro/assets/back_card.jpg'); background-size: cover; background-position: center;
         border: 2px solid var(--purp); border-radius: 10px; cursor: pointer;
         box-shadow: var(--neon-purp);
     }
@@ -107,7 +107,7 @@
         backface-visibility: hidden;
         -webkit-backface-visibility: hidden; /* ВАЖНО */
     }
-    .face.back { background: #1e1b4b url('/taro/back_card.jpg') center/cover; border: 2px solid var(--purp); z-index: 2; }
+    .face.back { background: #1e1b4b url('/taro/assets/back_card.jpg') center/cover; border: 2px solid var(--purp); z-index: 2; }
     .face.front { background: #0f172a; border: 2px solid var(--pink); transform: rotateY(180deg); padding: 8px; z-index: 3; border-radius: 8px}
     
     .card-emoji { 
