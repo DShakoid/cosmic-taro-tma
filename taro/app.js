@@ -71,6 +71,9 @@
         drawnCount = 0;
         selectedCards = [];
         window.shuffledRemaining = null;
+        // И если у тебя есть лейбл с остатком карт под колодой, его тоже чистим:
+        const boxLabel = document.getElementById('deck-label');
+        if (boxLabel) boxLabel.innerHTML = '';
         const table = document.getElementById('table');
         if (!table) return;
         table.innerHTML = '';
@@ -420,31 +423,31 @@
             }, index * 40);
         });
 
-        // ВОТ ЭТОТ КУСОК Я ВЕРНУЛ:
+        // Внутри финального setTimeout функции shuffleAnimation:
         setTimeout(() => {
-            // Эффект частиц в центре колоды
             createParticles(rect.left + rect.width / 2, rect.top + rect.height / 2, '#a855f7');
             
-            // Схлопываем и удаляем фейковые карты
             cards.forEach(c => { 
                 c.style.transform = 'translate(0,0) rotate(0deg)'; 
                 c.style.opacity = '0'; 
                 setTimeout(() => c.remove(), 400);
             });
 
-            // Обновляем текст в блоке предсказаний
             const box = document.getElementById('deck-label');
             if (box) {
                 const remainingCount = remainingCards.length;
-                box.innerHTML = `<div class="fade-in">🃏 Колода перемешана! ✨<br>Осталось ${remainingCount} карт в колоде.</div>`;
+                // Показываем надпись
+                box.innerHTML = `<div class="fade-in">🃏 Колода перемешана! ✨<br>Осталось ${remainingCount} карт.</div>`;
                 
-                // Через 2 секунды возвращаем подсказку "Тяните карту", если лимит не исчерпан
+                // Через 2 секунды ПРОСТО ОЧИЩАЕМ ЭТОТ БЛОК
                 setTimeout(() => { 
-                    if (drawnCount < maxCards) updatePrediction(); 
+                    box.innerHTML = ''; // Убираем текст совсем
+                    // Или можно вернуть стандартную надпись, если она там была:
+                    // box.innerHTML = 'Колода';
                 }, 2000);
             }
 
-            isAnimating = false; // РАЗБЛОКИРУЕМ интерфейс
+            isAnimating = false;
         }, 800);
     }
 
