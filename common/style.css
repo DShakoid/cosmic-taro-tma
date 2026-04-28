@@ -18,7 +18,7 @@ body, html {
 #app-body {
     position: relative;
     z-index: 1; /* Контент всегда выше светлячков */
-    top: 65 px;
+    top: 65px;
 }
 #app-header {
     position: fixed;
