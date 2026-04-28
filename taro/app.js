@@ -44,7 +44,7 @@ let currentMode = '';
     }
 
     function preloadImages() {
-        const images = ['/taro/back_card.jpg'];
+        const images = ['/taro/assets/back_card.jpg'];
         images.forEach(src => { const img = new Image(); img.src = src; });
     }
     preloadImages();
