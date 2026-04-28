@@ -190,32 +190,45 @@
     function updatePrediction() {
         const box = document.getElementById('prediction-text');
         if (!box) return;
-        const elementColors = { "Огонь": "#ff4d4d", "Вода": "#4db8ff", "Воздух": "#ffcc00", "Земля": "#4dff88" };
+
+        // Расширенные стили для визуала стихий
+        const elementStyles = { 
+            "Огонь": { color: "#ff4d4d", icon: "🔥", shadow: "rgba(255, 77, 77, 0.4)" }, 
+            "Вода": { color: "#4db8ff", icon: "💧", shadow: "rgba(77, 184, 255, 0.4)" }, 
+            "Воздух": { color: "#ffcc00", icon: "🌪️", shadow: "rgba(255, 204, 0, 0.4)" }, 
+            "Земля": { color: "#4dff88", icon: "🌿", shadow: "rgba(77, 255, 136, 0.4)" } 
+        };
+
         const birthDate = localStorage.getItem('userBirthDate');
         let personalNote = "";
         let comboNote = "";
+
+        // 1. Логика персональной связи (День рождения)
         if (birthDate) {
             const day = parseInt(birthDate.split('-')[2]);
             const lastCard = selectedCards[selectedCards.length - 1];
             if (lastCard) {
                 if (lastCard.id === day || lastCard.id === (day % 22)) {
-                    personalNote = `<div style="margin-top:10px; padding:10px; border:1px solid gold; background: rgba(255,215,0,0.1); border-radius:8px; color: gold; font-size: 0.75rem;">✨ <b>Мистическая связь:</b> Эта карта — ваш личный покровитель.</div>`;
+                    personalNote = `<div style="margin-top:10px; padding:10px; border:1px solid gold; background: rgba(255,215,0,0.1); border-radius:12px; color: gold; font-size: 0.75rem;">✨ <b>Мистическая связь:</b> Эта карта — ваш личный покровитель.</div>`;
                 } else {
                     personalNote = `<div style="margin-top:10px; font-style: italic; opacity: 0.8; font-size: 0.7rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 8px;">🎯 Для рожденных ${day}-го числа...</div>`;
                 }
             }
         }
         
+        // 2. Логика комбо (Парные, Тройные, Дни недели, Время, Специальные)
         if (selectedCards.length >= 2) {
+            // Парные связки
             for (let i = 0; i < selectedCards.length; i++) {
                 for (let j = i + 1; j < selectedCards.length; j++) {
                     const id1 = selectedCards[i].id;
                     const id2 = selectedCards[j].id;
                     const found = tarotDB.combos[`${id1}+${id2}`] || tarotDB.combos[`${id2}+${id1}`];
-                    if (found && !comboNote) comboNote = `<div style="margin-top:10px; padding:10px; border:1px solid #a855f7; background: rgba(168,85,247,0.1); border-radius:8px;">🔮 <b>Связка:</b> ${found}</div>`;
+                    if (found && !comboNote) comboNote = `<div style="margin-top:10px; padding:10px; border:1px solid #a855f7; background: rgba(168,85,247,0.1); border-radius:12px;">🔮 <b>Связка:</b> ${found}</div>`;
                 }
             }
 
+            // Тройные связки
             if (selectedCards.length >= 3 && !comboNote) {
                 const ids = selectedCards.map(c => c.id).sort();
                 for (let i = 0; i < ids.length - 2; i++) {
@@ -224,7 +237,7 @@
                             const tripleKey = `${ids[i]}+${ids[j]}+${ids[k]}`;
                             const tripleFound = tarotDB.combos[tripleKey];
                             if (tripleFound && !comboNote) {
-                                comboNote = `<div style="margin-top:10px; padding:10px; border:1px solid #a855f7; background: rgba(168,85,247,0.1); border-radius:8px;">🔮 <b>Тройная связка:</b> ${tripleFound}</div>`;
+                                comboNote = `<div style="margin-top:10px; padding:10px; border:1px solid #a855f7; background: rgba(168,85,247,0.1); border-radius:12px;">🔮 <b>Тройная связка:</b> ${tripleFound}</div>`;
                                 break;
                             }
                         }
@@ -234,23 +247,32 @@
                 }
             }
 
+            // День недели
             if (!comboNote) {
                 const dayOfWeek = new Date().getDay();
                 const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
                 const dayKey = dayNames[dayOfWeek];
                 for (let card of selectedCards) {
                     const dayCombo = tarotDB.combos[`${dayKey}+${card.id}`];
-                    if (dayCombo) { comboNote = `<div style="margin-top:10px; padding:10px; border:1px solid #a855f7; background: rgba(168,85,247,0.1); border-radius:8px;">📅 <b>День недели:</b> ${dayCombo}</div>`; break; }
+                    if (dayCombo) { 
+                        comboNote = `<div style="margin-top:10px; padding:10px; border:1px solid #a855f7; background: rgba(168,85,247,0.1); border-radius:12px;">📅 <b>День недели:</b> ${dayCombo}</div>`; 
+                        break; 
+                    }
                 }
             }
 
+            // День рождения (комбо)
             if (!comboNote && birthDate) {
                 for (let card of selectedCards) {
                     const birthdayCombo = tarotDB.combos[`birthday+${card.id}`];
-                    if (birthdayCombo) { comboNote = `<div style="margin-top:10px; padding:10px; border:1px solid gold; background: rgba(255,215,0,0.1); border-radius:8px;">🎂 <b>День рождения:</b> ${birthdayCombo}</div>`; break; }
+                    if (birthdayCombo) { 
+                        comboNote = `<div style="margin-top:10px; padding:10px; border:1px solid gold; background: rgba(255,215,0,0.1); border-radius:12px;">🎂 <b>День рождения:</b> ${birthdayCombo}</div>`; 
+                        break; 
+                    }
                 }
             }
 
+            // Магический час
             if (!comboNote) {
                 const hour = new Date().getHours();
                 let timeKey = '';
@@ -260,46 +282,69 @@
                 if (timeKey) {
                     for (let card of selectedCards) {
                         const timeCombo = tarotDB.combos[`${timeKey}+${card.id}`];
-                        if (timeCombo) { comboNote = `<div style="margin-top:10px; padding:10px; border:1px solid #a855f7; background: rgba(168,85,247,0.1); border-radius:8px;">⏰ <b>Магический час:</b> ${timeCombo}</div>`; break; }
+                        if (timeCombo) { 
+                            comboNote = `<div style="margin-top:10px; padding:10px; border:1px solid #a855f7; background: rgba(168,85,247,0.1); border-radius:12px;">⏰ <b>Магический час:</b> ${timeCombo}</div>`; 
+                            break; 
+                        }
                     }
                 }
             }
 
+            // Специальные комбо из БД
             if (!comboNote) {
                 for (let special of tarotDB.specialCombos) {
                     if (special.check(selectedCards, currentMode, new Date())) {
-                        comboNote = `<div style="margin-top:10px; padding:10px; border:1px solid #ec4899; background: rgba(236,72,153,0.1); border-radius:8px;">✨ <b>${special.name}:</b> ${special.text}</div>`;
+                        comboNote = `<div style="margin-top:10px; padding:10px; border:1px solid #ec4899; background: rgba(236,72,153,0.1); border-radius:12px;">✨ <b>${special.name}:</b> ${special.text}</div>`;
                         break;
                     }
                 }
             }
         }
 
+        // 3. Сборка финального HTML (Визуал)
         let html = "";
         if (selectedCards.length > 0) {
             if (currentMode === 'day') {
                 const last = selectedCards[0];
-                html = `<div class="fade-in"><small>${last.keywords}</small><b>${last.name}</b><p>${last.isReversed ? last.advice_rev : last.advice}</p>${personalNote}${comboNote}</div>`;
+                html = `
+                    <div class="fade-in element-card" style="border-left: 4px solid #a855f7; background: rgba(168, 85, 247, 0.05); text-align: left;">
+                        <div style="font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.5; margin-bottom: 4px;">${last.keywords}</div>
+                        <div style="color: #fff; font-weight: 900; font-size: 1.1rem; margin-bottom: 8px;">${last.name}</div>
+                        <p style="font-size: 0.85rem; line-height: 1.4; color: #e2d5f5; margin: 0;">${last.isReversed ? last.advice_rev : last.advice}</p>
+                        ${personalNote}
+                        ${comboNote}
+                    </div>`;
             } else {
                 const counts = {};
                 selectedCards.forEach(c => counts[c.element] = (counts[c.element] || 0) + 1);
                 const dominant = Object.keys(counts).reduce((a, b) => counts[a] > counts[b] ? a : b);
-                const color = elementColors[dominant] || "#fff";
-                html = `<div class="fade-in"><div style="color: ${color}; font-weight: bold; font-size: 0.7rem;">📈 Стихия: ${dominant}</div><div style="font-size: 0.75rem; border-left: 3px solid ${color}; padding-left: 10px;">${tarotDB.elementalAdvice[dominant]}</div>${personalNote}${comboNote}</div>`;
+                const style = elementStyles[dominant] || { color: "#fff", icon: "✨", shadow: "none" };
+
+                html = `
+                    <div class="fade-in element-card" style="border: 1px solid ${style.color}; background: rgba(0,0,0,0.3); box-shadow: 0 0 20px ${style.shadow};">
+                        <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 12px;">
+                            <span style="font-size: 1.8rem; filter: drop-shadow(0 0 5px ${style.color});">${style.icon}</span>
+                            <span style="color: ${style.color}; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; font-size: 1rem;">${dominant}</span>
+                        </div>
+                        <div style="font-size: 0.9rem; line-height: 1.6; color: #fff;">
+                            ${tarotDB.elementalAdvice[dominant]}
+                        </div>
+                        ${personalNote}
+                        ${comboNote}
+                    </div>`;
             }
         }
+        
         box.innerHTML = html;
 
+        // 4. Кнопки и история
         if (drawnCount >= maxCards && maxCards > 0) {
-            // Кнопка ЗАНОВО
             const rBtn = document.getElementById('reset-btn');
             if (rBtn) {
                 rBtn.style.display = 'inline-block';
-                // При клике запускаем тот же режим, который активен сейчас
                 rBtn.onclick = () => window.setMode(currentMode); 
             }
 
-            // Кнопка ДОНАТ
             const dBtn = document.getElementById('donate-btn');
             if (dBtn) {
                 dBtn.style.display = 'inline-block';
@@ -310,6 +355,7 @@
         }
     }
 
+    
     function saveToHistory() {
         const history = {
             date: new Date().toISOString(),
