@@ -1,1 +1,33 @@
+<div class="welcome-card">
+    <h1>COSMIC TAROT</h1>
+    <p class="subtitle">Выберите инструмент предсказания</p>
+    
+    <button onclick="navigate('taro')" class="btn" aria-label="Перейти к картам Таро">
+        <span>🔮</span> КАРТЫ ТАРО
+    </button>
+    
+    <div class="btn disabled" aria-disabled="true" aria-label="Руны в разработке">
+        <span>ᚱ</span> РУНЫ (СКОРО)
+    </div>
 
+    <button onclick="openDateModal()" class="btn" aria-label="Прогноз по дате рождения" style="background: rgba(236, 72, 153, 0.1); border-color: #ec4899; box-shadow: 0 0 15px rgba(236, 72, 153, 0.4);">
+        <span>📅</span> ПРОГНОЗ ПО ДАТЕ (50 ⭐)
+    </button>
+</div>
+
+<div id="date-modal" onclick="if(event.target === this) closeDateModal()">
+    <div class="modal-content">
+        <h3 style="margin-top: 0; margin-bottom: 20px; color: var(--purp);">📅 Ваша дата рождения</h3>
+        <input type="date" id="birth-date" 
+               placeholder="ДД.ММ.ГГГГ"
+               max="2026-12-31"
+               min="1900-01-01"
+               style="width: 100%; padding: 15px; border-radius: 12px; border: 1px solid var(--purp); background: #050508; color: white; margin-bottom: 20px; box-sizing: border-box; font-size: 1rem;">
+        
+        <button onclick="processPayment()" class="btn" style="width: 100%; margin: 0; background: #ec4899; border: none; animation: none;">
+            💫 ОПЛАТИТЬ 50 ⭐
+        </button>
+        
+        <div onclick="closeDateModal()" class="close-btn">Отмена</div>
+    </div>
+</div>
