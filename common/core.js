@@ -9,7 +9,6 @@ const tg = window.Telegram?.WebApp;
 if (tg) {
     tg.ready();
     tg.expand();
-    // Устанавливаем цвета темы, если поддерживается
     if (tg.setHeaderColor) tg.setHeaderColor('#050508');
     if (tg.setBackgroundColor) tg.setBackgroundColor('#050508');
 }
@@ -18,21 +17,25 @@ if (tg) {
 async function navigate(page) {
     const mainContent = document.getElementById('app-body');
     const pageStyle = document.getElementById('page-style');
+    const headerBackBtn = document.getElementById('header-back-btn'); // Кнопка в шапке
     
     try {
+        // Управление видимостью кнопки Назад (не показываем на главной)
+        if (headerBackBtn) {
+            headerBackBtn.style.display = (page === 'welcome' || page === 'index') ? 'none' : 'flex';
+        }
+
         // Загружаем HTML контент страницы
         const response = await fetch(`/${page}/${page}.html`);
         if (!response.ok) throw new Error('Ошибка загрузки страницы');
         const html = await response.text();
         
-        // Вставляем контент
         mainContent.innerHTML = html;
 
-        // Подгружаем стили страницы (подменяем href)
+        // Подгружаем стили страницы
         pageStyle.href = `/${page}/style.css`;
 
         // Перезагружаем JS модуль страницы
-        // Удаляем старый скрипт, если он был
         const oldScript = document.getElementById('page-script');
         if (oldScript) oldScript.remove();
 
@@ -42,7 +45,6 @@ async function navigate(page) {
         newScript.type = 'text/javascript';
         document.body.appendChild(newScript);
 
-        // Прокрутка наверх
         window.scrollTo(0, 0);
 
     } catch (err) {
@@ -51,7 +53,28 @@ async function navigate(page) {
     }
 }
 
-// --- 3. Анимация светлячков (Canvas) ---
+// --- 3. Обработка кликов в Header (Глобально) ---
+document.addEventListener('DOMContentLoaded', () => {
+    // Кнопка Назад в шапке
+    const backBtn = document.getElementById('header-back-btn');
+    if (backBtn) {
+        backBtn.onclick = () => navigate('welcome');
+    }
+
+    // Если есть бургер-меню, можно добавить его открытие тут
+    const menuBtn = document.getElementById('main-menu-btn');
+    if (menuBtn) {
+        menuBtn.onclick = () => {
+            console.log('Open menu'); 
+            // Тут твоя логика открытия меню, если нужно
+        };
+    }
+
+    // Стартовая страница
+    navigate('welcome');
+});
+
+// --- 4. Анимация светлячков (Canvas) ---
 const canvas = document.getElementById('fireflies-canvas');
 const ctx = canvas.getContext('2d');
 let width, height, fireflies = [];
@@ -113,16 +136,11 @@ function initFireflies() {
     for(let i = 0; i < config.quantity; i++) fireflies.push(new Firefly());
 }
 
-// Запуск при загрузке
 window.addEventListener('resize', () => {
     setCanvasSize();
     initFireflies();
 });
 
-// Инициализация системы
 setCanvasSize();
 initFireflies();
 animate();
-
-// Загружаем стартовую страницу (welcome) при запуске
-document.addEventListener('DOMContentLoaded', () => navigate('welcome'));
