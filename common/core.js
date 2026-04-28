@@ -174,6 +174,34 @@ window.addEventListener('resize', () => {
     initFireflies();
 });
 
+// Конфигурация приложения
+const APP_CONFIG = {
+    instagramNick: 'hfdfhjvffnmkkhghb', // Меняй только здесь
+    get instaUrl() {
+        return `https://www.instagram.com/${this.instagramNick}/`;
+    }
+};
+
+// Функция инициализации футера
+function initFooter() {
+    const instaLink = document.getElementById('insta-link');
+    if (instaLink) {
+        instaLink.href = APP_CONFIG.instaUrl;
+        instaLink.target = "_blank"; // Чтобы открывалось в новой вкладке
+        instaLink.rel = "noopener noreferrer"; // Для безопасности
+        
+        // Можно даже добавить проверку: если ника нет, скрывать ссылку
+        if (!APP_CONFIG.instagramNick) {
+            instaLink.parentElement.style.display = 'none';
+        }
+    }
+}
+
+// Вызываем при загрузке
+document.addEventListener('DOMContentLoaded', initFooter);
+
+
+
 setCanvasSize();
 initFireflies();
 animate();
