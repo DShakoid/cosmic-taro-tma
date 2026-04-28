@@ -1,27 +1,31 @@
 (async function initTaro() {
-    // 1. Проверяем, загружены ли уже данные (чтобы не дублировать)
-    if (typeof tarotCards === 'undefined') {
-        console.log("Loading tarot data...");
+    // 1. Фикс загрузки данных: проверяем tarotDB (у тебя в коде tarotDB, а не tarotCards)
+    if (typeof tarotDB === 'undefined') {
         const script = document.createElement('script');
         script.src = '/taro/tarotData.js';
-        
-        // Ждем загрузки данных
         await new Promise((resolve) => {
             script.onload = resolve;
             document.head.appendChild(script);
         });
-        console.log("Tarot data loaded!");
     }
 
-    // 2. Только ПОСЛЕ загрузки данных запускаем инициализацию интерфейса
-    setupTaroApp(); 
-})();
-
-function setupTaroApp() {
-    console.log("Initializing Taro Logic...");
-    // Весь твой остальной код (setMode, drawCard и т.д.) переноси сюда
-    // Либо просто оставь его ниже, если он не вызывается сразу
-}
+    // 2. Инициализация Telegram и фикс навигации
+    const tg = window.Telegram?.WebApp;
+    if (tg) {
+        tg.ready();
+        tg.expand();
+        tg.setHeaderColor('#050508');
+        tg.setBackgroundColor('#050508');
+        tg.BackButton.show();
+        tg.BackButton.onClick(() => {
+            // Исправлено: если мы в SPA (core.js), идем через navigate, чтобы не перезагружать страницу
+            if (typeof window.navigate === 'function') {
+                window.navigate('welcome');
+            } else {
+                window.location.href = '../index.html';
+            }
+        });
+    }
 
 
 
@@ -31,17 +35,17 @@ let currentMode = '';
     let selectedCards = [];
     let isAnimating = false;
 
-    const tg = window.Telegram?.WebApp;
-    if (tg) {
-        tg.ready();
-        tg.expand();
-        tg.setHeaderColor('#050508');
-        tg.setBackgroundColor('#050508');
-        tg.BackButton.show();
-        tg.BackButton.onClick(() => {
-            window.location.href = '../index.html';
-        });
-    }
+    window.setMode = setMode;
+    window.drawCard = drawCard;
+    window.shuffleAnimation = shuffleAnimation;
+    window.showHistory = showHistory;
+    window.closeHistoryModal = closeHistoryModal;
+    window.clearHistory = clearHistory;
+    window.repeatHistory = repeatHistory;
+    window.showInfo = showInfo;
+    window.closeInfoModal = closeInfoModal;
+    window.shareApp = shareApp;
+    window.closeModal = closeModal;
 
     function preloadImages() {
         const images = ['/taro/assets/back_card.jpg'];
