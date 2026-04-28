@@ -1,79 +1,65 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Cosmic Tarot - Magic Returns</title>
+<link rel="stylesheet" href="/taro/style.css">
+
+<div class="container">
+    <div class="menu">
+        <button class="menu-btn" id="btn-day" onclick="setMode('day')">ДЕНЬ</button>
+        <button class="menu-btn" id="btn-week" onclick="setMode('week')">НЕДЕЛЯ</button>
+        <button class="menu-btn" id="btn-advice" onclick="setMode('advice')">СОВЕТ</button>
+    </div>
     
-    <link rel="stylesheet" href="/taro/style.css">
-    <link rel="icon" type="image/png" href="/icon_cosmic_taro128.png">
+    <div class="deck-container">
+        <div class="deck" onclick="drawCard()" role="button" tabindex="0"></div>
+        <div class="deck-label">ТЯНИ КАРТУ</div>
+        <div class="button-group">
+            <button class="shuffle-btn" onclick="shuffleAnimation()"><span>🃏</span> ПЕРЕМЕШАТЬ</button>
+            <button class="shuffle-btn" onclick="showHistory()"><span>📜</span> ИСТОРИЯ</button>
+            <button class="shuffle-btn" onclick="showInfo()"><span>ℹ️</span></button>
+            <button class="shuffle-btn" onclick="shareApp()"><span>📤</span></button>
+        </div>
+    </div>
     
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="/taro/tarotData.js"></script>
-</head>
-<body>
-    <div class="stars"></div>
-    <div class="container">
-        <div class="menu">
-            <button class="menu-btn" id="btn-day" onclick="setMode('day')">ДЕНЬ</button>
-            <button class="menu-btn" id="btn-week" onclick="setMode('week')">НЕДЕЛЯ</button>
-            <button class="menu-btn" id="btn-advice" onclick="setMode('advice')">СОВЕТ</button>
-        </div>
-        
-        <div class="deck-container">
-            <div class="deck" onclick="drawCard()" role="button" tabindex="0"></div>
-            <div class="deck-label">ТЯНИ КАРТУ</div>
-            <div class="button-group">
-                <button class="shuffle-btn" onclick="shuffleAnimation()"><span>🃏</span> ПЕРЕМЕШАТЬ</button>
-                <button class="shuffle-btn" onclick="showHistory()"><span>📜</span> ИСТОРИЯ</button>
-                <button class="shuffle-btn" onclick="showInfo()"><span>ℹ️</span></button>
-                <button class="shuffle-btn" onclick="shareApp()"><span>📤</span></button>
-            </div>
-        </div>
-        
-        <div id="table" class="table"></div>
-        
-        <div id="prediction-box" class="prediction-box">
-            <div id="prediction-text" class="fade-in">Выберите режим и прикоснитесь к колоде</div>
-            <div class="btn-row">
-                <button id="reset-btn" class="action-btn" onclick="setMode(currentMode)" style="display:none;">ЗАНОВО</button>
-                <button id="donate-btn" class="action-btn" style="display:none;">⭐ ПОБЛАГОДАРИТЬ</button>
-            </div>
+    <div id="table" class="table"></div>
+    
+    <div id="prediction-box" class="prediction-box">
+        <div id="prediction-text" class="fade-in">Выберите режим и прикоснитесь к колоде</div>
+        <div class="btn-row">
+            <button id="reset-btn" class="action-btn" onclick="setMode(currentMode)" style="display:none;">ЗАНОВО</button>
+            <button id="donate-btn" class="action-btn" style="display:none;">⭐ ПОБЛАГОДАРИТЬ</button>
         </div>
     </div>
+</div>
 
-    <div id="card-overlay" class="overlay" onclick="closeModal()">
-        <div class="modal-card" onclick="event.stopPropagation()">
-            <div id="m-emoji" class="modal-emoji"></div>
-            <div id="m-name" class="modal-name"></div>
-            <div id="m-desc" class="modal-desc"></div>
-            <button class="close-btn" onclick="closeModal()">ПОНЯТНО</button>
-        </div>
+<div id="card-overlay" class="overlay" onclick="closeModal()">
+    <div class="modal-card" onclick="event.stopPropagation()">
+        <div id="m-emoji" class="modal-emoji"></div>
+        <div id="m-name" class="modal-name"></div>
+        <div id="m-desc" class="modal-desc"></div>
+        <button class="close-btn" onclick="closeModal()">ПОНЯТНО</button>
     </div>
+</div>
 
-    <div id="history-modal" class="overlay" onclick="closeHistoryModal()">
-        <div class="modal-card history-card" onclick="event.stopPropagation()">
-            <h3>📜 История раскладов</h3>
-            <div id="history-list"></div>
-            <button class="clear-btn" onclick="clearHistory()">🗑️ ОЧИСТИТЬ</button>
-            <button class="close-btn" onclick="closeHistoryModal()">ЗАКРЫТЬ</button>
-        </div>
+<div id="history-modal" class="overlay" onclick="closeHistoryModal()">
+    <div class="modal-card history-card" onclick="event.stopPropagation()">
+        <h3>📜 История раскладов</h3>
+        <div id="history-list"></div>
+        <button class="clear-btn" onclick="clearHistory()">🗑️ ОЧИСТИТЬ</button>
+        <button class="close-btn" onclick="closeHistoryModal()">ЗАКРЫТЬ</button>
     </div>
+</div>
 
-    <div id="info-modal" class="overlay" onclick="closeInfoModal()">
-        <div class="modal-card info-card" onclick="event.stopPropagation()">
-            <h3>🔮 COSMIC TAROT</h3>
-            <div class="info-content">
-                <p>✨ <b>Полная колода Таро (78 карт)</b></p>
-                <p>📌 <b>Три режима раскладов</b></p>
-                <p>🔗 <b>Умные комбинации и стихии</b></p>
-                <hr>
-                <p style="text-align: center;">Слушай тишину. Доверяй звёздам.</p>
-            </div>
-            <button class="close-btn" onclick="closeInfoModal()">ПОНЯТНО</button>
+<div id="info-modal" class="overlay" onclick="closeInfoModal()">
+    <div class="modal-card info-card" onclick="event.stopPropagation()">
+        <h3>🔮 COSMIC TAROT</h3>
+        <div class="info-content">
+            <p>✨ <b>Полная колода Таро (78 карт)</b></p>
+            <p>📌 <b>Три режима раскладов</b></p>
+            <p>🔗 <b>Умные комбинации и стихии</b></p>
+            <hr>
+            <p style="text-align: center;">Слушай тишину. Доверяй звёздам.</p>
         </div>
+        <button class="close-btn" onclick="closeInfoModal()">ПОНЯТНО</button>
     </div>
+</div>
 
-    <script src="/taro/app.js"></script> 
-    </body>
-</html>
+<script src="/taro/tarotData.js"></script>
+<script src="/taro/app.js"></script>
