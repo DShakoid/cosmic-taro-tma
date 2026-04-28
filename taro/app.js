@@ -286,9 +286,23 @@
             }
         }
         box.innerHTML = html;
+
         if (drawnCount >= maxCards && maxCards > 0) {
-            document.getElementById('reset-btn').style.display = 'inline-block';
-            document.getElementById('donate-btn').style.display = 'inline-block';
+            // Кнопка ЗАНОВО
+            const rBtn = document.getElementById('reset-btn');
+            if (rBtn) {
+                rBtn.style.display = 'inline-block';
+                // При клике запускаем тот же режим, который активен сейчас
+                rBtn.onclick = () => window.setMode(currentMode); 
+            }
+
+            // Кнопка ДОНАТ
+            const dBtn = document.getElementById('donate-btn');
+            if (dBtn) {
+                dBtn.style.display = 'inline-block';
+                dBtn.onclick = () => window.handleDonate(500); 
+            }
+            
             saveToHistory();
         }
     }
