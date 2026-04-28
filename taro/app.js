@@ -1,4 +1,31 @@
- let currentMode = '';
+(async function initTaro() {
+    // 1. Проверяем, загружены ли уже данные (чтобы не дублировать)
+    if (typeof tarotCards === 'undefined') {
+        console.log("Loading tarot data...");
+        const script = document.createElement('script');
+        script.src = '/taro/tarotData.js';
+        
+        // Ждем загрузки данных
+        await new Promise((resolve) => {
+            script.onload = resolve;
+            document.head.appendChild(script);
+        });
+        console.log("Tarot data loaded!");
+    }
+
+    // 2. Только ПОСЛЕ загрузки данных запускаем инициализацию интерфейса
+    setupTaroApp(); 
+})();
+
+function setupTaroApp() {
+    console.log("Initializing Taro Logic...");
+    // Весь твой остальной код (setMode, drawCard и т.д.) переноси сюда
+    // Либо просто оставь его ниже, если он не вызывается сразу
+}
+
+
+
+let currentMode = '';
     let drawnCount = 0;
     let maxCards = 0;
     let selectedCards = [];
