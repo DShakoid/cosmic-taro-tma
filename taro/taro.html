@@ -1,5 +1,3 @@
-<link rel="stylesheet" href="/taro/style.css">
-
 <div class="container">
     <div class="menu">
         <button class="menu-btn" id="btn-day" onclick="setMode('day')">ДЕНЬ</button>
@@ -37,29 +35,3 @@
         <button class="close-btn" onclick="closeModal()">ПОНЯТНО</button>
     </div>
 </div>
-
-<div id="history-modal" class="overlay" onclick="closeHistoryModal()">
-    <div class="modal-card history-card" onclick="event.stopPropagation()">
-        <h3>📜 История раскладов</h3>
-        <div id="history-list"></div>
-        <button class="clear-btn" onclick="clearHistory()">🗑️ ОЧИСТИТЬ</button>
-        <button class="close-btn" onclick="closeHistoryModal()">ЗАКРЫТЬ</button>
-    </div>
-</div>
-
-<div id="info-modal" class="overlay" onclick="closeInfoModal()">
-    <div class="modal-card info-card" onclick="event.stopPropagation()">
-        <h3>🔮 COSMIC TAROT</h3>
-        <div class="info-content">
-            <p>✨ <b>Полная колода Таро (78 карт)</b></p>
-            <p>📌 <b>Три режима раскладов</b></p>
-            <p>🔗 <b>Умные комбинации и стихии</b></p>
-            <hr>
-            <p style="text-align: center;">Слушай тишину. Доверяй звёздам.</p>
-        </div>
-        <button class="close-btn" onclick="closeInfoModal()">ПОНЯТНО</button>
-    </div>
-</div>
-
-<script src="/taro/tarotData.js"></script>
-<script src="/taro/app.js"></script>
