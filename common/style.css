@@ -1,1 +1,21 @@
+#fireflies-canvas {
+    position: fixed; /* Фиксируем на весь экран */
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -1; /* Уводим в самый низ, под текст и кнопки */
+    pointer-events: none; /* Чтобы он не мешал кликать по кнопкам */
+}
 
+/* Убедись, что body и main не имеют лишних отступов */
+body, html {
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+}
+
+#app-body {
+    position: relative;
+    z-index: 1; /* Контент всегда выше светлячков */
+}
