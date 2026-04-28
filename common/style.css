@@ -56,3 +56,13 @@ button#header-back-btn {
     box-shadow: none;
     border: none;
 }
+
+/* Тот самый "старый" стиль полосок, который мог сломаться */
+#main-menu-btn span {
+    display: block;
+    width: 20px;
+    height: 2px;
+    background: white;
+    margin: 4px 0;
+    border-radius: 2px;
+}
