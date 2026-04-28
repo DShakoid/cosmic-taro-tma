@@ -106,7 +106,7 @@ button#header-back-btn {
 }
 
 /* Стили для стрелки */
-#back-btn svg {
+#header-back-btn svg {
     filter: drop-shadow(0 0 5px rgba(168, 85, 247, 0.3));
 }
 
@@ -130,7 +130,7 @@ button#header-back-btn {
 }
 
 /* Стили конкретно для стрелки (левая) */
-#back-btn svg {
+#header-back-btn svg {
     display: block;
     width: 22px;
     height: 22px;
