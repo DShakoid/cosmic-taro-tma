@@ -136,6 +136,39 @@ function initFireflies() {
     for(let i = 0; i < config.quantity; i++) fireflies.push(new Firefly());
 }
 
+// --- 5. Глобальная логика оплаты ---
+window.handleDonate = async function(amount = null) {
+    const tg = window.Telegram?.WebApp;
+    
+    try {
+        // Если хочешь разные суммы, можно слать их в body
+        const response = await fetch('/api/get-invoice', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ amount: amount })
+        });
+
+        const data = await response.json();
+
+        if (tg && data.url) {
+            tg.openInvoice(data.url, (status) => {
+                if (status === 'paid') {
+                    tg.showAlert('✨ Благодарим за поддержку Космического Таро!');
+                    // Здесь можно вызвать функцию обновления баланса, если она есть
+                } else if (status === 'cancelled') {
+                    console.log('Платеж отменен');
+                }
+            });
+        } else {
+            // Фолбек для браузера
+            if (data.url) window.open(data.url, '_blank');
+        }
+    } catch (e) {
+        console.error('Ошибка оплаты:', e);
+        if (tg) tg.showAlert('Произошла ошибка при формировании счета');
+    }
+};
+
 window.addEventListener('resize', () => {
     setCanvasSize();
     initFireflies();
