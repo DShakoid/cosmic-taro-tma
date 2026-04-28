@@ -433,7 +433,7 @@
             });
 
             // Обновляем текст в блоке предсказаний
-            const box = document.getElementById('prediction-text');
+            const box = document.getElementById('deck-label');
             if (box) {
                 const remainingCount = remainingCards.length;
                 box.innerHTML = `<div class="fade-in">🃏 Колода перемешана! ✨<br>Осталось ${remainingCount} карт в колоде.</div>`;
