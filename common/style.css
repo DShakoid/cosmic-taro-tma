@@ -111,12 +111,34 @@ button#header-back-btn {
 }
 
 #app-footer {
-    text-align: center;
+    position: fixed;
+    bottom: 0px;
+    left: 0; /* Обязательно прижимаем к левому краю */
+    width: 100%; /* Растягиваем на всю ширину, чтобы было от чего центровать */
+    
+    display: flex; /* Включаем флексбокс */
+    justify-content: center; /* Центрируем по горизонтали */
+    align-items: center; /* Центрируем по вертикали */
+    
     padding: 20px;
-    font-size: 0.75rem; /* Чуть увеличил для читаемости градиента */
-    opacity: 0.8; /* Поднял видимость, чтобы градиент "играл" */
+    box-sizing: border-box; /* Чтобы паддинги не раздували ширину больше 100% */
+    
+    font-size: 0.75rem;
+    opacity: 0.8;
     color: #fff;
     font-family: sans-serif;
+    z-index: 1000; /* Чтобы футер всегда был поверх стола */
+    pointer-events: none; /* Чтобы футер не мешал кликать по картам под ним */
+}
+
+#app-footer span {
+    pointer-events: auto; /* Возвращаем кликабельность самой ссылке и тексту */
+    letter-spacing: 0.5px;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 6px 16px;
+    border-radius: 20px;
+    border: 1px solid rgba(168, 85, 247, 0.2);
+    backdrop-filter: blur(5px); /* Добавил легкое размытие, будет очень "космически" */
 }
 
 #insta-link {
@@ -140,13 +162,4 @@ button#header-back-btn {
     filter: drop-shadow(0 0 10px rgba(236, 72, 153, 0.6));
     transform: translateY(-1px);
     border-bottom-color: #ec4899;
-}
-
-/* Эффект для "created by" — сделаем его чуть мягче */
-#app-footer span {
-    letter-spacing: 0.5px;
-    background: rgba(255, 255, 255, 0.1);
-    padding: 4px 12px;
-    border-radius: 20px;
-    border: 1px solid rgba(168, 85, 247, 0.2);
 }
