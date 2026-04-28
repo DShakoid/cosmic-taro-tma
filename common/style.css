@@ -142,7 +142,9 @@ button#main-menu-btn:hover span {
     width: 22px;
     height: 22px;
 }
-
+div#back-btn-container {
+    width: 34px;
+}
 
 /* Выравнивание контейнера, если нужно */
 .header-container {
