@@ -124,7 +124,7 @@
 
     .prediction-box {
         width: 95%; background: rgba(20, 15, 30, 0.6); border-radius: 20px;
-        padding: 18px; border: 1px solid rgba(168, 85, 247, 0.15);
+        padding: 0px 0px 28px 0px; border: 1px solid rgba(168, 85, 247, 0.15);
         backdrop-filter: blur(15px); text-align: center; margin-top: 20px;
     }
     .overlay {
