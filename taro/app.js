@@ -203,7 +203,6 @@
             }
         }
         
-        // (Тут идет твой блок с циклами комбо, оставляю его как есть)
         if (selectedCards.length >= 2) {
             for (let i = 0; i < selectedCards.length; i++) {
                 for (let j = i + 1; j < selectedCards.length; j++) {
@@ -213,7 +212,64 @@
                     if (found && !comboNote) comboNote = `<div style="margin-top:10px; padding:10px; border:1px solid #a855f7; background: rgba(168,85,247,0.1); border-radius:8px;">🔮 <b>Связка:</b> ${found}</div>`;
                 }
             }
-            // ... и так далее весь твой блок проверок ...
+
+            if (selectedCards.length >= 3 && !comboNote) {
+                const ids = selectedCards.map(c => c.id).sort();
+                for (let i = 0; i < ids.length - 2; i++) {
+                    for (let j = i + 1; j < ids.length - 1; j++) {
+                        for (let k = j + 1; k < ids.length; k++) {
+                            const tripleKey = `${ids[i]}+${ids[j]}+${ids[k]}`;
+                            const tripleFound = tarotDB.combos[tripleKey];
+                            if (tripleFound && !comboNote) {
+                                comboNote = `<div style="margin-top:10px; padding:10px; border:1px solid #a855f7; background: rgba(168,85,247,0.1); border-radius:8px;">🔮 <b>Тройная связка:</b> ${tripleFound}</div>`;
+                                break;
+                            }
+                        }
+                        if (comboNote) break;
+                    }
+                    if (comboNote) break;
+                }
+            }
+
+            if (!comboNote) {
+                const dayOfWeek = new Date().getDay();
+                const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+                const dayKey = dayNames[dayOfWeek];
+                for (let card of selectedCards) {
+                    const dayCombo = tarotDB.combos[`${dayKey}+${card.id}`];
+                    if (dayCombo) { comboNote = `<div style="margin-top:10px; padding:10px; border:1px solid #a855f7; background: rgba(168,85,247,0.1); border-radius:8px;">📅 <b>День недели:</b> ${dayCombo}</div>`; break; }
+                }
+            }
+
+            if (!comboNote && birthDate) {
+                for (let card of selectedCards) {
+                    const birthdayCombo = tarotDB.combos[`birthday+${card.id}`];
+                    if (birthdayCombo) { comboNote = `<div style="margin-top:10px; padding:10px; border:1px solid gold; background: rgba(255,215,0,0.1); border-radius:8px;">🎂 <b>День рождения:</b> ${birthdayCombo}</div>`; break; }
+                }
+            }
+
+            if (!comboNote) {
+                const hour = new Date().getHours();
+                let timeKey = '';
+                if (hour >= 23 || hour <= 3) timeKey = 'midnight';
+                else if (hour >= 5 && hour <= 8) timeKey = 'morning';
+                else if (hour >= 12 && hour <= 14) timeKey = 'noon';
+                if (timeKey) {
+                    for (let card of selectedCards) {
+                        const timeCombo = tarotDB.combos[`${timeKey}+${card.id}`];
+                        if (timeCombo) { comboNote = `<div style="margin-top:10px; padding:10px; border:1px solid #a855f7; background: rgba(168,85,247,0.1); border-radius:8px;">⏰ <b>Магический час:</b> ${timeCombo}</div>`; break; }
+                    }
+                }
+            }
+
+            if (!comboNote) {
+                for (let special of tarotDB.specialCombos) {
+                    if (special.check(selectedCards, currentMode, new Date())) {
+                        comboNote = `<div style="margin-top:10px; padding:10px; border:1px solid #ec4899; background: rgba(236,72,153,0.1); border-radius:8px;">✨ <b>${special.name}:</b> ${special.text}</div>`;
+                        break;
+                    }
+                }
+            }
         }
 
         let html = "";
