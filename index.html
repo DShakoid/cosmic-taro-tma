@@ -16,8 +16,31 @@
     <canvas id="fireflies-canvas"></canvas>
 
     <header id="app-header">
-        </header>
+        <div class="header-content">
+            <div id="back-btn-container">
+                <button id="header-back-btn" style="display: none;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 12H5M12 19l-7-7 7-7"/>
+                    </svg>
+                </button>
+            </div>
 
+            <div class="header-center">
+                <a href="#" onclick="navigate('profile'); return false;" class="account-link">
+                    <span class="icon">👤</span>
+                    <span class="label">Аккаунт</span>
+                </a>
+            </div>
+
+            <div class="header-right">
+                <button id="main-menu-btn">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+    </header>
     <main id="app-body">
         </main>
 
