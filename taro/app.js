@@ -321,12 +321,12 @@
                 const style = elementStyles[dominant] || { color: "#fff", icon: "✨", shadow: "none" };
 
                 html = `
-                    <div class="fade-in element-card" style="border: 1px solid ${style.color}; background: rgba(0,0,0,0.3); box-shadow: 0 0 20px ${style.shadow};padding:8px;border-radius:20px;">
+                    <div class="fade-in element-card" style="border: 1px solid ${style.color}; background: rgba(0,0,0,0.3); box-shadow: 0 0 20px ${style.shadow};padding:8px;border-radius:20px;margin-bottom: 30px;">
                         <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 12px;">
                             <span style="font-size: 1.8rem; filter: drop-shadow(0 0 5px ${style.color});">${style.icon}</span>
-                            <span style="color: ${style.color}; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; font-size: 1rem;">${dominant}</span>
+                            <span style="color: ${style.color}; font-weight: 600; letter-spacing: 1px; /*text-transform: uppercase; */ font-size: 1.1rem;">${dominant}</span>
                         </div>
-                        <div style="font-size: 0.9rem; line-height: 1.6; color: #fff;">
+                        <div style="font-size: 0.9rem; line-height: 1.4; color: #fff;">
                             ${tarotDB.elementalAdvice[dominant]}
                         </div>
                         ${personalNote}
