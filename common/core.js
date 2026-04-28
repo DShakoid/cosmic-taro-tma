@@ -38,7 +38,7 @@ async function navigate(page) {
 
         const newScript = document.createElement('script');
         newScript.id = 'page-script';
-        newScript.src = `/${page}/${page}.js`;
+        newScript.src = `/${page}/app.js`;
         newScript.type = 'text/javascript';
         document.body.appendChild(newScript);
 
