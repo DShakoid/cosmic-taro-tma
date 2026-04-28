@@ -79,16 +79,44 @@ button#header-back-btn {
 }
 
 /* Общие стили для кнопок в хедере */
+/* Общие стили кнопок */
 .header-left button, .header-right button {
     background: none;
     border: none;
     padding: 8px;
     cursor: pointer;
     display: flex;
-    flex-direction: column;
     justify-content: center;
     align-items: center;
-    -webkit-tap-highlight-color: transparent;
+    transition: transform 0.2s ease;
+}
+
+.header-left button:active, .header-right button:active {
+    transform: scale(0.9);
+}
+
+/* Стили для стрелки */
+#back-btn svg {
+    filter: drop-shadow(0 0 5px rgba(168, 85, 247, 0.3));
+}
+
+/* Стили для бургера (те самые космические полоски) */
+#main-menu-btn span {
+    display: block;
+    width: 22px;
+    height: 2px;
+    /* Тот самый градиент */
+    background: linear-gradient(90deg, #a855f7 0%, #ec4899 100%);
+    margin: 3px 0; /* Чуть увеличил отступ для красоты */
+    border-radius: 2px;
+    transition: 0.3s ease;
+    box-shadow: 0 0 5px rgba(168, 85, 247, 0.2);
+}
+
+/* Эффект при наведении на меню */
+#main-menu-btn:hover span {
+    filter: brightness(1.2);
+    box-shadow: 0 0 8px rgba(236, 72, 153, 0.4);
 }
 
 /* Стили конкретно для стрелки (левая) */
@@ -98,16 +126,6 @@ button#header-back-btn {
     height: 22px;
 }
 
-/* Стили для бургера (правая), чтобы не была "одной полоской" */
-#main-menu-btn span {
-    display: block;
-    width: 22px;
-    height: 2px;
-    background-color: white;
-    margin: 2px 0; /* Расстояние между полосками */
-    border-radius: 2px;
-    transition: 0.3s;
-}
 
 /* Выравнивание контейнера, если нужно */
 .header-container {
