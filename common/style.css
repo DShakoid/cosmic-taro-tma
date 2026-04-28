@@ -96,3 +96,16 @@ button#header-back-btn {
     padding: 10px 15px;
     background: #050508;
 }
+.account-icon {
+    width: 24px;
+    height: 24px;
+    display: block;
+    /* Мягкое свечение в цвет градиента */
+    filter: drop-shadow(0 0 5px rgba(168, 85, 247, 0.4));
+    transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.account-link:active .account-icon {
+    transform: scale(0.9);
+    filter: drop-shadow(0 0 8px rgba(236, 72, 153, 0.6));
+}
