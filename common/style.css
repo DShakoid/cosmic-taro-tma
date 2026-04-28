@@ -10,7 +10,7 @@
 
 /* Убедись, что body и main не имеют лишних отступов */
 body, html {
-    margin: 0;
+    margin: auto;
     padding: 0;
     overflow-x: hidden;
 }
