@@ -171,7 +171,7 @@ div#back-btn-container {
 }
 
 #app-footer {
-    position: fixed;
+    position: relative;
     bottom: 0px;
     left: 0; /* Обязательно прижимаем к левому краю */
     width: 100%; /* Растягиваем на всю ширину, чтобы было от чего центровать */
