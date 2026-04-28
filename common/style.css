@@ -67,10 +67,14 @@ body, html {
 
 .header-content {
     display: grid;
-    grid-template-columns: 60px 1fr 60px;
+    /* grid-template-columns: 60px 1fr 60px; */
     width: 100%;
     align-items: center;
     text-align: center;
+    grid-auto-flow: column dense;
+    align-content: center;
+    justify-items: center;
+    max-width:480px;
 }
 
 .account-link {
