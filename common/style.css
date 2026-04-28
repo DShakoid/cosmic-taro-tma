@@ -52,7 +52,7 @@ body, html {
     /* УДАЛИ top: 65px; — margin-top тут работает правильнее для флексов */
 }
 #app-header {
-    position: fixed; /* Оставляем фиксированным */
+    position: fixed;
     top: 0;
     left: 0;
     width: 100%;
@@ -63,6 +63,9 @@ body, html {
     align-items: center;
     border-bottom: 1px solid rgba(168, 85, 247, 0.2);
     box-sizing: border-box;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: center;
 }
 
 .header-content {
