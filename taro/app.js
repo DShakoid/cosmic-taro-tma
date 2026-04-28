@@ -378,17 +378,23 @@
 
     function shuffleAnimation() {
         if (isAnimating) return;
+        isAnimating = true; // Блокируем клики на время анимации
+        
         const deck = document.querySelector('.deck');
         const rect = deck.getBoundingClientRect();
         const drawnIds = selectedCards.map(c => c.id);
         const remainingCards = tarotDB.cards.filter(c => !drawnIds.includes(c.id));
+        
+        // Перемешивание массива
         for (let i = remainingCards.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [remainingCards[i], remainingCards[j]] = [remainingCards[j], remainingCards[i]];
         }
         window.shuffledRemaining = remainingCards;
+        
         deck.style.transform = 'scale(0.95)';
         setTimeout(() => { deck.style.transform = 'scale(1)'; }, 200);
+        
         if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
         
         const cardsCount = Math.min(8, remainingCards.length);
@@ -397,12 +403,15 @@
             const fakeCard = document.createElement('div');
             fakeCard.className = 'card-anim shuffle-card';
             fakeCard.style.position = 'fixed';
-            fakeCard.style.left = rect.left + 'px'; fakeCard.style.top = rect.top + 'px';
-            fakeCard.style.width = rect.width + 'px'; fakeCard.style.height = rect.height + 'px';
+            fakeCard.style.left = rect.left + 'px'; 
+            fakeCard.style.top = rect.top + 'px';
+            fakeCard.style.width = rect.width + 'px'; 
+            fakeCard.style.height = rect.height + 'px';
             fakeCard.innerHTML = '<div class="face back"></div>';
             document.body.appendChild(fakeCard);
             cards.push(fakeCard);
         }
+
         cards.forEach((card, index) => {
             setTimeout(() => {
                 const angle = (index - cardsCount / 2) * 12;
@@ -410,10 +419,32 @@
                 card.style.opacity = '1';
             }, index * 40);
         });
+
+        // ВОТ ЭТОТ КУСОК Я ВЕРНУЛ:
         setTimeout(() => {
-            cards.forEach(c => { c.style.transform = 'translate(0,0) rotate(0deg)'; c.style.opacity = '0'; });
-            setTimeout(() => cards.forEach(c => c.remove()), 400);
-            isAnimating = false;
+            // Эффект частиц в центре колоды
+            createParticles(rect.left + rect.width / 2, rect.top + rect.height / 2, '#a855f7');
+            
+            // Схлопываем и удаляем фейковые карты
+            cards.forEach(c => { 
+                c.style.transform = 'translate(0,0) rotate(0deg)'; 
+                c.style.opacity = '0'; 
+                setTimeout(() => c.remove(), 400);
+            });
+
+            // Обновляем текст в блоке предсказаний
+            const box = document.getElementById('prediction-text');
+            if (box) {
+                const remainingCount = remainingCards.length;
+                box.innerHTML = `<div class="fade-in">🃏 Колода перемешана! ✨<br>Осталось ${remainingCount} карт в колоде.</div>`;
+                
+                // Через 2 секунды возвращаем подсказку "Тяните карту", если лимит не исчерпан
+                setTimeout(() => { 
+                    if (drawnCount < maxCards) updatePrediction(); 
+                }, 2000);
+            }
+
+            isAnimating = false; // РАЗБЛОКИРУЕМ интерфейс
         }, 800);
     }
 
