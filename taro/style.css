@@ -38,6 +38,7 @@
         padding: calc(env(safe-area-inset-top, 0px) + 55px) 15px 80px 15px;
         box-sizing: border-box;
         min-height: 100%;
+         margin: auto;
     }
     .menu { display: flex; gap: 8px; margin-bottom: 20px; width: 100%; z-index: 100; }
     .menu-btn {
