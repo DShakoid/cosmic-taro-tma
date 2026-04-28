@@ -100,7 +100,7 @@ button#header-back-btn {
     align-items: center;
     transition: transform 0.2s ease;
 }
-
+.header-right button {flex-direction: column;}
 .header-left button:active, .header-right button:active {
     transform: scale(0.9);
 }
