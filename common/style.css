@@ -111,7 +111,7 @@ button#header-back-btn {
 }
 
 /* Стили для бургера (те самые космические полоски) */
-#main-menu-btn span {
+button#main-menu-btn span {
     display: block;
     width: 22px;
     height: 2px;
@@ -124,7 +124,7 @@ button#header-back-btn {
 }
 
 /* Эффект при наведении на меню */
-#main-menu-btn:hover span {
+button#main-menu-btn:hover span {
     filter: brightness(1.2);
     box-shadow: 0 0 8px rgba(236, 72, 153, 0.4);
 }
