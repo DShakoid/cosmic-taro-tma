@@ -66,6 +66,7 @@ body, html {
     flex-direction: row;
     flex-wrap: nowrap;
     justify-content: center;
+    margin-top: 65px;
 }
 
 .header-content {
