@@ -16,15 +16,6 @@
         tg.expand();
         tg.setHeaderColor('#050508');
         tg.setBackgroundColor('#050508');
-        tg.BackButton.show();
-        tg.BackButton.onClick(() => {
-            // Исправлено: если мы в SPA (core.js), идем через navigate, чтобы не перезагружать страницу
-            if (typeof window.navigate === 'function') {
-                window.navigate('welcome');
-            } else {
-                window.location.href = '../index.html';
-            }
-        });
     }
 
     // --- ТВОЙ ОСТАЛЬНОЙ КОД БЕЗ ВЫРЕЗАНИЯ ЛОГИКИ ---
