@@ -1,13 +1,19 @@
 /**
- * PROFILE MODULE - COSMIC TAROT (FRONTEND)
+ * PROFILE MODULE - COSMIC TAROT
  */
 
 async function initProfile() {
     const tg = window.Telegram?.WebApp;
     const container = document.getElementById('profile-content');
     
+    // ВОЗВРАЩАЕМ ТВОЮ АНИМАЦИЮ
     if (container) {
-        container.innerHTML = '<div class="loading">Связь с космосом...</div>';
+        container.innerHTML = `
+            <div class="profile-loader-container">
+                <div class="cosmic-loader"></div>
+                <p class="loader-text">Считываем твою судьбу...</p>
+            </div>
+        `;
     }
 
     try {
@@ -18,11 +24,18 @@ async function initProfile() {
         });
 
         if (!response.ok) throw new Error('Ошибка сервера');
+        
         const data = await response.json();
         renderProfile(data);
     } catch (err) {
         console.error('Profile init error:', err);
-        if (container) container.innerHTML = '<div>Ошибка загрузки профиля</div>';
+        if (container) {
+            container.innerHTML = `
+                <div class="error-box">
+                    <p>Космос временно недоступен</p>
+                    <button class="btn-reset" onclick="initProfile()">Повторить попытку</button>
+                </div>`;
+        }
     }
 }
 
@@ -33,24 +46,28 @@ function renderProfile(data) {
     if (data.authorized) {
         container.innerHTML = `
             <div class="profile-card-authorized">
-                <div class="profile-avatar" style="background-image: url('${data.user.photo_url || '../assets/default-avatar.png'}')"></div>
-                <h2 class="profile-name">${data.user.first_name || 'Странник'}</h2>
+                <div class="profile-avatar-wrapper">
+                    <div class="profile-avatar" style="background-image: url('${data.user.photo_url || '../assets/default-avatar.png'}')"></div>
+                    <div class="avatar-glow"></div>
+                </div>
+                <h2 class="profile-name">${data.user.first_name || 'Путешественник'}</h2>
                 <div class="profile-stats">
-                    <p>Дата рождения: ${data.user.birth_date || 'Не указана'}</p>
+                    <div class="stat-item">
+                        <span class="stat-label">Дата рождения</span>
+                        <span class="stat-value">${data.user.birth_date || 'Не указана'}</span>
+                    </div>
                 </div>
                 <div class="profile-menu">
-                    <button class="menu-btn" onclick="navigate('welcome')">Изменить данные</button>
-                    <button class="menu-btn danger" onclick="resetAllData()">Сбросить историю</button>
+                    <button class="menu-btn" onclick="navigate('welcome')">✨ Изменить данные</button>
+                    <button class="menu-btn danger-outline" onclick="resetAllData()">🌑 Сбросить данные</button>
                 </div>
-            </div>
-        `;
+            </div>`;
     } else {
         container.innerHTML = `
             <div class="profile-card">
-                <p>Вы зашли как гость. Ваши прогнозы не сохраняются.</p>
-                <button class="btn-sync" onclick="handleAuthSync()">Авторизоваться через TG</button>
-            </div>
-        `;
+                <p>Ваши прогнозы не сохраняются в облаке.</p>
+                <button class="btn-sync" onclick="handleAuthSync()">Авторизоваться TG</button>
+            </div>`;
     }
 }
 
@@ -65,14 +82,14 @@ async function handleAuthSync() {
         const data = await response.json();
         if (data.authorized) renderProfile(data);
     } catch (err) {
-        alert('Ошибка синхронизации');
+        tg.showAlert('Ошибка авторизации');
     }
 }
 
 async function resetAllData() {
     const tg = window.Telegram.WebApp;
-    if (confirm("Удалить дату рождения?")) {
-        try {
+    tg.showConfirm("Сбросить дату рождения?", async (confirmed) => {
+        if (confirmed) {
             await fetch('/api/auth', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -80,10 +97,8 @@ async function resetAllData() {
             });
             localStorage.removeItem('user_birth_date');
             if (window.navigate) window.navigate('welcome');
-        } catch (err) {
-            console.error('Reset error:', err);
         }
-    }
+    });
 }
 
 initProfile();
