@@ -4,6 +4,7 @@ const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SER
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).end();
+    
     const { initData, first_name, last_name, gender, birth_date } = req.body;
 
     const urlParams = new URLSearchParams(initData);
@@ -14,15 +15,16 @@ export default async function handler(req, res) {
     try {
         const { error } = await supabase.from('users').upsert({ 
             id: user.id, 
-                username: user.username || "",
-                first_name: first_name || user.first_name || "", 
-                last_name: last_name || user.last_name || "",
-                language_code: user.language_code || "ru", // Сохраняем язык
-                gender: gender || null,
-                birth_date: birth_date || null,
-                photo_url: user.photo_url || "",
-                updated_at: new Date()
+            username: user.username || "",
+            first_name: first_name || user.first_name || "", 
+            last_name: last_name || user.last_name || "",
+            language_code: user.language_code || "ru", // ВОТ ОНО, ВЕРНУЛ
+            gender: gender || null,
+            birth_date: birth_date || null,
+            photo_url: user.photo_url || "",
+            updated_at: new Date()
         });
+        
         if (error) throw error;
         return res.status(200).json({ success: true });
     } catch (err) {
