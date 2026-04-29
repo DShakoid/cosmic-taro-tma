@@ -14,13 +14,14 @@ export default async function handler(req, res) {
     try {
         const { error } = await supabase.from('users').upsert({ 
             id: user.id, 
-            username: user.username || "",
-            first_name: first_name || user.first_name || "", 
-            last_name: last_name || user.last_name || "",
-            gender: gender || null,
-            birth_date: birth_date || null,
-            photo_url: user.photo_url || "",
-            updated_at: new Date()
+                username: user.username || "",
+                first_name: first_name || user.first_name || "", 
+                last_name: last_name || user.last_name || "",
+                language_code: user.language_code || "ru", // Сохраняем язык
+                gender: gender || null,
+                birth_date: birth_date || null,
+                photo_url: user.photo_url || "",
+                updated_at: new Date()
         });
         if (error) throw error;
         return res.status(200).json({ success: true });
