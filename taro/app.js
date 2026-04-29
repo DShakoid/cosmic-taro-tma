@@ -308,7 +308,7 @@
                 const last = selectedCards[0];
                 html = `
                     <div class="fade-in element-card" style="border-left: 4px solid #a855f7;background: rgba(168, 85, 247, 0.05);text-align: left;padding: 8px 8px 18px 18px;margin-bottom: 30px;border-radius: 5px 15px 15px 5px;">
-                        <div style="font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.5; margin-bottom: 4px;">${last.keywords}</div>
+                        <div style="font-size: 0.65rem; text-transform: capitalize; letter-spacing: 0.5px; opacity: 0.5; margin-bottom: 4px;">${last.keywords}</div>
                         <div style="color: #fff; font-weight: 900; font-size: 1.1rem; margin-bottom: 8px;">${last.name}</div>
                         <p style="font-size: 0.85rem; line-height: 1.4; color: #e2d5f5; margin: 0;">${last.isReversed ? last.advice_rev : last.advice}</p>
                         ${personalNote}
