@@ -1,34 +1,38 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabase = createClient(
-  process.env.STORAGE_URL, 
-  process.env.STORAGE_SERVICE_ROLE_KEY
-)
+const supabase = createClient(process.env.STORAGE_URL, process.env.STORAGE_SERVICE_ROLE_KEY)
 
 export default async function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).send('Method Not Allowed');
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method Not Allowed' });
 
   try {
-    const { initData, action } = req.body; 
+    const { initData } = req.body;
     if (!initData) return res.status(400).json({ error: 'No initData' });
 
     const urlParams = new URLSearchParams(initData);
     const userRaw = urlParams.get('user');
+    if (!userRaw) return res.status(400).json({ error: 'User data missing' });
 
-    if (!userRaw) return res.status(400).json({ error: 'No user data' });
     const user = JSON.parse(userRaw);
 
-    // --- 1. СБРОС (RESET / CLEAR) ---
-    if (action === 'reset' || action === 'clear_birthdate') {
-      const { data, error } = await supabase
-        .from('users')
-        .update({ birth_date: null })
-        .eq('id', user.id)
-        .select();
+    // Используем maybeSingle, чтобы не было ошибки 500 если юзера нет в базе
+    const { data: existingUser, error: findError } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', user.id)
+      .maybeSingle();
 
-      if (error) throw error;
-      return res.status(200).json({ success: true, user: data[0] });
-    }
+    if (findError) throw findError;
+
+    return res.status(200).json({ 
+      user: existingUser || user, 
+      authorized: !!existingUser 
+    });
+
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+}
 
     // --- 2. СИНХРОНИЗАЦИЯ (SYNC) ---
     if (action === 'sync') {
