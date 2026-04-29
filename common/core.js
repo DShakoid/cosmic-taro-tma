@@ -48,21 +48,11 @@ async function navigate(page, pushState = true) {
         pageStyle.href = `/${page}/style.css`;
 
         // Перезагружаем JS модуль страницы
-        const oldScript = document.getElementById('page-script');
-        if (oldScript) oldScript.remove();
-
         const newScript = document.createElement('script');
-        newScript.id = 'page-script';
-        newScript.src = `/${page}/app.js`;
-        
-        // Если мы заходим в профиль, ставим тип module, для остальных — обычный текст
-        if (page === 'profile') {
-            newScript.type = 'module';
-        } else {
+            newScript.id = 'page-script';
+            newScript.src = `/${page}/app.js`;
             newScript.type = 'text/javascript';
-        }
-        
-        document.body.appendChild(newScript);
+            document.body.appendChild(newScript);
 
         // ОБНОВЛЯЕМ URL (чтобы работали прямые ссылки)
         if (pushState) {
