@@ -31,28 +31,49 @@ function renderProfile(data) {
     if (!container) return;
     
     if (data.authorized) {
-        // ЭКРАН АВТОРИЗОВАННОГО
+        // ЭКРАН АВТОРИЗОВАННОГО (Красивая карточка)
         container.innerHTML = `
-            <div class="user-info">
-                <p class="status-online">✨ В сети Космоса</p>
-                <h3>${data.user.first_name || 'Путешественник'}</h3>
-                <div class="data-row">
-                    <span>Дата рождения:</span>
-                    <strong>${data.user.birth_date || 'Не установлена'}</strong>
+            <div class="profile-card-authorized">
+                <div class="profile-avatar-wrapper">
+                    <div class="profile-avatar" style="background-image: url('${data.user.photo_url || '../assets/default-avatar.png'}')"></div>
+                    <div class="avatar-glow"></div>
                 </div>
-                <div class="profile-actions">
-                    <button class="btn-secondary" onclick="navigate('welcome')">Изменить дату</button>
-                    <button class="btn-danger" onclick="resetAllData()">Сбросить данные</button>
+
+                <h2 class="profile-name">${data.user.first_name || 'Путешественник'}</h2>
+                <p class="profile-status">Звездный странник</p>
+
+                <div class="profile-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">Дата рождения</span>
+                        <span class="stat-value">${data.user.birth_date || 'Не указана'}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Прогнозов</span>
+                        <span class="stat-value">${data.history?.length || 0}</span>
+                    </div>
+                </div>
+
+                <div class="profile-menu">
+                    <button class="menu-btn" onclick="navigate('welcome')">
+                        <span class="icon">✨</span> Изменить данные
+                    </button>
+                    <button class="menu-btn danger-outline" onclick="resetAllData()">
+                        <span class="icon">🌑</span> Сбросить историю
+                    </button>
                 </div>
             </div>
         `;
     } else {
-        // ЭКРАН ГОСТЯ
+        // ЭКРАН ГОСТЯ (Кнопка входа)
         container.innerHTML = `
-            <div class="guest-info">
-                <p>Ваши данные сейчас хранятся только локально.</p>
-                <p class="hint">Авторизуйтесь, чтобы синхронизировать прогнозы между устройствами.</p>
-                <button class="btn-primary" onclick="handleAuthSync()">Авторизоваться</button>
+            <div class="profile-card">
+                <p>Ваши прогнозы не сохраняются в облаке.</p>
+                <p class="hint">Авторизуйтесь, чтобы синхронизировать данные.</p>
+                
+                <button class="btn-sync" onclick="handleAuthSync()">Авторизоваться TG</button>
+                
+                <div id="user-data-display">
+                    </div>
             </div>
         `;
     }
