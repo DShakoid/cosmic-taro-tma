@@ -1,8 +1,11 @@
+/**
+ * Логика страницы профиля с привязкой кнопки авторизации
+ */
+
 async function initProfile() {
     const tg = window.Telegram?.WebApp;
     const container = document.getElementById('app-body');
 
-    // Используем твои классы лоадера
     if (container) {
         container.innerHTML = `
             <div class="profile-loader-container">
@@ -23,7 +26,7 @@ async function initProfile() {
         
         renderProfile(data);
     } catch (err) {
-        console.error('Ошибка:', err);
+        console.error('Ошибка профиля:', err);
         if (container) {
             container.innerHTML = `
                 <div class="profile-card">
@@ -34,12 +37,42 @@ async function initProfile() {
     }
 }
 
+// Вынес функцию авторизации отдельно, чтобы кнопка работала
+window.handleAuthAction = async function() {
+    const tg = window.Telegram?.WebApp;
+    
+    // 1. Сначала пытаемся просто проверить авторизацию еще раз (вдруг юзер уже в базе)
+    try {
+        const res = await fetch('/api/auth', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ initData: tg?.initData || "" })
+        });
+        const data = await res.json();
+
+        if (data.authorized) {
+            // Если сервер узнал юзера — просто перерисовываем профиль
+            renderProfile(data);
+        } else {
+            // Если сервер реально его не знает — отправляем на регистрацию (welcome)
+            if (window.navigate) {
+                window.navigate('welcome');
+            } else {
+                window.location.href = '../welcome/index.html';
+            }
+        }
+    } catch (e) {
+        console.error("Ошибка при авторизации:", e);
+        // Фолбэк — просто ведем на welcome, если API тупит
+        window.navigate ? window.navigate('welcome') : window.location.href = '../welcome/index.html';
+    }
+};
+
 function renderProfile(data) {
     const container = document.getElementById('app-body');
     if (!container) return;
 
     if (data.authorized) {
-        // Используем твою сетку параметров и карточку из CSS
         container.innerHTML = `
             <div class="profile-card-authorized">
                 <div class="profile-avatar-wrapper">
@@ -57,7 +90,7 @@ function renderProfile(data) {
                     </div>
                     <div class="stat-item">
                         <span class="stat-label">АРКАН</span>
-                        <span class="stat-value">В процессе</span>
+                        <span class="stat-value">МАГ</span>
                     </div>
                 </div>
 
@@ -68,15 +101,14 @@ function renderProfile(data) {
             </div>
         `;
     } else {
-        // Используем твою брендовую кнопку синхронизации
         container.innerHTML = `
             <div class="profile-card">
                 <div style="font-size: 50px; margin-bottom: 20px;">🌘</div>
                 <h2 class="profile-name">ВХОД В СИСТЕМУ</h2>
                 <p style="text-align: center; opacity: 0.7; margin-bottom: 20px;">
-                    Твой профиль еще не связан с энергией звезд.
+                    Твой профиль еще не связан с энергией звезд. Нажми кнопку для синхронизации.
                 </p>
-                <button class="btn-sync" onclick="navigate('welcome')">АВТОРИЗАЦИЯ TG</button>
+                <button class="btn-sync" onclick="handleAuthAction()">АВТОРИЗАЦИЯ TG</button>
                 <button class="btn-reset" onclick="navigate('home')">ВЕРНУТЬСЯ</button>
             </div>
         `;
