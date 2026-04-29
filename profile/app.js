@@ -1,74 +1,89 @@
 /**
- * PROFILE MODULE - COSMIC TAROT
+ * PROFILE MODULE - COSMIC TAROT (FRONTEND)
  */
 
-import { createClient } from '@supabase/supabase-js'
-
-const supabase = createClient(
-  process.env.STORAGE_URL, 
-  process.env.STORAGE_SERVICE_ROLE_KEY
-)
-
-export default async function handler(req, res) {
-  // 1. Проверяем метод
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Method Not Allowed' });
-
-  try {
-    const { initData, action } = req.body;
-    if (!initData) return res.status(400).json({ error: 'No initData' });
-
-    const urlParams = new URLSearchParams(initData);
-    const userString = urlParams.get('user');
+async function initProfile() {
+    const tg = window.Telegram?.WebApp;
+    const container = document.getElementById('profile-content');
     
-    // Безопасно парсим юзера
-    if (!userString) return res.status(400).json({ error: 'User string is missing' });
-    const user = JSON.parse(userString);
-
-    // --- БЛОК СБРОСА ---
-    if (action === 'clear_birthdate') {
-      const { data, error } = await supabase
-        .from('users')
-        .update({ birth_date: null })
-        .eq('id', user.id)
-        .select();
-
-      if (error) throw error;
-      return res.status(200).json({ success: true, authorized: true, user: data[0] });
+    if (container) {
+        container.innerHTML = '<div class="loading">Связь с космосом...</div>';
     }
 
-    // --- БЛОК СИНХРОНИЗАЦИИ ---
-    if (action === 'sync') {
-      const { data, error } = await supabase
-        .from('users')
-        .upsert({
-          id: user.id,
-          username: user.username,
-          first_name: user.first_name,
-          last_name: user.last_name,
-          language_code: user.language_code
-        })
-        .select();
+    try {
+        const response = await fetch('/api/auth', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ initData: tg.initData }) 
+        });
 
-      if (error) throw error;
-      return res.status(200).json({ user: data[0], authorized: true });
+        if (!response.ok) throw new Error('Ошибка сервера');
+        const data = await response.json();
+        renderProfile(data);
+    } catch (err) {
+        console.error('Profile init error:', err);
+        if (container) container.innerHTML = '<div>Ошибка загрузки профиля</div>';
     }
-
-    // --- ПРОВЕРКА СТАТУСА (ДЛЯ ИНИЦИАЛИЗАЦИИ) ---
-    const { data: existingUser, error: findError } = await supabase
-      .from('users')
-      .select('*')
-      .eq('id', user.id)
-      .maybeSingle(); // Используем maybeSingle, чтобы не было ошибки если юзера нет
-
-    if (existingUser) {
-      return res.status(200).json({ user: existingUser, authorized: true });
-    }
-
-    // Если в базе нет — возвращаем как гостя
-    return res.status(200).json({ user, authorized: false });
-
-  } catch (error) {
-    console.error("Server Error:", error);
-    return res.status(500).json({ error: error.message });
-  }
 }
+
+function renderProfile(data) {
+    const container = document.getElementById('profile-content');
+    if (!container) return;
+    
+    if (data.authorized) {
+        container.innerHTML = `
+            <div class="profile-card-authorized">
+                <div class="profile-avatar" style="background-image: url('${data.user.photo_url || '../assets/default-avatar.png'}')"></div>
+                <h2 class="profile-name">${data.user.first_name || 'Странник'}</h2>
+                <div class="profile-stats">
+                    <p>Дата рождения: ${data.user.birth_date || 'Не указана'}</p>
+                </div>
+                <div class="profile-menu">
+                    <button class="menu-btn" onclick="navigate('welcome')">Изменить данные</button>
+                    <button class="menu-btn danger" onclick="resetAllData()">Сбросить историю</button>
+                </div>
+            </div>
+        `;
+    } else {
+        container.innerHTML = `
+            <div class="profile-card">
+                <p>Вы зашли как гость. Ваши прогнозы не сохраняются.</p>
+                <button class="btn-sync" onclick="handleAuthSync()">Авторизоваться через TG</button>
+            </div>
+        `;
+    }
+}
+
+async function handleAuthSync() {
+    const tg = window.Telegram.WebApp;
+    try {
+        const response = await fetch('/api/auth', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ initData: tg.initData, action: 'sync' })
+        });
+        const data = await response.json();
+        if (data.authorized) renderProfile(data);
+    } catch (err) {
+        alert('Ошибка синхронизации');
+    }
+}
+
+async function resetAllData() {
+    const tg = window.Telegram.WebApp;
+    if (confirm("Удалить дату рождения?")) {
+        try {
+            await fetch('/api/auth', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ initData: tg.initData, action: 'clear_birthdate' })
+            });
+            localStorage.removeItem('user_birth_date');
+            if (window.navigate) window.navigate('welcome');
+        } catch (err) {
+            console.error('Reset error:', err);
+        }
+    }
+}
+
+initProfile();
