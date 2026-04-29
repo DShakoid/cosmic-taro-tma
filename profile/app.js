@@ -5,23 +5,38 @@
 // 1. Инициализация при входе на страницу
 async function initProfile() {
     const tg = window.Telegram?.WebApp;
-    
-    // Показываем лоадер, пока ждем ответ от базы
     const container = document.getElementById('profile-content');
-    if (container) container.innerHTML = '<div class="loading">Связь с космосом...</div>';
+    
+    // Показываем лоадер (тот, что мы стилизовали в CSS)
+    if (container) {
+        container.innerHTML = `
+            <div class="profile-loader-container">
+                <div class="cosmic-loader"></div>
+                <p class="loader-text">Считываем твою судьбу...</p>
+            </div>
+        `;
+    }
 
     try {
-        // Проверяем статус: залогинен юзер в БД или он просто гость
         const response = await fetch('/api/auth', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ initData: tg.initData }) 
         });
-        const data = await response.json();
 
+        if (!response.ok) throw new Error('Ошибка сервера');
+        
+        const data = await response.json();
         renderProfile(data);
     } catch (err) {
         console.error('Profile init error:', err);
+        if (container) {
+            container.innerHTML = `
+                <div class="error-box">
+                    <p>Космос временно недоступен</p>
+                    <button class="btn-reset" onclick="initProfile()">Повторить попытку</button>
+                </div>`;
+        }
     }
 }
 
@@ -31,7 +46,7 @@ function renderProfile(data) {
     if (!container) return;
     
     if (data.authorized) {
-        // ЭКРАН АВТОРИЗОВАННОГО (Красивая карточка)
+        // ЭКРАН АВТОРИЗОВАННОГО
         container.innerHTML = `
             <div class="profile-card-authorized">
                 <div class="profile-avatar-wrapper">
@@ -58,13 +73,13 @@ function renderProfile(data) {
                         <span class="icon">✨</span> Изменить данные
                     </button>
                     <button class="menu-btn danger-outline" onclick="resetAllData()">
-                        <span class="icon">🌑</span> Сбросить историю
+                        <span class="icon">🌑</span> Сбросить данные
                     </button>
                 </div>
             </div>
         `;
     } else {
-        // ЭКРАН ГОСТЯ (Кнопка входа)
+        // ЭКРАН ГОСТЯ
         container.innerHTML = `
             <div class="profile-card">
                 <p>Ваши прогнозы не сохраняются в облаке.</p>
@@ -72,8 +87,7 @@ function renderProfile(data) {
                 
                 <button class="btn-sync" onclick="handleAuthSync()">Авторизоваться TG</button>
                 
-                <div id="user-data-display">
-                    </div>
+                <div id="user-data-display"></div>
             </div>
         `;
     }
@@ -101,14 +115,13 @@ async function handleAuthSync() {
     }
 }
 
-// 4. ТА САМАЯ ФУНКЦИЯ СБРОСА (чтобы убрать тестовую дату)
+// 4. ФУНКЦИЯ СБРОСА
 async function resetAllData() {
     const tg = window.Telegram.WebApp;
     
     tg.showConfirm("Вы действительно хотите удалить данные о дате рождения из базы?", async (confirmed) => {
         if (confirmed) {
             try {
-                // Шлем запрос на сброс (нужно добавить обработку clear_birthdate в /api/auth.js)
                 const response = await fetch('/api/auth', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -119,18 +132,19 @@ async function resetAllData() {
                 });
 
                 if (response.ok) {
-                    // Чистим локальные следы
                     localStorage.removeItem('user_birth_date');
                     tg.showAlert('Космическая пыль стерта. Введите новые данные.');
-                    // Уходим на welcome, чтобы ввести новую дату
                     if (window.navigate) window.navigate('welcome');
+                } else {
+                    tg.showAlert('Не удалось сбросить данные');
                 }
             } catch (err) {
                 console.error('Reset error:', err);
+                tg.showAlert('Произошла ошибка при связи с сервером');
             }
         }
     });
 }
 
-// Запускаем всё
+// Запуск при загрузке
 initProfile();
