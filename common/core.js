@@ -1,6 +1,5 @@
 /**
  * COSMIC TAROT - CORE ENGINE
- * Отвечает за: инициализацию TMA, фоновую анимацию и навигацию.
  */
 
 const tg = window.Telegram?.WebApp;
@@ -14,15 +13,28 @@ if (tg) {
 }
 
 // --- 2. Управление навигацией ---
-async function navigate(page) {
+// pushState = true означает, что мы записываем переход в историю (для ссылок)
+async function navigate(page, pushState = true) {
     const mainContent = document.getElementById('app-body');
     const pageStyle = document.getElementById('page-style');
-    const headerBackBtn = document.getElementById('header-back-btn'); // Кнопка в шапке
+    const headerBackBtn = document.getElementById('header-back-btn'); 
     
     try {
-        // Управление видимостью кнопки Назад (не показываем на главной)
+        // Управление видимостью кнопок Назад
+        const isHome = (page === 'welcome' || page === 'index');
+        
         if (headerBackBtn) {
-            headerBackBtn.style.display = (page === 'welcome' || page === 'index') ? 'none' : 'flex';
+            headerBackBtn.style.display = isHome ? 'none' : 'flex';
+        }
+
+        // Системная кнопка Telegram (в самом верху экрана)
+        if (tg) {
+            if (!isHome) {
+                tg.BackButton.show();
+                tg.BackButton.onClick(() => window.history.back());
+            } else {
+                tg.BackButton.hide();
+            }
         }
 
         // Загружаем HTML контент страницы
@@ -45,6 +57,13 @@ async function navigate(page) {
         newScript.type = 'text/javascript';
         document.body.appendChild(newScript);
 
+        // ОБНОВЛЯЕМ URL (чтобы работали прямые ссылки)
+        if (pushState) {
+            const url = new URL(window.location);
+            url.searchParams.set('page', page);
+            window.history.pushState({ page }, '', url);
+        }
+
         window.scrollTo(0, 0);
 
     } catch (err) {
@@ -53,25 +72,27 @@ async function navigate(page) {
     }
 }
 
-// --- 3. Обработка кликов в Header (Глобально) ---
+// --- 3. Обработка кликов и истории ---
 document.addEventListener('DOMContentLoaded', () => {
-    // Кнопка Назад в шапке
     const backBtn = document.getElementById('header-back-btn');
     if (backBtn) {
-        backBtn.onclick = () => navigate('welcome');
+        // Кнопка в шапке теперь просто эмулирует нажатие "Назад" в браузере
+        backBtn.onclick = () => window.history.back();
     }
 
-    // Если есть бургер-меню, можно добавить его открытие тут
-    const menuBtn = document.getElementById('main-menu-btn');
-    if (menuBtn) {
-        menuBtn.onclick = () => {
-            console.log('Open menu'); 
-            // Тут твоя логика открытия меню, если нужно
-        };
-    }
+    // Слушаем кнопку "Назад" на телефоне/в браузере
+    window.onpopstate = (event) => {
+        const page = event.state?.page || 'welcome';
+        navigate(page, false); // false, чтобы не перезаписывать историю при возврате
+    };
 
-    // Стартовая страница
-    navigate('welcome');
+    // СТАРТОВАЯ ЛОГИКА: Читаем страницу из ссылки или открываем welcome
+    const params = new URLSearchParams(window.location.search);
+    const startPage = params.get('page') || 'welcome';
+    
+    navigate(startPage, true);
+
+    initFooter(); // Инициализация футера
 });
 
 // --- 4. Анимация светлячков (Canvas) ---
@@ -187,20 +208,20 @@ function initFooter() {
     const instaLink = document.getElementById('insta-link');
     if (instaLink) {
         instaLink.href = APP_CONFIG.instaUrl;
-        instaLink.target = "_blank"; // Чтобы открывалось в новой вкладке
-        instaLink.rel = "noopener noreferrer"; // Для безопасности
-        
-        // Можно даже добавить проверку: если ника нет, скрывать ссылку
+        instaLink.target = "_blank";
+        instaLink.rel = "noopener noreferrer";
         if (!APP_CONFIG.instagramNick) {
             instaLink.parentElement.style.display = 'none';
         }
     }
 }
 
-// Вызываем при загрузке
-document.addEventListener('DOMContentLoaded', initFooter);
-
-
+const APP_CONFIG = {
+    instagramNick: 'hfdfhjvffnmkkhghb',
+    get instaUrl() {
+        return `https://www.instagram.com/${this.instagramNick}/`;
+    }
+};
 
 setCanvasSize();
 initFireflies();
