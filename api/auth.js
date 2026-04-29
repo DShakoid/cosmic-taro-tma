@@ -46,6 +46,17 @@ export default async function handler(req, res) {
   return res.status(200).json({ user, history: [], authorized: false });
 }
 
+if (action === 'clear_birthdate') {
+    const { data, error } = await supabase
+        .from('users')
+        .update({ birth_date: null }) // Сбрасываем дату в null
+        .eq('id', user.id)
+        .select();
+
+    if (error) return res.status(500).json({ error: error.message });
+    return res.status(200).json({ message: 'Дата сброшена', user: data[0] });
+}
+
 
 if (action === 'reset') {
     const { error } = await supabase
