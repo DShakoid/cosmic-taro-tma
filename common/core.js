@@ -54,7 +54,14 @@ async function navigate(page, pushState = true) {
         const newScript = document.createElement('script');
         newScript.id = 'page-script';
         newScript.src = `/${page}/app.js`;
-        newScript.type = 'text/javascript';
+        
+        // Если мы заходим в профиль, ставим тип module, для остальных — обычный текст
+        if (page === 'profile') {
+            newScript.type = 'module';
+        } else {
+            newScript.type = 'text/javascript';
+        }
+        
         document.body.appendChild(newScript);
 
         // ОБНОВЛЯЕМ URL (чтобы работали прямые ссылки)
