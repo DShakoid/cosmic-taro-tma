@@ -87,6 +87,7 @@ function renderProfile() {
                 <div class="profile-menu">
                     <button class="menu-btn" onclick="renderEditForm()">РЕДАКТИРОВАТЬ</button>
                     <button class="menu-btn danger-outline" onclick="location.reload()">ОБНОВИТЬ</button>
+                    <button class="menu-btn danger-outline" onclick="deleteAccount()" style="border-color: #ff4d4d; color: #ff4d4d; margin-top: 10px;">УДАЛИТЬ АККАУНТ</button>
                 </div>
             </div>
         `;
@@ -128,10 +129,12 @@ window.renderEditForm = function() {
             <div class="profile-menu" style="margin-top: 25px;">
                 <button class="menu-btn" onclick="saveAuraData()">СОХРАНИТЬ</button>
                 <button class="btn-reset" onclick="renderProfile()">ОТМЕНА</button>
-            </div>
+                <button class="menu-btn danger-outline" onclick="deleteAccount()" style="border-color: #ff4d4d; color: #ff4d4d; margin-top: 10px;">УДАЛИТЬ АККАУНТ</button>
         </div>
     `;
 };
+
+
 
 window.saveAuraData = async function() {
     const tg = window.Telegram?.WebApp;
@@ -158,6 +161,32 @@ window.startSync = async function() {
         body: JSON.stringify({ initData: tg.initData, syncOnly: true })
     });
     if (res.ok) initProfile();
+};
+
+window.deleteAccount = async function() {
+    const tg = window.Telegram?.WebApp;
+    
+    if (!confirm("ВЫ УВЕРЕНЫ? Все ваши данные и история раскладов будут стерты навсегда.")) {
+        return;
+    }
+
+    try {
+        const res = await fetch('/api/delete-user', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ initData: tg.initData })
+        });
+
+        if (res.ok) {
+            alert("Ваша судьба стерта из наших свитков.");
+            location.reload(); // Перезагрузит страницу, и юзер снова станет "Гостем"
+        } else {
+            alert("Ошибка при удалении");
+        }
+    } catch (e) {
+        console.error(e);
+        alert("Сервер не отвечает");
+    }
 };
 
 initProfile();
