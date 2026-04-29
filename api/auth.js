@@ -45,3 +45,14 @@ export default async function handler(req, res) {
   // Если это просто запуск приложения (гость)
   return res.status(200).json({ user, history: [], authorized: false });
 }
+
+
+if (action === 'reset') {
+    const { error } = await supabase
+      .from('users')
+      .update({ birth_date: null }) // Зануляем дату
+      .eq('id', user.id);
+
+    if (error) return res.status(500).json({ error: error.message });
+    return res.status(200).json({ success: true });
+}
