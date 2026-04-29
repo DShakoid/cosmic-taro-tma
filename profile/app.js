@@ -2,7 +2,6 @@ async function initProfile() {
     const tg = window.Telegram?.WebApp;
     const container = document.getElementById('app-body');
 
-    // Показываем твой лоадер
     if (container) {
         container.innerHTML = `
             <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:60vh;">
@@ -37,8 +36,10 @@ function renderProfile(data) {
     container.innerHTML = `
         <div class="profile-card" style="padding:20px; text-align:center; color:white;">
             <h2 style="color:#d4a1f9;">${data.user?.first_name || 'Странник'}</h2>
-            <p style="margin-bottom:20px;">${data.authorized ? 'Профиль найден' : 'Режим гостя'}</p>
-            <button onclick="navigate('welcome')" style="background:#d4a1f9; color:black; border:none; padding:10px 20px; border-radius:20px;">ИЗМЕНИТЬ ДАННЫЕ</button>
+            <p style="margin-bottom:20px;">${data.authorized ? 'Профиль синхронизирован' : 'Режим гостя'}</p>
+            <button onclick="navigate('welcome')" style="background:#d4a1f9; color:black; border:none; padding:10px 20px; border-radius:20px; font-weight:bold; cursor:pointer;">
+                ИЗМЕНИТЬ ДАННЫЕ
+            </button>
         </div>`;
 }
 
