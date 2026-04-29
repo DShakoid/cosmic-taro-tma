@@ -10,6 +10,7 @@ export default async function handler(req, res) {
 
   try {
     const { initData, action } = req.body; 
+    if (!initData) return res.status(400).json({ error: 'No initData' });
 
     const urlParams = new URLSearchParams(initData);
     const userRaw = urlParams.get('user');
@@ -17,7 +18,7 @@ export default async function handler(req, res) {
     if (!userRaw) return res.status(400).json({ error: 'No user data' });
     const user = JSON.parse(userRaw);
 
-    // --- ЛОГИКА СБРОСА ДАННЫХ (ACTION: RESET ИЛИ CLEAR_BIRTHDATE) ---
+    // --- 1. СБРОС (RESET / CLEAR) ---
     if (action === 'reset' || action === 'clear_birthdate') {
       const { data, error } = await supabase
         .from('users')
@@ -25,11 +26,11 @@ export default async function handler(req, res) {
         .eq('id', user.id)
         .select();
 
-      if (error) return res.status(500).json({ error: error.message });
-      return res.status(200).json({ success: true, message: 'Дата сброшена', user: data[0] });
+      if (error) throw error;
+      return res.status(200).json({ success: true, user: data[0] });
     }
 
-    // --- ЛОГИКА СИНХРОНИЗАЦИИ (ACTION: SYNC) ---
+    // --- 2. СИНХРОНИЗАЦИЯ (SYNC) ---
     if (action === 'sync') {
       const { data, error } = await supabase
         .from('users')
@@ -42,9 +43,8 @@ export default async function handler(req, res) {
         })
         .select();
 
-      if (error) return res.status(500).json({ error: error.message });
+      if (error) throw error;
 
-      // Тянем историю для авторизованного пользователя
       const { data: history } = await supabase
         .from('predictions')
         .select('*')
@@ -55,22 +55,25 @@ export default async function handler(req, res) {
       return res.status(200).json({ user: data[0], history: history || [], authorized: true });
     }
 
-    // --- ЛОГИКА ОБЫЧНОГО ВХОДА (ПРОВЕРКА СТАТУСА ПРИ ЗАГРУЗКЕ ПРОФИЛЯ) ---
-    const { data: existingUser } = await supabase
+    // --- 3. ОБЫЧНЫЙ ВХОД (ПРОВЕРКА) ---
+    // Используем maybeSingle, чтобы не падать в catch если юзера нет
+    const { data: existingUser, error: findError } = await supabase
       .from('users')
       .select('*')
       .eq('id', user.id)
-      .single();
+      .maybeSingle();
+
+    if (findError) throw findError;
 
     if (existingUser) {
       return res.status(200).json({ user: existingUser, history: [], authorized: true });
     }
 
-    // Если пользователя нет в БД — возвращаем как гостя
+    // Если в базе нет — просто отдаем данные из TG как гостя
     return res.status(200).json({ user, history: [], authorized: false });
 
   } catch (err) {
     console.error("Auth error:", err);
-    return res.status(500).json({ error: 'Internal Server Error', details: err.message });
+    return res.status(500).json({ error: err.message });
   }
 }
