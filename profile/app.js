@@ -52,18 +52,24 @@ function renderProfile() {
     const user = currentUserData.user || {};
     const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user || {};
     
-    // Приоритет: база -> данные из ТГ -> прочерк
+    // ПРИОРИТЕТ ДЛЯ ФОТО: 
+    // 1. Ссылка из нашей БД
+    // 2. Ссылка напрямую из API Telegram
+    // 3. Пустая строка (заглушка)
+    const photoUrl = user.photo_url || tgUser.photo_url || '';
+
     const firstName = user.first_name || tgUser.first_name || '—';
     const lastName = user.last_name || tgUser.last_name || '—';
     const username = user.username || tgUser.username || 'Странник';
-    const photoUrl = user.photo_url || tgUser.photo_url || '';
 
     if (currentUserData.authorized) {
         container.innerHTML = `
             <div class="profile-card-authorized">
                 <div class="profile-avatar-wrapper">
                     <div class="avatar-glow"></div>
-                    <div class="profile-avatar" style="background-image: url('${photoUrl}')"></div>
+                    <div class="profile-avatar" style="background-image: url('${photoUrl}'); background-size: cover; background-position: center;">
+                        ${!photoUrl ? '<span style="font-size:40px; opacity:0.2;">?</span>' : ''}
+                    </div>
                 </div>
                 
                 <h2 class="profile-name">@${username}</h2>
