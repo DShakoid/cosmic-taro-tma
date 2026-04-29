@@ -1,11 +1,10 @@
 /**
- * PROFILE MODULE - FRONTEND
+ * PROFILE MODULE - COSMIC TAROT
  */
 async function initProfile() {
     const tg = window.Telegram?.WebApp;
     const container = document.getElementById('app-body');
 
-    // Твоя анимация загрузки
     if (container) {
         container.innerHTML = `
             <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:60vh;">
@@ -15,21 +14,26 @@ async function initProfile() {
     }
 
     try {
-        // Запрашиваем данные у нашего бэкенда (Vercel Function)
         const response = await fetch('/api/auth', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ initData: tg?.initData || "" }) 
+            body: JSON.stringify({ 
+                initData: tg?.initData || "" 
+            }) 
         });
 
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.error || 'Ошибка сервера');
+        // Если сервер прислал ошибку, читаем её как текст, чтобы не падать на JSON.parse
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(errorText);
+        }
 
+        const data = await response.json();
         renderProfile(data);
     } catch (err) {
-        console.error('Profile Error:', err);
+        console.error('Ошибка профиля:', err);
         if (container) {
-            container.innerHTML = `<p style="text-align:center; color:#ff4d4d; padding-top:50px;">Космос недоступен: ${err.message}</p>`;
+            container.innerHTML = `<p style="text-align:center; color:#ff4d4d; padding-top:50px;">Ошибка: ${err.message}</p>`;
         }
     }
 }
@@ -39,19 +43,14 @@ function renderProfile(data) {
     if (!container) return;
 
     container.innerHTML = `
-        <div class="profile-card" style="padding: 20px; text-align: center; color: white;">
-            <div class="profile-avatar" style="width:80px; height:80px; background:#222; border-radius:50%; margin: 0 auto 15px; border: 2px solid #d4a1f9;"></div>
-            <h2>${data.user.first_name || 'Странник'}</h2>
-            <p style="color: #aaa; margin-bottom: 20px;">${data.authorized ? 'Синхронизировано с небом' : 'Гостевой доступ'}</p>
-            
-            <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 15px; margin-bottom: 20px;">
-                <p style="font-size: 12px; color: #d4a1f9;">ДАТА РОЖДЕНИЯ</p>
-                <p style="font-size: 18px;">${data.user.birth_date || 'Не указана'}</p>
+        <div class="profile-card" style="padding: 20px; text-align: center;">
+            <h2 style="color:#d4a1f9;">${data.user?.first_name || 'Странник'}</h2>
+            <p style="color:white; margin: 20px 0;">${data.authorized ? 'Профиль активирован' : 'Режим гостя'}</p>
+            <div style="background:rgba(212, 161, 249, 0.1); padding:15px; border-radius:10px; color:white;">
+                <small>ДАТА РОЖДЕНИЯ</small>
+                <div style="font-size:20px; margin-top:5px;">${data.user?.birth_date || 'Не указана'}</div>
             </div>
-
-            <button onclick="navigate('welcome')" style="background:#d4a1f9; color:black; border:none; padding:12px 25px; border-radius:25px; font-weight:bold; width: 100%;">
-                ИЗМЕНИТЬ ДАННЫЕ
-            </button>
+            <button onclick="window.location.reload()" style="margin-top:30px; background:none; border:1px solid #d4a1f9; color:white; padding:10px 20px; border-radius:20px;">Обновить данные</button>
         </div>
     `;
 }
