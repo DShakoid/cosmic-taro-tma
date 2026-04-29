@@ -1,3 +1,46 @@
+/* Контейнер загрузки */
+.profile-loader-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px;
+}
+
+/* Сама анимация сферы */
+.cosmic-loader {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: #d4a1f9;
+    box-shadow: 0 0 20px #d4a1f9, 0 0 60px #d4a1f9;
+    animation: cosmic-pulse 1.5s infinite ease-in-out;
+    margin-bottom: 20px;
+}
+
+/* Текст под сферой */
+.loader-text {
+    color: rgba(212, 161, 249, 0.8);
+    font-size: 14px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    animation: text-fade 1.5s infinite ease-in-out;
+}
+
+/* Магия пульсации */
+@keyframes cosmic-pulse {
+    0% { transform: scale(0.8); opacity: 0.5; box-shadow: 0 0 20px #d4a1f9; }
+    50% { transform: scale(1.1); opacity: 1; box-shadow: 0 0 40px #d4a1f9, 0 0 70px #8a2be2; }
+    100% { transform: scale(0.8); opacity: 0.5; box-shadow: 0 0 20px #d4a1f9; }
+}
+
+@keyframes text-fade {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 1; }
+}
+
+
+
 /* Общие настройки контейнера (если еще нет) */
 .profile-card {
     display: flex;
