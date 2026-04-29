@@ -216,13 +216,6 @@ function initFooter() {
     }
 }
 
-const APP_CONFIG = {
-    instagramNick: 'hfdfhjvffnmkkhghb',
-    get instaUrl() {
-        return `https://www.instagram.com/${this.instagramNick}/`;
-    }
-};
-
 setCanvasSize();
 initFireflies();
 animate();
