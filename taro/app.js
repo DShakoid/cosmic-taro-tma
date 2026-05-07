@@ -539,12 +539,34 @@ card.innerHTML = `
     }
 
     function showModal(card) {
-        document.getElementById('m-emoji').innerText = card.emoji;
-        document.getElementById('m-name').innerText = card.name + (card.isReversed ? ' (пер.)' : '');
-        document.getElementById('m-desc').innerHTML = card.isReversed ? card.advice_rev : card.advice;
-        document.getElementById('card-overlay').classList.add('active');
-        if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+    const modalImage = document.getElementById('m-image');
+    const modalEmoji = document.getElementById('m-emoji');
+    
+    if (card.image) {
+        // Если картинка в базе есть
+        if (modalImage) {
+            modalImage.style.backgroundImage = `url('/${card.image}')`;
+            modalImage.style.display = 'block';
+        }
+        if (modalEmoji) modalEmoji.style.display = 'none';
+    } else {
+        // Если картинки нет — показываем эмодзи
+        if (modalEmoji) {
+            modalEmoji.innerText = card.emoji;
+            modalEmoji.style.display = 'block';
+        }
+        if (modalImage) modalImage.style.display = 'none';
     }
+    
+    // Обновляем текст
+    document.getElementById('m-name').innerText = card.name + (card.isReversed ? ' (пер.)' : '');
+    document.getElementById('m-desc').innerHTML = card.isReversed ? card.advice_rev : card.advice;
+    
+    // Показываем оверлей
+    document.getElementById('card-overlay').classList.add('active');
+    
+    if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+}
 
     function closeModal() { document.getElementById('card-overlay').classList.remove('active'); }
 
