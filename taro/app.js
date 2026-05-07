@@ -142,14 +142,45 @@
         card.style.width = deckRect.width + 'px';
         card.style.height = deckRect.height + 'px';
         card.style.transition = 'all 0.8s cubic-bezier(0.23, 1, 0.32, 1)';
-        card.innerHTML = `
-            <div class="face back"></div>
-            <div class="face front">
-                <div class="card-emoji" style="transition: transform 0.8s cubic-bezier(0.23, 1, 0.32, 1);">${cardData.emoji}</div>
-                <div class="card-name" style="transition: transform 0.8s cubic-bezier(0.23, 1, 0.32, 1);">${cardData.name}</div>
-                ${isReversed ? '<div style="font-size: 6px; color: #ff4d4d; position: absolute; bottom: 5px; width:100%; text-align:center;">ПЕРЕВЕРНУТА</div>' : ''}
-            </div>
-        `;
+        // Определяем, что показать: картинку или заглушку
+const cardImg = cardData.image ? `/${cardData.image}` : '/taro/assets/back_card.jpg';
+
+card.innerHTML = `
+    <div class="face back"></div>
+    <div class="face front" style="overflow: hidden; background: #1a1a2e;">
+        <div class="card-photo" style="
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url('${cardImg}');
+            background-size: cover;
+            background-position: center;
+            opacity: ${cardData.image ? 1 : 0.3}; /* Если картинки нет, приглушим фон */
+            transition: transform 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+        "></div>
+        
+        ${!cardData.image ? `
+            <div class="card-emoji" style="
+                position: absolute; 
+                top: 50%; left: 50%; 
+                transform: translate(-50%, -50%); 
+                font-size: 3rem;
+            ">${cardData.emoji}</div>
+        ` : ''}
+
+        <div style="
+            position: absolute;
+            bottom: 0; left: 0; width: 100%; height: 40%;
+            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+        "></div>
+
+        <div class="card-name" style="
+            position: absolute;
+            bottom: 8px; width: 100%;
+            text-align: center; font-size: 0.7rem; font-weight: bold; color: #fff;
+            text-shadow: 0px 1px 3px rgba(0,0,0,0.9);
+        ">${cardData.name}</div>
+    </div>
+`;
         document.body.appendChild(card);
         updatePrediction();
         requestAnimationFrame(() => {
