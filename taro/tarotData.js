@@ -37,7 +37,7 @@ const tarotDB = {
             keywords: "Интуиция, тайна, подсознание.", 
             advice: "Слушайте внутренний голос, ответ скрыт внутри.", 
             advice_rev: "Вы игнорируете интуицию или кто-то скрывает от вас правду.",
-            image: "taro/assets/cards/the_priestess.jpg"
+            image: "taro/assets/cards/the_high_priestess.jpg"
         },
         { 
             id: "empress", 
@@ -133,7 +133,7 @@ const tarotDB = {
             keywords: "Цикличность, удача, перемены, судьба.", 
             advice: "Примите перемены. Сейчас важно поймать волну удачи.", 
             advice_rev: "Неудачный поворот событий или сопротивление переменам.",
-            image: "taro/assets/cards/wheel.jpg"
+            image: "taro/assets/cards/wheel_of_fortune.jpg"
         },
         { 
             id: "justice", 
