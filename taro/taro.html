@@ -48,15 +48,28 @@
 </div>
 
 
-<!-- Модалка для карты -->
-    <div id="card-overlay" class="overlay" onclick="closeModal()">
-        <div class="modal-card" onclick="event.stopPropagation()">
-            <div id="m-emoji" style="font-size: 60px; filter: drop-shadow(0 0 10px white);"></div>
-            <div id="m-name" style="color: white; font-weight: bold; font-size: 1.3rem; margin: 10px 0;"></div>
-            <div id="m-desc" style="font-size: 0.9rem; text-align: left; line-height: 1.5; color: #e2d5f5;"></div>
-            <button onclick="closeModal()" style="margin-top:20px; width:100%; padding:12px; border-radius:12px; background:var(--purp); border:none; color:white; font-weight:bold; cursor:pointer;">ПОНЯТНО</button>
-        </div>
+<div id="card-overlay" class="overlay" onclick="closeModal()">
+    <div class="modal-card" onclick="event.stopPropagation()">
+        <div id="m-image" style="
+            width: 100%; 
+            aspect-ratio: 2/3; 
+            background-size: cover; 
+            background-position: center; 
+            border-radius: 12px; 
+            margin-bottom: 15px; 
+            display: none;
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        "></div>
+
+        <div id="m-emoji" style="font-size: 60px; filter: drop-shadow(0 0 10px white);"></div>
+        
+        <div id="m-name" style="color: white; font-weight: bold; font-size: 1.3rem; margin: 10px 0;"></div>
+        <div id="m-desc" style="font-size: 0.9rem; text-align: left; line-height: 1.5; color: #e2d5f5;"></div>
+        
+        <button onclick="closeModal()" style="margin-top:20px; width:100%; padding:12px; border-radius:12px; background:var(--purp); border:none; color:white; font-weight:bold; cursor:pointer;">ПОНЯТНО</button>
     </div>
+</div>
 
     <!-- Модалка для истории -->
     <div id="history-modal" class="overlay" onclick="closeHistoryModal()">
