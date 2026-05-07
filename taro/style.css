@@ -320,3 +320,18 @@
     margin-top: 5px;
     width: 100%;
 }
+
+.card-image-container {
+    box-shadow: inset 0 0 15px rgba(0,0,0,0.5); /* Придает объем карте */
+}
+
+/* Если карта перевернута, картинка тоже должна быть перевернута внутри */
+.is-reversed .card-image-container {
+    transform: rotate(180deg);
+}
+
+/* Чтобы текст имени всегда был читаем поверх картинки */
+.card-name {
+    text-shadow: 1px 1px 2px black;
+    pointer-events: none;
+}
