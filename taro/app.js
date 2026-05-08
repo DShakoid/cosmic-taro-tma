@@ -160,11 +160,11 @@ card.innerHTML = `
         
         ${!cardData.image ? `
             <div class="card-emoji" style="
-                position: absolute; 
+                /*position: absolute; 
                 top: 50%; left: 50%; 
                 transform: translate(-50%, -50%); 
                 font-size: 1.2rem;
-                width: 50%;
+                width: 50%;*/
             ">${cardData.emoji}</div>
         ` : ''}
 
