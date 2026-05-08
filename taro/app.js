@@ -176,7 +176,7 @@ card.innerHTML = `
         <div class="card-name" style="
             position: absolute;
             bottom: 8px; width: 100%;
-            text-align: center; font-size: 0.7rem; font-weight: bold; color: #fff;
+            text-align: center; font-size: 0.4rem; font-weight: bold; color: #fff;
             text-shadow: 0px 1px 3px rgba(0,0,0,0.9);
         ">${cardData.name}</div>
     </div>
