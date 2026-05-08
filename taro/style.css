@@ -340,3 +340,8 @@ div#card-overlay #m-desc {
     font-size: .8rem;
     margin-top: 15px;
 }
+div#card-overlay #m-name {
+    font-weight: bold;
+    margin-top: 15px;
+}
+
