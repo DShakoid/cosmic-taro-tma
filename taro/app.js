@@ -164,7 +164,7 @@ card.innerHTML = `
                 top: 50%; left: 50%; 
                 transform: translate(-50%, -50%); 
                 font-size: 1.2rem;
-                width: 100%;
+                width: 50%;
             ">${cardData.emoji}</div>
         ` : ''}
 
