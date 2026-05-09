@@ -75,17 +75,6 @@
         navigator.serviceWorker.register('/sw.js').catch(console.log);
     }
 
-    // УНИВЕРСАЛЬНЫЙ ФИКС ДАТЫ (Тот самый, который решает проблему с 1-м числом)
-    function getDayFromDate(dateStr) {
-        if (!dateStr) return null;
-        const numbers = dateStr.match(/\d+/g);
-        if (!numbers) return null;
-        // Если ГГГГ-ММ-ДД (1989-01-20), число — это индекс 2
-        if (numbers[0].length === 4) return parseInt(numbers[2]);
-        // Если ДД.ММ.ГГГГ, число — это индекс 0
-        return parseInt(numbers[0]);
-    }
-
     function generateBirthdayPrediction(date) {
         const day = getDayFromDate(date);
         const box = document.getElementById('prediction-text');
