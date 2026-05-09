@@ -1,5 +1,14 @@
 (async function initTaro() {
-    // 1. Загрузка базы данных карт
+    // 1. ПЕРВЫМ ДЕЛОМ объявляем функцию парсинга, чтобы она была доступна всем
+    function getDayFromDate(dateStr) {
+        if (!dateStr) return null;
+        const numbers = dateStr.match(/\d+/g);
+        if (!numbers) return null;
+        if (numbers[0].length === 4) return parseInt(numbers[2]);
+        return parseInt(numbers[0]);
+    }
+
+    // 2. Загрузка базы данных карт
     if (typeof tarotDB === 'undefined') {
         const script = document.createElement('script');
         script.src = '/taro/tarotData.js';
@@ -9,20 +18,20 @@
         });
     }
 
-    // 2. Инициализация Telegram
+    // 3. Инициализация Telegram и ДИАГНОСТИКА
     const tg = window.Telegram?.WebApp;
     if (tg) {
         tg.ready();
-        // Просто смотрим, что там лежит, ничего не трогаем
-    const savedDate = localStorage.getItem('userBirthDate');
-    const parsedDay = getDayFromDate(savedDate);
+        
+        const savedDate = localStorage.getItem('userBirthDate');
+        const parsedDay = getDayFromDate(savedDate); // Теперь это сработает!
 
-    // Выводим инфо-окно только для тебя, чтобы понять причину
-    if (savedDate) {
-        tg.showAlert(`Диагностика памяти:\nСохранено: "${savedDate}"\nРаспознано как день: ${parsedDay}`);
-    } else {
-        tg.showAlert("В памяти пусто (null)");
-    }
+        if (savedDate) {
+            // Убрал алерт, заменил на консоль, чтобы не бесило, 
+            // но если хочешь видеть на телефоне — верни showAlert
+            console.log(`Диагностика: ${savedDate} -> ${parsedDay}`);
+        }
+
         tg.expand();
         tg.setHeaderColor('#050508');
         tg.setBackgroundColor('#050508');
@@ -471,6 +480,10 @@
         }
     }
 
-    document.getElementById('donate-btn').onclick = () => handleDonate(500);
+    // В конце исправь кнопку доната на корректную сумму
+    const donateBtn = document.getElementById('donate-btn');
+    if (donateBtn) {
+        donateBtn.onclick = () => handleDonate(499); // Было 500
+    }
 
 })();
