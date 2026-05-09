@@ -52,18 +52,32 @@
     let isAnimating = false;
 
     // Регистрация функций в глобальной области
-    window.setMode = setMode;
-    window.drawCard = drawCard;
-    window.shuffleAnimation = shuffleAnimation;
-    window.showHistory = showHistory;
-    window.closeHistoryModal = closeHistoryModal;
-    window.clearHistory = clearHistory;
-    window.repeatHistory = repeatHistory;
-    window.showInfo = showInfo;
-    window.closeInfoModal = closeInfoModal;
-    window.shareApp = shareApp;
-    window.closeModal = closeModal;
-    window.handleDonate = handleDonate;
+window.setMode = setMode;
+window.drawCard = drawCard;
+window.shuffleAnimation = shuffleAnimation;
+window.showHistory = showHistory;
+window.closeHistoryModal = closeHistoryModal;
+window.clearHistory = clearHistory;
+window.repeatHistory = repeatHistory;
+window.showInfo = showInfo;
+window.closeInfoModal = closeInfoModal;
+window.shareApp = shareApp;
+window.closeModal = closeModal;
+window.handleDonate = handleDonate;
+
+// 1. Делаем переменную currentMode доступной для HTML-кнопок
+Object.defineProperty(window, 'currentMode', {
+    get: () => currentMode
+});
+
+// 2. Находим кнопку "Заново" и вешаем на неё логику программно
+const resetBtn = document.getElementById('reset-btn');
+if (resetBtn) {
+    resetBtn.onclick = () => {
+        // Вызываем setMode с текущим режимом (day, week и т.д.)
+        setMode(window.currentMode); 
+    };
+}
 
     function preloadImages() {
         const images = ['/taro/assets/back_card.jpg'];
