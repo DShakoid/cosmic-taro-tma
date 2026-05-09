@@ -56,10 +56,18 @@
         navigator.serviceWorker.register('/sw.js').catch(console.log);
     }
 
+    // Универсальная функция получения дня (фиксит твою проблему с 1-м числом)
+    function getDayFromDate(dateStr) {
+        if (!dateStr) return null;
+        if (dateStr.includes('-')) return parseInt(dateStr.split('-')[2]);
+        if (dateStr.includes('.')) return parseInt(dateStr.split('.')[0]);
+        return parseInt(dateStr);
+    }
+
     function generateBirthdayPrediction(date) {
-        const day = date.split('-')[2];
+        const day = getDayFromDate(date);
         const box = document.getElementById('prediction-text');
-        if (box) {
+        if (box && day) {
             box.innerHTML = `<h3>Ваш личный прогноз</h3><p>Для рожденных ${day}-го числа звезды подготовили особый совет. Тяните карту...</p>`;
         }
     }
@@ -68,9 +76,7 @@
     const params = new URLSearchParams(window.location.search);
     const birthDate = localStorage.getItem('userBirthDate');
     
-    // Если зашли по спец. ссылке или просто первый запуск
     if (params.get('mode') === 'birthday') {
-        if (birthDate) generateBirthdayPrediction(birthDate);
         setMode('birthday');
     } else {
         setMode('day');
@@ -131,7 +137,14 @@
         }
 
         const box = document.getElementById('prediction-text');
-        if (box) box.innerHTML = "Колода перемешана. Тяните карту.";
+        if (box) {
+            const savedDate = localStorage.getItem('userBirthDate');
+            if (newMode === 'birthday' && savedDate) {
+                generateBirthdayPrediction(savedDate);
+            } else {
+                box.innerHTML = "Колода перемешана. Тяните карту.";
+            }
+        }
     }
 
     function drawCard() {
@@ -188,9 +201,7 @@
                     opacity: ${cardData.image ? 1 : 0.3};
                     transition: transform 0.8s cubic-bezier(0.23, 1, 0.32, 1);
                 "></div>
-                
                 ${!cardData.image ? `<div class="card-emoji">${cardData.emoji}</div>` : ''}
-
                 <div style="position: absolute; bottom: 0; left: 0; width: 100%; height: 40%; background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);"></div>
                 <div class="card-name" style="position: absolute; bottom: 8px; width: 95%; text-align: center; font-size: 0.45rem; font-weight: bold; color: #fff;">${cardData.name}</div>
             </div>
@@ -239,7 +250,7 @@
 
         // ЛОГИКА ДНЯ РОЖДЕНИЯ (БАЗОВАЯ И VIP)
         if (birthDate) {
-            const day = parseInt(birthDate.split('-')[2]);
+            const day = getDayFromDate(birthDate);
             const lastCard = selectedCards[selectedCards.length - 1];
             if (lastCard) {
                 const isMasterCard = (lastCard.id === day || lastCard.id === (day % 22));
@@ -271,7 +282,6 @@
                     if (found && !comboNote) comboNote = `<div style="margin-top:10px; padding:10px; border:1px solid #a855f7; background: rgba(168,85,247,0.1); border-radius:12px;">🔮 <b>Связка:</b> ${found}</div>`;
                 }
             }
-            // (Здесь можно добавить тройные связки, магические часы и т.д., как в твоем исходнике)
         }
 
         // СБОРКА ФИНАЛЬНОГО ТЕКСТА
