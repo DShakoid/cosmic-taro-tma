@@ -13,6 +13,16 @@
     const tg = window.Telegram?.WebApp;
     if (tg) {
         tg.ready();
+        // Просто смотрим, что там лежит, ничего не трогаем
+    const savedDate = localStorage.getItem('userBirthDate');
+    const parsedDay = getDayFromDate(savedDate);
+
+    // Выводим инфо-окно только для тебя, чтобы понять причину
+    if (savedDate) {
+        tg.showAlert(`Диагностика памяти:\nСохранено: "${savedDate}"\nРаспознано как день: ${parsedDay}`);
+    } else {
+        tg.showAlert("В памяти пусто (null)");
+    }
         tg.expand();
         tg.setHeaderColor('#050508');
         tg.setBackgroundColor('#050508');
