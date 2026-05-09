@@ -56,12 +56,15 @@
         navigator.serviceWorker.register('/sw.js').catch(console.log);
     }
 
-    // Универсальная функция получения дня (фиксит твою проблему с 1-м числом)
+    // УНИВЕРСАЛЬНЫЙ ФИКС ДАТЫ (Тот самый, который решает проблему с 1-м числом)
     function getDayFromDate(dateStr) {
         if (!dateStr) return null;
-        if (dateStr.includes('-')) return parseInt(dateStr.split('-')[2]);
-        if (dateStr.includes('.')) return parseInt(dateStr.split('.')[0]);
-        return parseInt(dateStr);
+        const numbers = dateStr.match(/\d+/g);
+        if (!numbers) return null;
+        // Если ГГГГ-ММ-ДД (1989-01-20), число — это индекс 2
+        if (numbers[0].length === 4) return parseInt(numbers[2]);
+        // Если ДД.ММ.ГГГГ, число — это индекс 0
+        return parseInt(numbers[0]);
     }
 
     function generateBirthdayPrediction(date) {
@@ -74,8 +77,6 @@
 
     // Стартовая установка
     const params = new URLSearchParams(window.location.search);
-    const birthDate = localStorage.getItem('userBirthDate');
-    
     if (params.get('mode') === 'birthday') {
         setMode('birthday');
     } else {
@@ -85,7 +86,6 @@
     function setMode(newMode) {
         if (isAnimating) return;
 
-        // ПРОВЕРКА ДОСТУПА ДЛЯ РЕЖИМА ПО ДАТЕ РОЖДЕНИЯ
         if (newMode === 'birthday' && !hasFullAccess()) {
             tg.showConfirm(`Расклад по дате рождения с VIP-анализом стоит 50 ⭐. Открыть доступ?`, (ok) => {
                 if (ok) handleDonate(50);
@@ -114,7 +114,6 @@
         document.getElementById('reset-btn').style.display = 'none';
         document.getElementById('donate-btn').style.display = 'none';
         
-        // Логика формирования слотов
         if (newMode === 'day' || newMode === 'birthday') { createRow(0, 1, true); maxCards = 1; }
         else if (newMode === 'week') { createRow(0, 4); createRow(4, 7); maxCards = 7; }
         else if (newMode === 'advice') { createRow(0, 3); createRow(3, 6); maxCards = 6; }
@@ -237,6 +236,7 @@
         const box = document.getElementById('prediction-text');
         if (!box) return;
 
+        // Возвращаем твои стили стихий
         const elementStyles = { 
             "Огонь": { color: "#ff4d4d", icon: "🔥", shadow: "rgba(255, 77, 77, 0.4)" }, 
             "Вода": { color: "#4db8ff", icon: "💧", shadow: "rgba(77, 184, 255, 0.4)" }, 
@@ -248,7 +248,6 @@
         let personalNote = "";
         let comboNote = "";
 
-        // ЛОГИКА ДНЯ РОЖДЕНИЯ (БАЗОВАЯ И VIP)
         if (birthDate) {
             const day = getDayFromDate(birthDate);
             const lastCard = selectedCards[selectedCards.length - 1];
@@ -261,7 +260,7 @@
                             <div style="color:gold; font-weight:bold; font-size:0.8rem; margin-bottom:5px;">🌟 VIP АНАЛИЗ ПО ДАТЕ:</div>
                             <div style="font-size:0.85rem; color:#fff;">
                                 ${isMasterCard ? `Мистическое совпадение! Аркан ${lastCard.name} — ваш прямой покровитель.` : ''}
-                                ${tarotDB.combos[`birthday+${lastCard.id}`] || 'Ваша дата рождения наделяет эту карту особым смыслом: сегодня это ваш компас в принятии решений.'}
+                                ${tarotDB.combos[`birthday+${lastCard.id}`] || 'Ваша дата рождения наделяет эту карту особым смыслом сегодня.'}
                             </div>
                         </div>`;
                 } else {
@@ -272,7 +271,6 @@
             }
         }
 
-        // КОМБО ЛОГИКА
         if (selectedCards.length >= 2) {
             for (let i = 0; i < selectedCards.length; i++) {
                 for (let j = i + 1; j < selectedCards.length; j++) {
@@ -284,7 +282,6 @@
             }
         }
 
-        // СБОРКА ФИНАЛЬНОГО ТЕКСТА
         let html = "";
         if (selectedCards.length > 0) {
             if (currentMode === 'day' || currentMode === 'birthday') {
@@ -353,7 +350,6 @@
                 </div>`;
             }).join('');
         }
-        document.getElementById('history-modal').style.display = 'flex';
         document.getElementById('history-modal').classList.add('active');
     }
 
@@ -390,7 +386,7 @@
     function closeHistoryModal() { document.getElementById('history-modal').classList.remove('active'); }
     function closeInfoModal() { document.getElementById('info-modal').classList.remove('active'); }
     function clearHistory() { if(confirm('Очистить?')) { localStorage.removeItem('tarotHistory'); showHistory(); } }
-    function showInfo() { document.getElementById('info-modal').style.display = 'flex'; document.getElementById('info-modal').classList.add('active'); }
+    function showInfo() { document.getElementById('info-modal').classList.add('active'); }
     function shareApp() { const url = 'https://t.me/Cosmic_taro_rich_bot/cosmictaro'; if (tg?.showShareButton) tg.showShareButton(url); else alert(url); }
 
     async function handleDonate(amount) {
@@ -451,11 +447,6 @@
 
         setTimeout(() => {
             tempCards.forEach(c => { c.style.transform = 'translate(0,0) rotate(0deg)'; c.style.opacity = '0'; setTimeout(() => c.remove(), 400); });
-            const box = document.getElementById('deck-label');
-            if (box) {
-                box.innerHTML = `<div class="fade-in">🃏 Колода перемешана! Осталось ${remainingCards.length} карт.</div>`;
-                setTimeout(() => { box.innerHTML = ''; }, 2000);
-            }
             isAnimating = false;
         }, 800);
     }
