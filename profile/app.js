@@ -85,7 +85,9 @@ function renderProfile() {
                     </div>
                     <div class="stat-item">
                         <span class="stat-label">РОЖДЕНИЕ</span>
-                        <span class="stat-value">${user.birth_date || '—'}</span>
+                        <span class="stat-value" id="user-birthdate">
+                            ${user.birth_date ? new Date(user.birth_date).toLocaleDateString('ru-RU') : '<span style="color:#ff4d4d;">Не указана</span>'}
+                        </span>
                     </div>
                 </div>
 
@@ -143,6 +145,12 @@ window.saveAuraData = async function() {
     const tg = window.Telegram?.WebApp;
     const newDate = document.getElementById('edit-birth-date').value;
     
+    // Сначала обновляем локально, чтобы изменения были видны мгновенно
+    if (window.App && window.App.user) {
+        window.App.user.birthDate = newDate;
+        localStorage.setItem('userBirthDate', newDate);
+    }
+
     const payload = {
         initData: tg.initData,
         first_name: document.getElementById('edit-first-name').value,
@@ -151,24 +159,27 @@ window.saveAuraData = async function() {
         birth_date: newDate
     };
 
-    // --- ВОТ СЮДА ВСТАВЛЯЕМ ---
-    if (window.App && window.App.user) {
-        window.App.user.birthDate = newDate; // Обновили в памяти
-        localStorage.setItem('userBirthDate', newDate); // Подстраховали для core.js
-    }
-    // -------------------------
+    try {
+        const res = await fetch('/api/save-user', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
 
-    const res = await fetch('/api/save-user', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-    });
-
-    if (res.ok) {
-        alert("Дата сохранена! Теперь она подтянется в Таро.");
-        initProfile();
-    } else {
-        alert("Ошибка при сохранении данных.");
+        if (res.ok) {
+            // Если мы в Telegram, покажем красивое уведомление
+            if (tg.showAlert) {
+                tg.showAlert("Данные сохранены! Теперь расклад по дате рождения будет точным.");
+            } else {
+                alert("Данные сохранены!");
+            }
+            initProfile(); // Перезагружаем профиль, чтобы выйти из режима редактирования
+        } else {
+            alert("Ошибка при сохранении на сервере.");
+        }
+    } catch (e) {
+        console.error(e);
+        alert("Проблема с сетью");
     }
 };
 
