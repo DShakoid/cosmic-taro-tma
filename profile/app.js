@@ -53,16 +53,22 @@ function renderProfile() {
     const user = currentUserData.user || {};
     const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user || {};
     
-    // ПРИОРИТЕТ ДЛЯ ФОТО: БД -> TG
     const photoUrl = user.photo_url || tgUser.photo_url || '';
     const username = user.username || tgUser.username || 'Странник';
+
+    // Форматируем дату или пишем "Не указана"
+    let birthDateText = '<span style="color:#ff4d4d;">Не указана</span>';
+    if (user.birth_date) {
+        const date = new Date(user.birth_date);
+        birthDateText = date.toLocaleDateString('ru-RU');
+    }
 
     if (currentUserData.authorized) {
         container.innerHTML = `
             <div class="profile-card-authorized">
                 <div class="profile-avatar-wrapper">
                     <div class="avatar-glow"></div>
-                    <div class="profile-avatar" id="user-avatar" style="background-image: url('${photoUrl}'); background-size: cover; background-position: center;">
+                    <div class="profile-avatar" style="background-image: url('${photoUrl}'); background-size: cover; background-position: center;">
                         ${!photoUrl ? '<span style="font-size:40px; opacity:0.2;">?</span>' : ''}
                     </div>
                 </div>
@@ -85,16 +91,13 @@ function renderProfile() {
                     </div>
                     <div class="stat-item">
                         <span class="stat-label">РОЖДЕНИЕ</span>
-                        <span class="stat-value" id="user-birthdate">
-                            ${user.birth_date ? new Date(user.birth_date).toLocaleDateString('ru-RU') : '<span style="color:#ff4d4d;">Не указана</span>'}
-                        </span>
+                        <span class="stat-value" id="user-birthdate">${birthDateText}</span>
                     </div>
                 </div>
 
                 <div class="profile-menu">
                     <button class="menu-btn" onclick="renderEditForm()">РЕДАКТИРОВАТЬ</button>
                     <button class="menu-btn danger-outline" onclick="location.reload()">ОБНОВИТЬ</button>
-                    <button class="menu-btn danger-outline" onclick="deleteAccount()" style="border-color: #ff4d4d; color: #ff4d4d; margin-top: 10px;">УДАЛИТЬ АККАУНТ</button>
                 </div>
             </div>
         `;
