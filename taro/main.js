@@ -27,7 +27,8 @@
     window.closeModal = closeModal;
     window.handleDonate = handleDonate;
 
-    Object.defineProperty(window, 'currentMode', { get: () => currentMode });
+    // Стало (правильно):
+window.currentMode = currentMode;
 
     if (tg) {
         tg.ready();
