@@ -104,58 +104,61 @@
     }
     
     function drawCard() {
-       // 1. Проверяем, не занята ли анимация или лимит карт
+    // 1. Стандартные проверки
     if (!currentMode || drawnCount >= maxCards || isAnimating) return;
 
-    // 2. Ищем слот
+    // 2. Ищем слот и колоду
     const slot = document.getElementById('slot' + drawnCount);
+    const deck = document.querySelector('.deck');
     
-    // 3. ПРАВКА: Если слота нет в DOM, не даем коду упасть
-    if (!slot) {
-        console.warn(`App: Слот slot${drawnCount} не найден. Пересоздаю таблицу...`);
-        setMode(currentMode); // Пробуем перерисовать таблицу
+    // 3. ПРАВКА: Если чего-то нет в DOM (особенно в Chrome), выходим без ошибки
+    if (!slot || !deck) {
+        console.warn("App: Слот или колода не найдены. Пересоздаю стол...");
+        if (typeof setMode === 'function') setMode(currentMode); 
         return; 
     }
-        
-        isAnimating = true;
 
-            // Теперь getBoundingClientRect() никогда не прочитает свойства null
-        const deck = document.querySelector('.deck');
-        const deckRect = deck.getBoundingClientRect();
-        const slotRect = slot.getBoundingClientRect();
-        createParticles(deckRect.left + deckRect.width / 2, deckRect.top + deckRect.height / 2, '#a855f7');
+    isAnimating = true;
 
-        const slot = document.getElementById('slot' + drawnCount);
-        const slotRect = slot.getBoundingClientRect();
-        slot.classList.remove('active-target');
+    // 4. Берем координаты (теперь безопасно)
+    const deckRect = deck.getBoundingClientRect();
+    const slotRect = slot.getBoundingClientRect();
+    
+    // Удаляем подсветку активного слота
+    slot.classList.remove('active-target');
 
-        let cardData;
-        const drawnIds = selectedCards.map(c => c.id);
-        
-        if (window.shuffledRemaining && window.shuffledRemaining.length > 0) {
-            cardData = window.shuffledRemaining[0];
-            window.shuffledRemaining.shift();
-        } else {
-            const availableCards = tarotDB.cards.filter(c => !drawnIds.includes(c.id));
-            cardData = availableCards[Math.floor(Math.random() * availableCards.length)];
-        }
+    // 5. Создаем частицы эффекта
+    createParticles(deckRect.left + deckRect.width / 2, deckRect.top + deckRect.height / 2, '#a855f7');
 
-        const isReversed = Math.random() < 0.25;
-        const cardInstance = { ...cardData, isReversed };
-        selectedCards.push(cardInstance);
-        drawnCount++;
+    // --- Дальше твоя логика выбора карты ---
+    let cardData;
+    const drawnIds = selectedCards.map(c => c.id);
+    
+    if (window.shuffledRemaining && window.shuffledRemaining.length > 0) {
+        cardData = window.shuffledRemaining[0];
+        window.shuffledRemaining.shift();
+    } else {
+        const availableCards = tarotDB.cards.filter(c => !drawnIds.includes(c.id));
+        cardData = availableCards[Math.floor(Math.random() * availableCards.length)];
+    }
 
-        const card = document.createElement('div');
-        card.className = `card-anim`;
-        card.style.position = 'fixed';
-        card.style.zIndex = '1000';
-        card.style.left = deckRect.left + 'px';
-        card.style.top = deckRect.top + 'px';
-        card.style.width = deckRect.width + 'px';
-        card.style.height = deckRect.height + 'px';
-        card.style.transition = 'all 0.8s cubic-bezier(0.23, 1, 0.32, 1)';
+    const isReversed = Math.random() < 0.25;
+    const cardInstance = { ...cardData, isReversed };
+    selectedCards.push(cardInstance);
+    drawnCount++;
 
-        const cardImg = cardData.image ? `/${cardData.image}` : '/taro/assets/back_card.jpg';
+    // --- Создание элемента карты ---
+    const card = document.createElement('div');
+    card.className = `card-anim`;
+    card.style.position = 'fixed';
+    card.style.zIndex = '1000';
+    card.style.left = deckRect.left + 'px';
+    card.style.top = deckRect.top + 'px';
+    card.style.width = deckRect.width + 'px';
+    card.style.height = deckRect.height + 'px';
+    card.style.transition = 'all 0.8s cubic-bezier(0.23, 1, 0.32, 1)';
+
+    const cardImg = cardData.image ? `/${cardData.image}` : '/taro/assets/back_card.jpg';
 
         card.innerHTML = `
             <div class="face back"></div>
