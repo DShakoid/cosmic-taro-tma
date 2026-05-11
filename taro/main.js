@@ -104,7 +104,19 @@
     }
     
     function drawCard() {
-        if (!currentMode || drawnCount >= maxCards || isAnimating) return;
+       // 1. Проверяем, не занята ли анимация или лимит карт
+    if (!currentMode || drawnCount >= maxCards || isAnimating) return;
+
+    // 2. Ищем слот
+    const slot = document.getElementById('slot' + drawnCount);
+    
+    // 3. ПРАВКА: Если слота нет в DOM, не даем коду упасть
+    if (!slot) {
+        console.warn(`App: Слот slot${drawnCount} не найден. Пересоздаю таблицу...`);
+        setMode(currentMode); // Пробуем перерисовать таблицу
+        return; 
+    }
+        
         isAnimating = true;
 
         const deck = document.querySelector('.deck');
