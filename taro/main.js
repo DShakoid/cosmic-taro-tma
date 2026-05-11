@@ -9,11 +9,12 @@
     }
 
     let isAnimating = false;
-    let currentMode = 'day';
+    let currentMode = 'day'; // Внутренняя переменная
     let drawnCount = 0;
     let maxCards = 1;
     let selectedCards = [];
 
+    // Регистрируем методы глобально
     window.setMode = setMode;
     window.drawCard = drawCard;
     window.shuffleAnimation = shuffleAnimation;
@@ -25,7 +26,8 @@
     window.closeInfoModal = closeInfoModal;
     window.shareApp = shareApp;
     window.closeModal = closeModal;
-    window.currentMode = currentMode;
+    
+    // ПРАВКА: Убрали window.currentMode = currentMode, чтобы не было циклической ошибки!
 
     function setMode(newMode) {
         if (isAnimating) return;
@@ -89,7 +91,10 @@
         if (box) {
             const savedDate = window.App.user.birthDate;
             if (newMode === 'birthday' && savedDate) {
-                generateBirthdayPrediction(savedDate);
+                // Если функция generateBirthdayPrediction определена в другом месте, она сработает
+                if (typeof generateBirthdayPrediction === 'function') {
+                    generateBirthdayPrediction(savedDate);
+                }
             } else if (newMode === 'birthday' && !savedDate) {
                 box.innerHTML = "Укажите дату рождения в профиле для этого расклада.";
             } else {
@@ -97,7 +102,7 @@
             }
         }
     }
-
+    
     function drawCard() {
         if (!currentMode || drawnCount >= maxCards || isAnimating) return;
         isAnimating = true;
