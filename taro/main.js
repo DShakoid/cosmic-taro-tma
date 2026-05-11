@@ -119,8 +119,10 @@
         
         isAnimating = true;
 
+            // Теперь getBoundingClientRect() никогда не прочитает свойства null
         const deck = document.querySelector('.deck');
         const deckRect = deck.getBoundingClientRect();
+        const slotRect = slot.getBoundingClientRect();
         createParticles(deckRect.left + deckRect.width / 2, deckRect.top + deckRect.height / 2, '#a855f7');
 
         const slot = document.getElementById('slot' + drawnCount);
