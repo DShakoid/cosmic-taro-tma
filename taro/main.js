@@ -32,12 +32,20 @@
     function setMode(newMode) {
         if (isAnimating) return;
         
-        if (newMode === 'birthday' && !window.App.checkAccess('birthday_spread')) {
-            window.Telegram?.WebApp?.showConfirm(`Расклад по дате рождения с VIP-анализом стоит 50 ⭐. Открыть доступ?`, (ok) => {
-                if (ok) window.handleDonate(50);
-            });
-            return; 
+        if (newMode === 'birthday') {
+        const userDay = getDayFromDate(window.App.user.birthDate);
+        
+        if (typeof userDay === 'string') {
+            // Если дата не установлена, выводим сообщение в центр стола
+            const table = document.getElementById('table');
+            table.innerHTML = `<div class="error-msg">${userDay}. <br>Перейдите в профиль и укажите дату.</div>`;
+            return; // Прерываем, чтобы не пытаться рисовать пустые карты
         }
+        
+        // Если всё ок, продолжаем стандартную логику отрисовки слотов
+        createRow(0, 1, true); 
+        maxCards = 1;
+    }
 
         currentMode = newMode;
         drawnCount = 0;
