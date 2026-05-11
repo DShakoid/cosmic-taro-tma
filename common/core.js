@@ -1,33 +1,79 @@
 /**
- * COSMIC TAROT - CORE ENGINE
+ * COSMIC TAROT - CORE ENGINE (GLOBAL ARCHITECTURE)
  */
 
 const tg = window.Telegram?.WebApp;
 
-// --- 1. Инициализация Telegram WebApp ---
-if (tg) {
-    tg.ready();
-    tg.expand();
-    if (tg.setHeaderColor) tg.setHeaderColor('#050508');
-    if (tg.setBackgroundColor) tg.setBackgroundColor('#050508');
-}
+// --- 1. ГЛОБАЛЬНЫЙ ОБЪЕКТ ПРИЛОЖЕНИЯ (МОЗГИ) ---
+window.App = {
+    user: {
+        id: null,
+        username: null,
+        birthDate: null,
+        isVip: false,
+        paidBirthday: false,
+        isLoaded: false
+    },
 
-// --- 2. Управление навигацией ---
-// pushState = true означает, что мы записываем переход в историю (для ссылок)
+    async init() {
+        if (tg) {
+            tg.ready();
+            tg.expand();
+            this.user.id = tg.initDataUnsafe?.user?.id;
+            this.user.username = tg.initDataUnsafe?.user?.username;
+            if (tg.setHeaderColor) tg.setHeaderColor('#050508');
+            if (tg.setBackgroundColor) tg.setBackgroundColor('#050508');
+        }
+
+        // Загружаем данные из БД или локально
+        await this.syncWithServer();
+        this.user.isLoaded = true;
+        
+        // Оповещаем систему, что данные загружены
+        document.dispatchEvent(new Event('appReady'));
+        console.log("App Core: Profile Loaded", this.user);
+    },
+
+    async syncWithServer() {
+        try {
+            // Пытаемся получить данные с сервера
+            const res = await fetch(`/api/user?id=${this.user.id}`);
+            if (res.ok) {
+                const data = await res.json();
+                this.user.birthDate = data.birthDate;
+                this.user.isVip = data.isVip;
+                this.user.paidBirthday = data.paidBirthday;
+            } else {
+                throw new Error("API error");
+            }
+        } catch (e) {
+            // Если сервер молчит — берем из памяти телефона
+            this.user.birthDate = localStorage.getItem('userBirthDate');
+            this.user.isVip = localStorage.getItem('isVip') === 'true';
+            this.user.paidBirthday = localStorage.getItem('paidBirthday') === 'true';
+        }
+    },
+
+    checkAccess(feature) {
+        if (this.user.isVip) return true;
+        if (feature === 'birthday_spread') return this.user.paidBirthday;
+        return false;
+    }
+};
+
+// Запускаем инициализацию сразу
+window.App.init();
+
+// --- 2. УПРАВЛЕНИЕ НАВИГАЦИЕЙ ---
 async function navigate(page, pushState = true) {
     const mainContent = document.getElementById('app-body');
     const pageStyle = document.getElementById('page-style');
     const headerBackBtn = document.getElementById('header-back-btn'); 
     
     try {
-        // Управление видимостью кнопок Назад
         const isHome = (page === 'welcome' || page === 'index');
-        
-        if (headerBackBtn) {
-            headerBackBtn.style.display = isHome ? 'none' : 'flex';
-        }
+        if (headerBackBtn) headerBackBtn.style.display = isHome ? 'none' : 'flex';
 
-        // Системная кнопка Telegram (в самом верху экрана)
         if (tg) {
             if (!isHome) {
                 tg.BackButton.show();
@@ -37,72 +83,52 @@ async function navigate(page, pushState = true) {
             }
         }
 
-        // Загружаем HTML контент страницы
         const response = await fetch(`/${page}/${page}.html`);
         if (!response.ok) throw new Error('Ошибка загрузки страницы');
         const html = await response.text();
         
         mainContent.innerHTML = html;
-
-        // Подгружаем стили страницы
         pageStyle.href = `/${page}/style.css`;
 
-        // Перезагружаем JS модуль страницы
         const newScript = document.createElement('script');
-            newScript.id = 'page-script';
-            newScript.src = `/${page}/app.js`;
-            newScript.type = 'text/javascript';
-            document.body.appendChild(newScript);
+        newScript.id = 'page-script';
+        newScript.src = `/${page}/app.js`;
+        newScript.type = 'text/javascript';
+        document.body.appendChild(newScript);
 
-        // ОБНОВЛЯЕМ URL (чтобы работали прямые ссылки)
         if (pushState) {
             const url = new URL(window.location);
             url.searchParams.set('page', page);
             window.history.pushState({ page }, '', url);
         }
-
         window.scrollTo(0, 0);
-
     } catch (err) {
         console.error('Navigation error:', err);
         mainContent.innerHTML = `<div style="padding:20px; text-align:center;">Ошибка загрузки раздела ${page}</div>`;
     }
 }
 
-// --- 3. Обработка кликов и истории ---
+// --- 3. ОБРАБОТКА КЛИКОВ И ИСТОРИИ ---
 document.addEventListener('DOMContentLoaded', () => {
     const backBtn = document.getElementById('header-back-btn');
-    if (backBtn) {
-        // Кнопка в шапке теперь просто эмулирует нажатие "Назад" в браузере
-        backBtn.onclick = () => window.history.back();
-    }
+    if (backBtn) backBtn.onclick = () => window.history.back();
 
-    // Слушаем кнопку "Назад" на телефоне/в браузере
     window.onpopstate = (event) => {
         const page = event.state?.page || 'welcome';
-        navigate(page, false); // false, чтобы не перезаписывать историю при возврате
+        navigate(page, false);
     };
 
-    // СТАРТОВАЯ ЛОГИКА: Читаем страницу из ссылки или открываем welcome
     const params = new URLSearchParams(window.location.search);
     const startPage = params.get('page') || 'welcome';
-    
     navigate(startPage, true);
-
-    initFooter(); // Инициализация футера
+    initFooter();
 });
 
-// --- 4. Анимация светлячков (Canvas) ---
+// --- 4. АНИМАЦИЯ СВЕТЛЯЧКОВ (Canvas) ---
 const canvas = document.getElementById('fireflies-canvas');
 const ctx = canvas.getContext('2d');
 let width, height, fireflies = [];
-const config = { 
-    quantity: 60, 
-    size: { min: 1, max: 3 }, 
-    speed: { min: 0.2, max: 0.6 }, 
-    color: '#d4a1f9',
-    glow: true
-};
+const config = { quantity: 60, size: { min: 1, max: 3 }, speed: { min: 0.2, max: 0.6 }, color: '#d4a1f9', glow: true };
 
 function setCanvasSize() {
     width = canvas.width = window.innerWidth;
@@ -132,8 +158,7 @@ class Firefly {
         ctx.restore();
     }
     update() {
-        this.x += this.vx;
-        this.y += this.vy;
+        this.x += this.vx; this.y += this.vy;
         this.alpha += this.fadeRate;
         if (this.alpha > 0.8 || this.alpha < 0.1) this.fadeRate = -this.fadeRate;
         if (this.x > width + this.r) this.x = -this.r;
@@ -154,65 +179,39 @@ function initFireflies() {
     for(let i = 0; i < config.quantity; i++) fireflies.push(new Firefly());
 }
 
-// --- 5. Глобальная логика оплаты ---
+// --- 5. ГЛОБАЛЬНАЯ ОПЛАТА ---
 window.handleDonate = async function(amount = null) {
-    const tg = window.Telegram?.WebApp;
-    
     try {
-        // Если хочешь разные суммы, можно слать их в body
         const response = await fetch('/api/get-invoice', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ amount: amount })
+            body: JSON.stringify({ amount: amount, userId: window.App.user.id })
         });
-
         const data = await response.json();
-
         if (tg && data.url) {
-            tg.openInvoice(data.url, (status) => {
+            tg.openInvoice(data.url, async (status) => {
                 if (status === 'paid') {
-                    tg.showAlert('✨ Благодарим за поддержку Космического Таро!');
-                    // Здесь можно вызвать функцию обновления баланса, если она есть
-                } else if (status === 'cancelled') {
-                    console.log('Платеж отменен');
+                    tg.showAlert('✨ Спасибо за покупку!');
+                    await window.App.syncWithServer(); // Обновляем данные пользователя сразу после оплаты
+                    location.reload(); // Перезагружаем, чтобы применились права
                 }
             });
-        } else {
-            // Фолбек для браузера
-            if (data.url) window.open(data.url, '_blank');
         }
-    } catch (e) {
-        console.error('Ошибка оплаты:', e);
-        if (tg) tg.showAlert('Произошла ошибка при формировании счета');
-    }
+    } catch (e) { console.error('Ошибка оплаты:', e); }
 };
 
-window.addEventListener('resize', () => {
-    setCanvasSize();
-    initFireflies();
-});
-
-// Конфигурация приложения
+// Конфигурация Инстаграм
 const APP_CONFIG = {
-    instagramNick: 'hfdfhjvffnmkkhghb', // Меняй только здесь
-    get instaUrl() {
-        return `https://www.instagram.com/${this.instagramNick}/`;
-    }
+    instagramNick: 'hfdfhjvffnmkkhghb', 
+    get instaUrl() { return `https://www.instagram.com/${this.instagramNick}/`; }
 };
 
-// Функция инициализации футера
 function initFooter() {
     const instaLink = document.getElementById('insta-link');
-    if (instaLink) {
+    if (instaLink && APP_CONFIG.instagramNick) {
         instaLink.href = APP_CONFIG.instaUrl;
-        instaLink.target = "_blank";
-        instaLink.rel = "noopener noreferrer";
-        if (!APP_CONFIG.instagramNick) {
-            instaLink.parentElement.style.display = 'none';
-        }
     }
 }
 
-setCanvasSize();
-initFireflies();
-animate();
+window.addEventListener('resize', () => { setCanvasSize(); initFireflies(); });
+setCanvasSize(); initFireflies(); animate();
