@@ -151,10 +151,12 @@ window.saveAuraData = async function() {
         birth_date: newDate
     };
 
-    // Твоя логика: обновление "мозгов" перед сохранением
+    // --- ВОТ СЮДА ВСТАВЛЯЕМ ---
     if (window.App && window.App.user) {
-        window.App.user.birthDate = newDate;
+        window.App.user.birthDate = newDate; // Обновили в памяти
+        localStorage.setItem('userBirthDate', newDate); // Подстраховали для core.js
     }
+    // -------------------------
 
     const res = await fetch('/api/save-user', {
         method: 'POST',
