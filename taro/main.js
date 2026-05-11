@@ -372,11 +372,24 @@
         localStorage.setItem('tarotHistory', JSON.stringify(history));
     }
 
-    function getDayFromDate(dateStr) {
-        if (!dateStr) return 1;
-        const day = parseInt(dateStr.split('-')[2]);
-        return isNaN(day) ? 1 : day;
+    
+function getDayFromDate(dateStr) {
+    // 1. Проверяем на пустоту, null или undefined
+    if (!dateStr || dateStr === "null" || dateStr === "undefined") {
+        return "Дата не установлена"; 
     }
+
+    // 2. Пробуем достать число (формат обычно ГГГГ-ММ-ДД)
+    const parts = dateStr.split('-');
+    const day = parts.length === 3 ? parseInt(parts[2]) : parseInt(dateStr);
+
+    // 3. ПРАВКА: Если распарсить не удалось, возвращаем текст, а не 1
+    if (isNaN(day)) {
+        return "Ошибка даты";
+    }
+
+    return day;
+}
 
     const resetBtn = document.getElementById('reset-btn');
     if (resetBtn) { resetBtn.onclick = () => { setMode(currentMode); }; }
