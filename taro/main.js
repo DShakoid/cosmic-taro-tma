@@ -1,7 +1,4 @@
-// --- ВИЗУАЛЬНАЯ ЧАСТЬ И ИНИЦИАЛИЗАЦИЯ (taro/app.js) ---
-
 (async function initTaro() {
-    // Загрузка БД, если её нет
     if (typeof tarotDB === 'undefined') {
         const script = document.createElement('script');
         script.src = '/taro/tarotData.js';
@@ -12,8 +9,11 @@
     }
 
     let isAnimating = false;
+    let currentMode = 'day';
+    let drawnCount = 0;
+    let maxCards = 1;
+    let selectedCards = [];
 
-    // Регистрация функций в глобальной области (твои оригинальные названия)
     window.setMode = setMode;
     window.drawCard = drawCard;
     window.shuffleAnimation = shuffleAnimation;
@@ -25,23 +25,14 @@
     window.closeInfoModal = closeInfoModal;
     window.shareApp = shareApp;
     window.closeModal = closeModal;
-    window.handleDonate = handleDonate;
-
-    // Стало (правильно):
-window.currentMode = currentMode;
-
-    if (tg) {
-        tg.ready();
-        tg.expand();
-        tg.setHeaderColor('#050508');
-        tg.setBackgroundColor('#050508');
-    }
+    window.currentMode = currentMode;
 
     function setMode(newMode) {
         if (isAnimating) return;
-        if (newMode === 'birthday' && !hasFullAccess()) {
-            tg?.showConfirm(`Расклад по дате рождения с VIP-анализом стоит 50 ⭐. Открыть доступ?`, (ok) => {
-                if (ok) handleDonate(50);
+        
+        if (newMode === 'birthday' && !window.App.checkAccess('birthday_spread')) {
+            window.Telegram?.WebApp?.showConfirm(`Расклад по дате рождения с VIP-анализом стоит 50 ⭐. Открыть доступ?`, (ok) => {
+                if (ok) window.handleDonate(50);
             });
             return; 
         }
@@ -64,9 +55,18 @@ window.currentMode = currentMode;
         document.getElementById('reset-btn').style.display = 'none';
         document.getElementById('donate-btn').style.display = 'none';
         
-        if (newMode === 'day' || newMode === 'birthday') { createRow(0, 1, true); maxCards = 1; }
-        else if (newMode === 'week') { createRow(0, 4); createRow(4, 7); maxCards = 7; }
-        else if (newMode === 'advice') { createRow(0, 3); createRow(3, 6); maxCards = 6; }
+        if (newMode === 'day' || newMode === 'birthday') { 
+            createRow(0, 1, true); 
+            maxCards = 1; 
+        } else if (newMode === 'week') { 
+            createRow(0, 4); 
+            createRow(4, 7); 
+            maxCards = 7; 
+        } else if (newMode === 'advice') { 
+            createRow(0, 3); 
+            createRow(3, 6); 
+            maxCards = 6; 
+        }
         
         function createRow(startId, endId, isLarge = false) {
             const row = document.createElement('div');
@@ -87,9 +87,11 @@ window.currentMode = currentMode;
 
         const box = document.getElementById('prediction-text');
         if (box) {
-            const savedDate = localStorage.getItem('userBirthDate');
+            const savedDate = window.App.user.birthDate;
             if (newMode === 'birthday' && savedDate) {
                 generateBirthdayPrediction(savedDate);
+            } else if (newMode === 'birthday' && !savedDate) {
+                box.innerHTML = "Укажите дату рождения в профиле для этого расклада.";
             } else {
                 box.innerHTML = "Колода перемешана. Тяните карту.";
             }
@@ -181,7 +183,7 @@ window.currentMode = currentMode;
             "Земля": { color: "#4dff88", icon: "🌿", shadow: "rgba(77, 255, 136, 0.4)" } 
         };
 
-        const birthDate = localStorage.getItem('userBirthDate');
+        const birthDate = window.App.user.birthDate;
         let personalNote = "";
         let comboNote = "";
 
@@ -190,7 +192,7 @@ window.currentMode = currentMode;
             const lastCard = selectedCards[selectedCards.length - 1];
             if (lastCard) {
                 const isMasterCard = (lastCard.id === day || lastCard.id === (day % 22));
-                if (hasFullAccess()) {
+                if (window.App.user.isVip) {
                     personalNote = `<div style="margin-top:15px; padding:12px; border:1px solid gold; background: rgba(255,215,0,0.1); border-radius:12px;"><div style="color:gold; font-weight:bold; font-size:0.8rem; margin-bottom:5px;">🌟 VIP АНАЛИЗ ПО ДАТЕ:</div><div style="font-size:0.85rem; color:#fff;">${isMasterCard ? `Мистическое совпадение! Аркан ${lastCard.name} — ваш прямой покровитель.` : ''}${tarotDB.combos[`birthday+${lastCard.id}`] || 'Ваша дата рождения наделяет эту карту особым смыслом сегодня.'}</div></div>`;
                 } else {
                     personalNote = isMasterCard ? `<div style="margin-top:10px; color: gold; font-size: 0.75rem;">✨ Вы вытянули свою карту рождения! Это добрый знак.</div>` : `<div style="margin-top:10px; font-style: italic; opacity: 0.6; font-size: 0.7rem; border-top: 1px solid #333; padding-top: 5px;">🎯 Рожденным ${day}-го числа эта карта сулит нечто важное. Детали в VIP-режиме.</div>`;
@@ -227,7 +229,7 @@ window.currentMode = currentMode;
         if (drawnCount >= maxCards && maxCards > 0) {
             document.getElementById('reset-btn').style.display = 'inline-block';
             document.getElementById('donate-btn').style.display = 'inline-block';
-            saveToHistory();
+            if (typeof saveToHistory === 'function') saveToHistory();
         }
     }
 
@@ -247,7 +249,7 @@ window.currentMode = currentMode;
         
         deck.style.transform = 'scale(0.95)';
         setTimeout(() => { deck.style.transform = 'scale(1)'; }, 200);
-        if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+        if (window.Telegram?.WebApp?.HapticFeedback) window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
         
         const cardsCount = Math.min(8, remainingCards.length);
         const tempCards = [];
@@ -318,39 +320,51 @@ window.currentMode = currentMode;
         document.getElementById('m-name').innerText = card.name + (card.isReversed ? ' (пер.)' : '');
         document.getElementById('m-desc').innerHTML = card.isReversed ? card.advice_rev : card.advice;
         document.getElementById('card-overlay').classList.add('active');
-        if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+        if (window.Telegram?.WebApp?.HapticFeedback) window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
     }
 
     function closeModal() { document.getElementById('card-overlay').classList.remove('active'); }
     function closeHistoryModal() { document.getElementById('history-modal').classList.remove('active'); }
     function closeInfoModal() { document.getElementById('info-modal').classList.remove('active'); }
     function showInfo() { document.getElementById('info-modal').classList.add('active'); }
-    function shareApp() { const url = 'https://t.me/Cosmic_taro_rich_bot/cosmictaro'; if (tg?.showShareButton) tg.showShareButton(url); else alert(url); }
+    function shareApp() { 
+        const url = 'https://t.me/Cosmic_taro_rich_bot/cosmictaro'; 
+        if (window.Telegram?.WebApp?.showShareButton) window.Telegram.WebApp.showShareButton(url); 
+        else alert(url); 
+    }
 
-    async function handleDonate(amount) {
-        try {
-            const res = await fetch(`/api/get-invoice?amount=${amount}`);
-            const data = await res.json();
-            if (tg && data.url) {
-                tg.openInvoice(data.url, (status) => {
-                    if (status === 'paid') {
-                        if (amount === 499) localStorage.setItem('isVip', 'true');
-                        if (amount === 50) localStorage.setItem('paidBirthday', 'true');
-                        tg.showAlert('✨ Доступ открыт!');
-                        location.reload();
-                    }
-                });
-            }
-        } catch (e) { tg.showAlert('Ошибка оплаты'); }
+    function clearHistory() {
+        localStorage.removeItem('tarotHistory');
+        showHistory();
+    }
+
+    function saveToHistory() {
+        const history = JSON.parse(localStorage.getItem('tarotHistory') || '[]');
+        const entry = {
+            date: new Date().toISOString(),
+            mode: currentMode,
+            cards: selectedCards.map(c => ({ id: c.id, name: c.name }))
+        };
+        history.unshift(entry);
+        if (history.length > 20) history.pop();
+        localStorage.setItem('tarotHistory', JSON.stringify(history));
+    }
+
+    function getDayFromDate(dateStr) {
+        if (!dateStr) return 1;
+        const day = parseInt(dateStr.split('-')[2]);
+        return isNaN(day) ? 1 : day;
     }
 
     const resetBtn = document.getElementById('reset-btn');
-    if (resetBtn) { resetBtn.onclick = () => { setMode(window.currentMode); }; }
+    if (resetBtn) { resetBtn.onclick = () => { setMode(currentMode); }; }
 
     const donateBtn = document.getElementById('donate-btn');
-    if (donateBtn) { donateBtn.onclick = () => handleDonate(499); }
+    if (donateBtn) { donateBtn.onclick = () => window.handleDonate(499); }
 
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('mode') === 'birthday') { setMode('birthday'); } else { setMode('day'); }
+    document.addEventListener('appReady', () => {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('mode') === 'birthday') { setMode('birthday'); } else { setMode('day'); }
+    });
 
 })();
