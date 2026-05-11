@@ -30,6 +30,11 @@ async function initProfile() {
         if (response.ok) {
             const data = await response.json();
             currentUserData = { authorized: true, user: data };
+            
+            // Синхронизация с глобальным объектом App для Таро
+            if (window.App && window.App.user) {
+                window.App.user.birthDate = data.birth_date;
+            }
         } else {
             currentUserData = { authorized: false };
         }
@@ -134,23 +139,35 @@ window.renderEditForm = function() {
     `;
 };
 
-
-
 window.saveAuraData = async function() {
     const tg = window.Telegram?.WebApp;
+    const newDate = document.getElementById('edit-birth-date').value;
+    
     const payload = {
         initData: tg.initData,
         first_name: document.getElementById('edit-first-name').value,
         last_name: document.getElementById('edit-last-name').value,
         gender: document.getElementById('edit-gender').value,
-        birth_date: document.getElementById('edit-birth-date').value
+        birth_date: newDate
     };
+
+    // Твоя логика: обновление "мозгов" перед сохранением
+    if (window.App && window.App.user) {
+        window.App.user.birthDate = newDate;
+    }
+
     const res = await fetch('/api/save-user', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
     });
-    if (res.ok) initProfile();
+
+    if (res.ok) {
+        alert("Дата сохранена! Теперь она подтянется в Таро.");
+        initProfile();
+    } else {
+        alert("Ошибка при сохранении данных.");
+    }
 };
 
 window.startSync = async function() {
@@ -179,7 +196,7 @@ window.deleteAccount = async function() {
 
         if (res.ok) {
             alert("Ваша судьба стерта из наших свитков.");
-            location.reload(); // Перезагрузит страницу, и юзер снова станет "Гостем"
+            location.reload(); 
         } else {
             alert("Ошибка при удалении");
         }
