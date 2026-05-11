@@ -35,23 +35,34 @@ window.App = {
     },
 
     async syncWithServer() {
+        // ПРАВКА: Если ID еще нет, сразу прыгаем в catch (в локальное хранилище)
+        if (!this.user.id) {
+            this.loadLocalData();
+            return;
+        }
+
         try {
-            // Пытаемся получить данные с сервера
             const res = await fetch(`/api/user?id=${this.user.id}`);
             if (res.ok) {
                 const data = await res.json();
                 this.user.birthDate = data.birthDate;
                 this.user.isVip = data.isVip;
                 this.user.paidBirthday = data.paidBirthday;
+                
+                // Обновляем локалку актуальными данными с сервера
+                if (data.birthDate) localStorage.setItem('userBirthDate', data.birthDate);
             } else {
                 throw new Error("API error");
             }
         } catch (e) {
-            // Если сервер молчит — берем из памяти телефона
-            this.user.birthDate = localStorage.getItem('userBirthDate');
-            this.user.isVip = localStorage.getItem('isVip') === 'true';
-            this.user.paidBirthday = localStorage.getItem('paidBirthday') === 'true';
+            this.loadLocalData();
         }
+    },
+
+    loadLocalData() {
+        this.user.birthDate = localStorage.getItem('userBirthDate');
+        this.user.isVip = localStorage.getItem('isVip') === 'true';
+        this.user.paidBirthday = localStorage.getItem('paidBirthday') === 'true';
     },
 
     checkAccess(feature) {
@@ -61,7 +72,6 @@ window.App = {
     }
 };
 
-// Запускаем инициализацию сразу
 window.App.init();
 
 // --- 2. УПРАВЛЕНИЕ НАВИГАЦИЕЙ ---
