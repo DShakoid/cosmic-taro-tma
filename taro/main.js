@@ -384,9 +384,19 @@
     const donateBtn = document.getElementById('donate-btn');
     if (donateBtn) { donateBtn.onclick = () => window.handleDonate(499); }
 
-    document.addEventListener('appReady', () => {
+    // --- ВОТ ЭТОТ БЛОК ВСТАВЛЯЕМ В САМЫЙ КОНЕЦ ---
+    if (window.App && window.App.user.isLoaded) {
+        // Если данные уже готовы (Chrome часто грузит мгновенно)
+        console.log("Taro: App already loaded, setting mode...");
         const params = new URLSearchParams(window.location.search);
-        if (params.get('mode') === 'birthday') { setMode('birthday'); } else { setMode('day'); }
-    });
+        setMode(params.get('mode') === 'birthday' ? 'birthday' : 'day');
+    } else {
+        // Если App еще инициализируется (Telegram или медленный инет)
+        document.addEventListener('appReady', () => {
+            console.log("Taro: App ready event received, setting mode...");
+            const params = new URLSearchParams(window.location.search);
+            setMode(params.get('mode') === 'birthday' ? 'birthday' : 'day');
+        });
+    }
 
-})();
+})(); // Закрываем анонимную функцию (самая последняя строка файла)
