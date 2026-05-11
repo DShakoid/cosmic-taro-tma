@@ -5,6 +5,7 @@
 const tg = window.Telegram?.WebApp;
 
 // --- 1. ГЛОБАЛЬНЫЙ ОБЪЕКТ ПРИЛОЖЕНИЯ (МОЗГИ) ---
+// --- 1. ГЛОБАЛЬНЫЙ ОБЪЕКТ ПРИЛОЖЕНИЯ (МОЗГИ) ---
 window.App = {
     user: {
         id: null,
@@ -16,13 +17,20 @@ window.App = {
     },
 
     async init() {
-        if (tg) {
+        if (tg && tg.initDataUnsafe?.user) {
+            // Мы внутри Telegram
             tg.ready();
             tg.expand();
-            this.user.id = tg.initDataUnsafe?.user?.id;
-            this.user.username = tg.initDataUnsafe?.user?.username;
+            this.user.id = tg.initDataUnsafe.user.id;
+            this.user.username = tg.initDataUnsafe.user.username;
+            
             if (tg.setHeaderColor) tg.setHeaderColor('#050508');
             if (tg.setBackgroundColor) tg.setBackgroundColor('#050508');
+        } else {
+            // ПРАВКА: Мы в обычном браузере (Chrome)
+            console.log("Core: Running in Browser mode");
+            this.user.id = 7777777; // Твой тестовый ID для отладки
+            this.user.username = 'LocalDev';
         }
 
         // Загружаем данные из БД или локально
@@ -33,7 +41,7 @@ window.App = {
         document.dispatchEvent(new Event('appReady'));
         console.log("App Core: Profile Loaded", this.user);
     },
-
+    
     async syncWithServer() {
         // ПРАВКА: Если ID еще нет, сразу прыгаем в catch (в локальное хранилище)
         if (!this.user.id) {
