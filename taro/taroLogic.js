@@ -1,55 +1,111 @@
-// Убираем export, чтобы объект был доступен глобально через <script>
+/**
+ * COSMIC TAROT: Logic Module
+ * Отвечает за: данные, расчеты, LocalStorage, Telegram API
+ */
+
 const TaroLogic = {
-    // Парсинг дня рождения
+    state: {
+        currentMode: '',
+        drawnCount: 0,
+        maxCards: 0,
+        selectedCards: [],
+        shuffledRemaining: null,
+        userAccess: {
+            isVip: localStorage.getItem('isVip') === 'true',
+            hasPaidOnce: localStorage.getItem('paidBirthday') === 'true'
+        }
+    },
+
+    // Вспомогательные методы
+    hasFullAccess() {
+        return this.state.userAccess.isVip || this.state.userAccess.hasPaidOnce;
+    },
+
     getDayFromDate(dateStr) {
         if (!dateStr) return null;
         const numbers = dateStr.match(/\d+/g);
-        if (!numbers || numbers.length === 0) return null;
-        // Если формат YYYY-MM-DD, берем DD (индекс 2), иначе берем первый найденный блок цифр
-        const day = numbers[0].length === 4 ? parseInt(numbers[2]) : parseInt(numbers[0]);
-        return isNaN(day) ? null : day;
+        if (!numbers) return null;
+        return numbers[0].length === 4 ? parseInt(numbers[2]) : parseInt(numbers[0]);
     },
 
-    // Выбор случайной карты
-    getRandomCard(tarotDB, excludedIds = [], forcedRemaining = null) {
-        // Если есть заранее перемешанная колода, берем первую карту и удаляем её из массива
-        if (forcedRemaining && Array.isArray(forcedRemaining) && forcedRemaining.length > 0) {
-            return forcedRemaining.shift();
+    // Работа с колодой
+    prepareDeck() {
+        const drawnIds = this.state.selectedCards.map(c => c.id);
+        const remaining = tarotDB.cards.filter(c => !drawnIds.includes(c.id));
+        // Тасование Фишера-Йетса
+        for (let i = remaining.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [remaining[i], remaining[j]] = [remaining[j], remaining[i]];
+        }
+        this.state.shuffledRemaining = remaining;
+        return remaining;
+    },
+
+    getNextCard() {
+        let cardData;
+        if (this.state.shuffledRemaining && this.state.shuffledRemaining.length > 0) {
+            cardData = this.state.shuffledRemaining.shift();
+        } else {
+            const drawnIds = this.state.selectedCards.map(c => c.id);
+            const available = tarotDB.cards.filter(c => !drawnIds.includes(c.id));
+            cardData = available[Math.floor(Math.random() * available.length)];
         }
         
-        if (!tarotDB || !tarotDB.cards) return null;
-
-        // Фильтруем карты, которых еще нет на столе
-        const available = tarotDB.cards.filter(c => !excludedIds.includes(c.id));
-        
-        // Защита: если карты закончились (маловероятно для Таро, но всё же)
-        if (available.length === 0) return tarotDB.cards[0]; 
-
-        return available[Math.floor(Math.random() * available.length)];
+        const isReversed = Math.random() < 0.25;
+        const cardInstance = { ...cardData, isReversed };
+        this.state.selectedCards.push(cardInstance);
+        this.state.drawnCount++;
+        return cardInstance;
     },
 
-    // Проверка на Мастер-карту
-    checkMasterCard(cardId, birthDate) {
+    // Логика предиктов и связок
+    getInterpretation() {
+        const { selectedCards, currentMode } = this.state;
+        const lastCard = selectedCards[selectedCards.length - 1];
+        const birthDate = localStorage.getItem('userBirthDate');
         const day = this.getDayFromDate(birthDate);
-        if (!day) return false;
-        // Логика Таро: если день > 22, обычно вычитают 22 или приводят к нумерологическому аркану
-        return cardId === day || cardId === (day % 22);
-    },
 
-    // Поиск связок
-    findCombos(selectedCards, tarotDB) {
-        if (!selectedCards || selectedCards.length < 2 || !tarotDB.combos) return null;
-        
-        for (let i = 0; i < selectedCards.length; i++) {
-            for (let j = i + 1; j < selectedCards.length; j++) {
-                const id1 = selectedCards[i].id;
-                const id2 = selectedCards[j].id;
-                
-                // Проверяем оба варианта ключа (1+2 или 2+1)
-                const combo = tarotDB.combos[`${id1}+${id2}`] || tarotDB.combos[`${id2}+${id1}`];
-                if (combo) return combo;
+        let personalNote = "";
+        let comboNote = "";
+
+        // Поиск связок
+        if (selectedCards.length >= 2) {
+            for (let i = 0; i < selectedCards.length; i++) {
+                for (let j = i + 1; j < selectedCards.length; j++) {
+                    const id1 = selectedCards[i].id;
+                    const id2 = selectedCards[j].id;
+                    const found = tarotDB.combos[`${id1}+${id2}`] || tarotDB.combos[`${id2}+${id1}`];
+                    if (found) comboNote = found;
+                }
             }
         }
-        return null;
+
+        // VIP Анализ
+        let isMasterCard = false;
+        if (day && lastCard) {
+            isMasterCard = (lastCard.id === day || lastCard.id === (day % 22));
+        }
+
+        return {
+            lastCard,
+            currentMode,
+            comboNote,
+            personalNote,
+            isMasterCard,
+            day,
+            hasFullAccess: this.hasFullAccess()
+        };
+    },
+
+    saveHistory() {
+        const history = {
+            date: new Date().toISOString(),
+            mode: this.state.currentMode,
+            cards: this.state.selectedCards.map(c => ({ id: c.id, name: c.name, isReversed: c.isReversed }))
+        };
+        let saved = JSON.parse(localStorage.getItem('tarotHistory') || '[]');
+        saved.unshift(history);
+        if (saved.length > 10) saved.pop();
+        localStorage.setItem('tarotHistory', JSON.stringify(saved));
     }
 };
