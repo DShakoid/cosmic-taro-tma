@@ -177,7 +177,7 @@
     box-shadow: var(--neon-purp);
     transform: scale(0.9); 
     transition: transform 0.3s ease;
-    
+    padding-top: 120px;
     /* Ограничиваем карточку, чтобы она не улетала под экран */
     max-height: 80dvh; 
     display: flex;
