@@ -244,4 +244,5 @@ button.close-btn {
     align-items: center;
     gap: 4px;
     white-space: nowrap;
+    margin: auto;
 }
