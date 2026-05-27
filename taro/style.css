@@ -138,50 +138,63 @@
     border-radius: 20px;
     }
 
-    .overlay {
-    /* ИСПРАВЛЕНО: fixed вместо absolute, чтобы оверлей всегда перекрывал весь экран */
+    /* Оверлей — темный фон на весь экран */
+.overlay {
+    /* Фиксируем относительно экрана смартфона */
     position: fixed; 
-    top: 0; 
-    left: 0; 
-    width: 100vw; 
-    height: 100vh;
-    background: rgba(0,0,0,0.85); 
-    z-index: 10000; 
+    top: 0;
+    left: 0;
+    width: 100vw;
+    /* Используем dynamic viewport height, чтобы учитывалась шторка Telegram */
+    height: 100dvh; 
+    background: rgba(0, 0, 0, 0.85); 
+    
+    /* Поднимаем z-index максимально высоко, чтобы перекрыть хедер и футер index.html */
+    z-index: 999999; 
+    
     display: none; 
     align-items: center; 
     justify-content: center;
     opacity: 0; 
     transition: opacity 0.3s ease; 
     backdrop-filter: blur(5px);
-     padding-top: 120px;
 }
 
+/* Когда модалка активна */
 .overlay.active { 
     display: flex; 
     opacity: 1; 
 }
 
+/* Сама карточка модалки */
 .modal-card {
     width: 85%; 
-    max-width: 320px; 
-    
-    /* ДОБАВЛЕНО: ограничиваем высоту карточки, чтобы она не уходила под экран */
-    max-height: 85vh; 
-    /* ДОБАВЛЕНО: включаем вертикальный скролл, если контента много */
-    overflow-y: auto; 
-    
+    max-width: 360px;
     background: rgba(10, 7, 15, 0.95);
     border: 2px solid var(--purp); 
     border-radius: 24px; 
     padding: 25px;
-    text-align: center; 
     box-shadow: var(--neon-purp);
     transform: scale(0.9); 
     transition: transform 0.3s ease;
+    
+    /* Ограничиваем карточку, чтобы она не улетала под экран */
+    max-height: 80dvh; 
+    display: flex;
+    flex-direction: column; /* Элементы выстраиваются сверху вниз */
 }
 
 .overlay.active .modal-card { 
     transform: scale(1); 
+}
+
+/* Специальный контейнер для скролла контента */
+.modal-scrollable-content {
+    overflow-y: auto; /* Включаем вертикальный скролл */
+    flex-grow: 1; /* Забирает всё свободное место */
+    margin-bottom: 15px; /* Отступ до фиксированных кнопок */
+    padding-right: 4px; /* Чтобы скроллбар не наезжал на текст */
+    -webkit-overflow-scrolling: touch; /* Плавная прокрутка на iOS в Telegram */
 }
 
 .btn-row { 
