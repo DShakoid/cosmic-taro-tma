@@ -158,7 +158,7 @@
     // --- Создание элемента карты ---
     const card = document.createElement('div');
     card.className = `card-anim`;
-    card.style.position = 'fixed';
+    card.style.position = 'absolute';
     card.style.zIndex = '1000';
     card.style.left = deckRect.left + 'px';
     card.style.top = deckRect.top + 'px';
