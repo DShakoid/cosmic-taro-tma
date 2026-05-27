@@ -139,24 +139,56 @@
     }
 
     .overlay {
-        position: absolute; top: 0; left: 0; width: 100vw; height: 100vh;
-        background: rgba(0,0,0,0.85); z-index: 10000; display: none; align-items: center; justify-content: center;
-        opacity: 0; transition: opacity 0.3s ease; backdrop-filter: blur(5px);
-    }
-    .overlay.active { display: flex; opacity: 1; }
-    .modal-card {
-        width: 85%; max-width: 320px; background: rgba(10, 7, 15, 0.95);
-        border: 2px solid var(--purp); border-radius: 24px; padding: 25px;
-        text-align: center; box-shadow: var(--neon-purp);
-        transform: scale(0.9); transition: transform 0.3s ease;
-    }
-    .overlay.active .modal-card { transform: scale(1); }
-    .btn-row { 
-     display: flex;
-     gap: 10px;
-     justify-content: center;
-     margin-top: 15px;
-              }
+    /* ИСПРАВЛЕНО: fixed вместо absolute, чтобы оверлей всегда перекрывал весь экран */
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    width: 100vw; 
+    height: 100vh;
+    background: rgba(0,0,0,0.85); 
+    z-index: 10000; 
+    display: none; 
+    align-items: center; 
+    justify-content: center;
+    opacity: 0; 
+    transition: opacity 0.3s ease; 
+    backdrop-filter: blur(5px);
+}
+
+.overlay.active { 
+    display: flex; 
+    opacity: 1; 
+}
+
+.modal-card {
+    width: 85%; 
+    max-width: 320px; 
+    
+    /* ДОБАВЛЕНО: ограничиваем высоту карточки, чтобы она не уходила под экран */
+    max-height: 85vh; 
+    /* ДОБАВЛЕНО: включаем вертикальный скролл, если контента много */
+    overflow-y: auto; 
+    
+    background: rgba(10, 7, 15, 0.95);
+    border: 2px solid var(--purp); 
+    border-radius: 24px; 
+    padding: 25px;
+    text-align: center; 
+    box-shadow: var(--neon-purp);
+    transform: scale(0.9); 
+    transition: transform 0.3s ease;
+}
+
+.overlay.active .modal-card { 
+    transform: scale(1); 
+}
+
+.btn-row { 
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 15px;
+}
     
     #reset-btn {
         background: rgba(168, 85, 247, 0.1); 
