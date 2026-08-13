@@ -119,15 +119,14 @@
     const slot = document.getElementById('slot' + drawnCount);
     const deck = document.querySelector('.deck');
     
-    // 3. ПРАВКА: Если чего-то нет в DOM (особенно в Chrome), выходим без ошибки
+    // ПРАВКА: Если слота или колоды нет, просто выходим без жесткого сброса стола!
     if (!slot || !deck) {
-        console.warn("App: Слот или колода не найдены. Пересоздаю стол...");
-        if (typeof setMode === 'function') setMode(currentMode); 
+        console.warn("App: Слот или колода временно недоступны.");
         return; 
     }
 
     isAnimating = true;
-
+        
     // 4. Берем координаты (теперь безопасно)
     const deckRect = deck.getBoundingClientRect();
     const slotRect = slot.getBoundingClientRect();
