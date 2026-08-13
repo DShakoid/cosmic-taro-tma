@@ -404,19 +404,27 @@ function getDayFromDate(dateStr) {
     const donateBtn = document.getElementById('donate-btn');
     if (donateBtn) { donateBtn.onclick = () => window.handleDonate(499); }
 
-    // --- ВОТ ЭТОТ БЛОК ВСТАВЛЯЕМ В САМЫЙ КОНЕЦ ---
-    if (window.App && window.App.user.isLoaded) {
-        // Если данные уже готовы (Chrome часто грузит мгновенно)
-        console.log("Taro: App already loaded, setting mode...");
+    // --- НАДЕЖНЫЙ ЗАПУСК ИНИЦИАЛИЗАЦИИ РЕЖИМА ---
+    function initDefaultMode() {
         const params = new URLSearchParams(window.location.search);
-        setMode(params.get('mode') === 'birthday' ? 'birthday' : 'day');
-    } else {
-        // Если App еще инициализируется (Telegram или медленный инет)
-        document.addEventListener('appReady', () => {
-            console.log("Taro: App ready event received, setting mode...");
-            const params = new URLSearchParams(window.location.search);
-            setMode(params.get('mode') === 'birthday' ? 'birthday' : 'day');
-        });
+        const initialMode = params.get('mode') === 'birthday' ? 'birthday' : 'day';
+        setMode(initialMode);
     }
 
-})(); // Закрываем анонимную функцию (самая последняя строка файла)
+    if (window.App && window.App.user && window.App.user.isLoaded) {
+        initDefaultMode();
+    } else {
+        // Слушаем событие appReady
+        document.addEventListener('appReady', initDefaultMode);
+
+        // Страховка для Telegram TMA: если событие appReady уже проскочило
+        setTimeout(() => {
+            const activeBtn = document.querySelector('.menu-btn.active');
+            if (!activeBtn) {
+                console.log("Taro: Fallback initialization triggered");
+                initDefaultMode();
+            }
+        }, 300);
+    }
+
+})(); // Закрываем анонимную функцию
