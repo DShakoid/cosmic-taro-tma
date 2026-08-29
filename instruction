@@ -113,8 +113,8 @@ find . -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" \) | while
 done
 
 
-SOURCE="/Users/shako/Documents/TMA/allready good"
-TARGET="/Users/shako/Documents/TMA/allready good_OPTIMIZED"
+SOURCE="/Users/shako/Documents/TMA/image deck/allready good"
+TARGET="/Users/shako/Documents/TMA/allready_good_OPTIMIZED"
 
 cd "$SOURCE"
 
@@ -144,18 +144,38 @@ cd "$SOURCE"
 
 find . -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" \) | while read -r file; do
     clean_file=$(echo "$file" | sed 's|^\./||')
+    base_name="${clean_file%.*}"
     mkdir -p "$TARGET/$(dirname "$clean_file")"
 
+    # Оптимизация под WebP для арт-карт
     magick "$clean_file" \
     -resize 70% \
     -strip \
-    -gaussian-blur 0.05 \
-    -colorspace sRGB \
-    -sampling-factor 4:2:0 \
-    -quality 70 \
-    -interlace Plane \
-    "$TARGET/$clean_file"
+    -quality 72 \
+    -define webp:method=6 \
+    "$TARGET/${base_name}.webp"
 
-    echo "Ужато: $clean_file"
+    echo "Сконвертировано в WebP: ${base_name}.webp"
 done
 
+
+SOURCE="/Users/shako/Documents/TMA/image deck/allready good"
+TARGET="/Users/shako/Documents/TMA/allready_good_OPTIMIZED"
+
+cd "$SOURCE"
+
+find . -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" \) | while read -r file; do
+    clean_file=$(echo "$file" | sed 's|^\./||')
+    base_name="${clean_file%.*}"
+    mkdir -p "$TARGET/$(dirname "$clean_file")"
+
+    # Оптимизация под WebP для арт-карт
+    magick "$clean_file" \
+    -resize 70% \
+    -strip \
+    -quality 72 \
+    -define webp:method=6 \
+    "$TARGET/${base_name}.webp"
+
+    echo "Сконвертировано в WebP: ${base_name}.webp"
+done
