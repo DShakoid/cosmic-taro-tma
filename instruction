@@ -1,0 +1,68 @@
+оптимихация картинок
+
+##########JPG########
+SOURCE="/Users/shako/Documents/TMA/smallcardsready"
+TARGET="/Users/shako/Documents/TMA/smallcardsoptimized"
+
+cd "$SOURCE"
+
+find . -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" \) | while read -r file; do
+    clean_file=$(echo "$file" | sed 's|^\./||')
+    mkdir -p "$TARGET/$(dirname "$clean_file")"
+
+    magick "$clean_file" \
+    -resize "688x1024>" \
+    -strip \
+    -gaussian-blur 0.05 \
+    -colorspace sRGB \
+    -sampling-factor 4:2:0 \
+    -quality 70 \
+    -interlace Plane \
+    "$TARGET/$clean_file"
+
+    echo "Ужато: $clean_file"
+done
+
+
+#######WEBP#######
+SOURCE="/Users/shako/Documents/TMA/smallcardsready"
+TARGET="/Users/shako/Documents/TMA/smallcardsoptimized"
+
+cd "$SOURCE"
+
+find . -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" \) | while read -r file; do
+    clean_file=$(echo "$file" | sed 's|^\./||')
+    base_name="${clean_file%.*}"
+    mkdir -p "$TARGET/$(dirname "$clean_file")"
+
+    # Оптимизация под WebP для арт-карт
+    magick "$clean_file" \
+    -resize "688x1024>" \
+    -strip \
+    -quality 72 \
+    -define webp:method=6 \
+    "$TARGET/${base_name}.webp"
+
+    echo "Сконвертировано в WebP: ${base_name}.webp"
+done
+
+
+######AVIF######
+SOURCE="/Users/shako/Documents/TMA/smallcardsready"
+TARGET="/Users/shako/Documents/TMA/smallcardsoptimized"
+
+cd "$SOURCE"
+
+find . -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" \) | while read -r file; do
+    clean_file=$(echo "$file" | sed 's|^\./||')
+    base_name="${clean_file%.*}"
+    mkdir -p "$TARGET/$(dirname "$clean_file")"
+
+    magick "$clean_file" \
+    -resize "688x1024>" \
+    -strip \
+    -quality 65 \
+    "$TARGET/${base_name}.avif"
+
+    echo "Сконвертировано в AVIF: ${base_name}.avif"
+done
