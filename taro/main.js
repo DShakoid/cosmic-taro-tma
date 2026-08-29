@@ -112,38 +112,33 @@
     }
     
     function drawCard() {
-    // 1. Стандартные проверки
-    if (!currentMode || drawnCount >= maxCards || isAnimating) return;
+    // Проверяем только лимит вытянутых карт
+    if (!currentMode || drawnCount >= maxCards) return;
 
-    // 2. Ищем слот и колоду
-    const slot = document.getElementById('slot' + drawnCount);
+    // Фиксируем текущий индекс слота для ЭТОЙ конкретной карты
+    const targetIndex = drawnCount;
+    drawnCount++; // Сразу увеличиваем счетчик, чтобы следующий клик забирал следующий слот
+
+    const slot = document.getElementById('slot' + targetIndex);
     const deck = document.querySelector('.deck');
     
-    // ПРАВКА: Если слота или колоды нет, просто выходим без жесткого сброса стола!
     if (!slot || !deck) {
         console.warn("App: Слот или колода временно недоступны.");
+        drawnCount--; // Откатываем счетчик при ошибке
         return; 
     }
-
-    isAnimating = true;
-        
-    // 4. Берем координаты (теперь безопасно)
+    
     const deckRect = deck.getBoundingClientRect();
     const slotRect = slot.getBoundingClientRect();
     
-    // Удаляем подсветку активного слота
     slot.classList.remove('active-target');
-
-    // 5. Создаем частицы эффекта
     createParticles(deckRect.left + deckRect.width / 2, deckRect.top + deckRect.height / 2, '#a855f7');
 
-    // --- Дальше твоя логика выбора карты ---
     let cardData;
     const drawnIds = selectedCards.map(c => c.id);
     
     if (window.shuffledRemaining && window.shuffledRemaining.length > 0) {
-        cardData = window.shuffledRemaining[0];
-        window.shuffledRemaining.shift();
+        cardData = window.shuffledRemaining.shift();
     } else {
         const availableCards = tarotDB.cards.filter(c => !drawnIds.includes(c.id));
         cardData = availableCards[Math.floor(Math.random() * availableCards.length)];
@@ -152,54 +147,57 @@
     const isReversed = Math.random() < 0.25;
     const cardInstance = { ...cardData, isReversed };
     selectedCards.push(cardInstance);
-    drawnCount++;
 
-    // --- Создание элемента карты ---
+    // Создаем элемент летящей карты
     const card = document.createElement('div');
     card.className = `card-anim`;
     card.style.position = 'absolute';
-    card.style.zIndex = '1000';
+    card.style.zIndex = 1000 + targetIndex; // Чтобы каждая следующая карта летела НАД предыдущей
     card.style.left = deckRect.left + 'px';
     card.style.top = deckRect.top + 'px';
     card.style.width = deckRect.width + 'px';
     card.style.height = deckRect.height + 'px';
-    card.style.transition = 'all 0.8s cubic-bezier(0.23, 1, 0.32, 1)';
+    card.style.transition = 'all 0.6s cubic-bezier(0.23, 1, 0.32, 1)';
 
     const cardImg = cardData.image ? `/${cardData.image}` : '/taro/assets/back_card.jpg';
 
-        card.innerHTML = `
-            <div class="face back"></div>
-            <div class="face front" style="overflow: hidden; background: #1a1a2e;">
-                <div class="card-photo" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-image: url('${cardImg}'); background-size: cover; background-position: center; opacity: ${cardData.image ? 1 : 0.3}; transition: transform 0.8s cubic-bezier(0.23, 1, 0.32, 1);"></div>
-                ${!cardData.image ? `<div class="card-emoji">${cardData.emoji}</div>` : ''}
-                <div style="position: absolute; bottom: 0; left: 0; width: 100%; height: 40%; background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);"></div>
-                <div class="card-name" style="position: absolute; bottom: 8px; width: 95%; text-align: center; font-size: 0.45rem; font-weight: bold; color: #fff;">${cardData.name}</div>
-            </div>`;
+    card.innerHTML = `
+        <div class="face back"></div>
+        <div class="face front" style="overflow: hidden; background: #1a1a2e;">
+            <div class="card-photo" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-image: url('${cardImg}'); background-size: cover; background-position: center; opacity: ${cardData.image ? 1 : 0.3}; transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);"></div>
+            ${!cardData.image ? `<div class="card-emoji">${cardData.emoji}</div>` : ''}
+            <div style="position: absolute; bottom: 0; left: 0; width: 100%; height: 40%; background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);"></div>
+            <div class="card-name" style="position: absolute; bottom: 8px; width: 95%; text-align: center; font-size: 0.45rem; font-weight: bold; color: #fff;">${cardData.name}</div>
+        </div>`;
 
-        document.body.appendChild(card);
-        updatePrediction();
+    document.body.appendChild(card);
+    updatePrediction();
 
-        requestAnimationFrame(() => {
-            card.style.left = slotRect.left + 'px';
-            card.style.top = slotRect.top + 'px';
-            card.style.width = slotRect.width + 'px';
-            card.style.height = slotRect.height + 'px';
-            if (isReversed) card.classList.add('is-reversed');
-            card.classList.add('flipped');
-        });
+    // Подсвечиваем следующий слот заранее
+    const nextSlot = document.getElementById('slot' + drawnCount);
+    if (nextSlot) nextSlot.classList.add('active-target');
 
-        setTimeout(() => {
-            slot.appendChild(card);
-            card.style.position = 'absolute';
-            card.style.left = '0'; card.style.top = '0'; card.style.width = '100%'; card.style.height = '100%';
-            card.classList.add('arrived');
-            card.onclick = () => showModal(cardInstance);
-            createParticles(slotRect.left + slotRect.width / 2, slotRect.top + slotRect.height / 2, '#ec4899');
-            const nextSlot = document.getElementById('slot' + drawnCount);
-            if (nextSlot) nextSlot.classList.add('active-target');
-            isAnimating = false;
-        }, 800);
-    }
+    requestAnimationFrame(() => {
+        card.style.left = slotRect.left + 'px';
+        card.style.top = slotRect.top + 'px';
+        card.style.width = slotRect.width + 'px';
+        card.style.height = slotRect.height + 'px';
+        if (isReversed) card.classList.add('is-reversed');
+        card.classList.add('flipped');
+    });
+
+    setTimeout(() => {
+        slot.appendChild(card);
+        card.style.position = 'absolute';
+        card.style.left = '0'; 
+        card.style.top = '0'; 
+        card.style.width = '100%'; 
+        card.style.height = '100%';
+        card.classList.add('arrived');
+        card.onclick = () => showModal(cardInstance);
+        createParticles(slotRect.left + slotRect.width / 2, slotRect.top + slotRect.height / 2, '#ec4899');
+    }, 600);
+}
 
     function updatePrediction() {
         const box = document.getElementById('prediction-text');
@@ -216,18 +214,19 @@
         let personalNote = "";
         let comboNote = "";
 
-        if (birthDate) {
-            const day = getDayFromDate(birthDate);
-            const lastCard = selectedCards[selectedCards.length - 1];
-            if (lastCard) {
-                const isMasterCard = (lastCard.id === day || lastCard.id === (day % 22));
-                if (window.App.user.isVip) {
-                    personalNote = `<div style="margin-top:15px; padding:12px; border:1px solid gold; background: rgba(255,215,0,0.1); border-radius:12px;"><div style="color:gold; font-weight:bold; font-size:0.8rem; margin-bottom:5px;">🌟 VIP АНАЛИЗ ПО ДАТЕ:</div><div style="font-size:0.85rem; color:#fff;">${isMasterCard ? `Мистическое совпадение! Аркан ${lastCard.name} — ваш прямой покровитель.` : ''}${tarotDB.combos[`birthday+${lastCard.id}`] || 'Ваша дата рождения наделяет эту карту особым смыслом сегодня.'}</div></div>`;
-                } else {
-                    personalNote = isMasterCard ? `<div style="margin-top:10px; color: gold; font-size: 0.75rem;">✨ Вы вытянули свою карту рождения! Это добрый знак.</div>` : `<div style="margin-top:10px; font-style: italic; opacity: 0.6; font-size: 0.7rem; border-top: 1px solid #333; padding-top: 5px;">🎯 Рожденным ${day}-го числа эта карта сулит нечто важное. Детали в VIP-режиме.</div>`;
-                }
-            }
+        // Измени проверку наличия даты:
+if (birthDate && currentMode === 'birthday') {
+    const day = getDayFromDate(birthDate);
+    const lastCard = selectedCards[selectedCards.length - 1];
+    if (lastCard) {
+        const isMasterCard = (lastCard.id === day || lastCard.id === (day % 22));
+        if (window.App.user.isVip) {
+            personalNote = `<div style="margin-top:15px; padding:12px; border:1px solid gold; background: rgba(255,215,0,0.1); border-radius:12px;"><div style="color:gold; font-weight:bold; font-size:0.8rem; margin-bottom:5px;">🌟 VIP АНАЛИЗ ПО ДАТЕ:</div><div style="font-size:0.85rem; color:#fff;">${isMasterCard ? `Мистическое совпадение! Аркан ${lastCard.name} — ваш прямой покровитель.` : ''}${tarotDB.combos[`birthday+${lastCard.id}`] || 'Ваша дата рождения наделяет эту карту особым смыслом сегодня.'}</div></div>`;
+        } else {
+            personalNote = isMasterCard ? `<div style="margin-top:10px; color: gold; font-size: 0.75rem;">✨ Вы вытянули свою карту рождения! Это добрый знак.</div>` : `<div style="margin-top:10px; font-style: italic; opacity: 0.6; font-size: 0.7rem; border-top: 1px solid #333; padding-top: 5px;">🎯 Рожденным ${day}-го числа эта карта сулит нечто важное. Детали в VIP-режиме.</div>`;
         }
+    }
+}
 
         if (selectedCards.length >= 2) {
             for (let i = 0; i < selectedCards.length; i++) {
