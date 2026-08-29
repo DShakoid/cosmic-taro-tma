@@ -8,6 +8,18 @@
         --cosm-grad: linear-gradient(90deg, #a855f7 0%, #ec4899 100%);
     }
 
+/* Запрещает задержку клика и двойное масштабирование на всех кликабельных элементах */
+.deck, 
+.card-anim, 
+.slot, 
+.menu-btn, 
+button {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
 #fireflies-canvas {
     position: fixed; /* Фиксируем на весь экран */
     top: 0;
