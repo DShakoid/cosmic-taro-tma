@@ -66,3 +66,25 @@ find . -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" \) | while
 
     echo "Сконвертировано в AVIF: ${base_name}.avif"
 done
+
+
+SOURCE="/Users/shako/Documents/TMA/allready good"
+TARGET="/Users/shako/Documents/TMA/allready good_OPTIMIZED"
+
+cd "$SOURCE"
+
+find . -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" \) | while read -r file; do
+    clean_file=$(echo "$file" | sed 's|^\./||')
+    base_name="${clean_file%.*}"
+    mkdir -p "$TARGET/$(dirname "$clean_file")"
+
+    # Оптимизация под WebP для арт-карт
+    magick "$clean_file" \
+    -resize "688x1024>" \
+    -strip \
+    -quality 72 \
+    -define webp:method=6 \
+    "$TARGET/${base_name}.webp"
+
+    echo "Сконвертировано в WebP: ${base_name}.webp"
+done
