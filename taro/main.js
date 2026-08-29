@@ -161,14 +161,32 @@
 
     const cardImg = cardData.image ? `/${cardData.image}` : '/taro/assets/back_card.jpg';
 
-    card.innerHTML = `
-        <div class="face back"></div>
-        <div class="face front" style="overflow: hidden; background: #1a1a2e;">
-            <div class="card-photo" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-image: url('${cardImg}'); background-size: cover; background-position: center; opacity: ${cardData.image ? 1 : 0.3}; transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);"></div>
-            ${!cardData.image ? `<div class="card-emoji">${cardData.emoji}</div>` : ''}
-            <div style="position: absolute; bottom: 0; left: 0; width: 100%; height: 40%; background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);"></div>
-            <div class="card-name" style="position: absolute; bottom: 8px; width: 95%; text-align: center; font-size: 0.45rem; font-weight: bold; color: #fff;">${cardData.name}</div>
-        </div>`;
+    // Берем исходный путь из tarotDB (там у тебя .jpg)
+const originalJpg = cardData.image ? `/${cardData.image}` : '/taro/assets/back_card.jpg';
+// Динамически меняем расширение на .webp для приоритетной загрузки
+const webpImg = originalJpg.replace(/\.jpg$/i, '.webp');
+
+card.innerHTML = `
+    <div class="face back"></div>
+    <div class="face front" style="overflow: hidden; background: #1a1a2e;">
+        <div class="card-photo" 
+             style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-image: url('${webpImg}'); background-size: cover; background-position: center; opacity: ${cardData.image ? 1 : 0.3}; transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);">
+            <!-- Фоллбэк: если webp не загрузился, img переключит background-image на originalJpg -->
+            <img src="${webpImg}" style="display:none;" onerror="this.parentElement.style.backgroundImage='url(\'${originalJpg}\')';">
+        </div>
+        ${!cardData.image ? `<div class="card-emoji">${cardData.emoji}</div>` : ''}
+        <div style="position: absolute; bottom: 0; left: 0; width: 100%; height: 40%; background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);"></div>
+        <div class="card-name" style="position: absolute; bottom: 8px; width: 95%; text-align: center; font-size: 0.45rem; font-weight: bold; color: #fff;">${cardData.name}</div>
+    </div>`;
+
+//    card.innerHTML = `
+//        <div class="face back"></div>
+//        <div class="face front" style="overflow: hidden; background: #1a1a2e;">
+//            <div class="card-photo" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-image: url('${cardImg}'); background-size: cover; background-position: center; opacity: ${cardData.image ? 1 : 0.3}; transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);"></div>
+//            ${!cardData.image ? `<div class="card-emoji">${cardData.emoji}</div>` : ''}
+ //           <div style="position: absolute; bottom: 0; left: 0; width: 100%; height: 40%; background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);"></div>
+  //          <div class="card-name" style="position: absolute; bottom: 8px; width: 95%; text-align: center; font-size: 0.45rem; font-weight: bold; color: #fff;">${cardData.name}</div>
+ //       </div>`;
 
     document.body.appendChild(card);
     updatePrediction();
@@ -336,20 +354,40 @@ if (birthDate && currentMode === 'birthday') {
     }
 
     function showModal(card) {
-        const modalImage = document.getElementById('m-image');
-        const modalEmoji = document.getElementById('m-emoji');
-        if (card.image) {
-            if (modalImage) { modalImage.style.backgroundImage = `url('/${card.image}')`; modalImage.style.display = 'block'; }
-            if (modalEmoji) modalEmoji.style.display = 'none';
-        } else {
-            if (modalEmoji) { modalEmoji.innerText = card.emoji; modalEmoji.style.display = 'block'; }
-            if (modalImage) modalImage.style.display = 'none';
+    const modalImage = document.getElementById('m-image');
+    const modalEmoji = document.getElementById('m-emoji');
+    
+    if (card.image) {
+        const originalJpg = `/${card.image}`;
+        const webpImg = originalJpg.replace(/\.jpg$/i, '.webp');
+
+        if (modalImage) { 
+            // Пробуем поставить WebP
+            modalImage.style.backgroundImage = `url('${webpImg}')`; 
+            modalImage.style.display = 'block';
+
+            // Проверяем доступность WebP
+            const testImg = new Image();
+            testImg.src = webpImg;
+            testImg.onerror = () => {
+                // Если WebP не грузится, ставим ориг JPG из tarotDB
+                modalImage.style.backgroundImage = `url('${originalJpg}')`;
+            };
         }
-        document.getElementById('m-name').innerText = card.name + (card.isReversed ? ' (пер.)' : '');
-        document.getElementById('m-desc').innerHTML = card.isReversed ? card.advice_rev : card.advice;
-        document.getElementById('card-overlay').classList.add('active');
-        if (window.Telegram?.WebApp?.HapticFeedback) window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
+        if (modalEmoji) modalEmoji.style.display = 'none';
+    } else {
+        if (modalEmoji) { 
+            modalEmoji.innerText = card.emoji; 
+            modalEmoji.style.display = 'block'; 
+        }
+        if (modalImage) modalImage.style.display = 'none';
     }
+
+    document.getElementById('m-name').innerText = card.name + (card.isReversed ? ' (пер.)' : '');
+    document.getElementById('m-desc').innerHTML = card.isReversed ? card.advice_rev : card.advice;
+    document.getElementById('card-overlay').classList.add('active');
+    if (window.Telegram?.WebApp?.HapticFeedback) window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
+}
 
     function closeModal() { document.getElementById('card-overlay').classList.remove('active'); }
     function closeHistoryModal() { document.getElementById('history-modal').classList.remove('active'); }
